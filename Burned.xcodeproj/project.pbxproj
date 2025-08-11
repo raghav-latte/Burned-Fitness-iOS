@@ -6,13 +6,32 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		D79FD98C2E49C804000D2333 /* OneSignalFramework in Frameworks */ = {isa = PBXBuildFile; productRef = D79FD98B2E49C804000D2333 /* OneSignalFramework */; };
+		D79FD98E2E49C804000D2333 /* OneSignalInAppMessages in Frameworks */ = {isa = PBXBuildFile; productRef = D79FD98D2E49C804000D2333 /* OneSignalInAppMessages */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		D79FD9572E49BDD1000D2333 /* Burned.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Burned.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D79FD9662E49BE80000D2333 /* HealthKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HealthKit.framework; path = System/Library/Frameworks/HealthKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		D79FD9852E49C2E7000D2333 /* Exceptions for "Burned" folder in "Burned" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = D79FD9562E49BDD1000D2333 /* Burned */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		D79FD9592E49BDD1000D2333 /* Burned */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				D79FD9852E49C2E7000D2333 /* Exceptions for "Burned" folder in "Burned" target */,
+			);
 			path = Burned;
 			sourceTree = "<group>";
 		};
@@ -23,6 +42,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D79FD98E2E49C804000D2333 /* OneSignalInAppMessages in Frameworks */,
+				D79FD98C2E49C804000D2333 /* OneSignalFramework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -34,6 +55,7 @@
 			children = (
 				D79FD9592E49BDD1000D2333 /* Burned */,
 				D79FD9582E49BDD1000D2333 /* Products */,
+				D79FD9672E49BE80000D2333 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -43,6 +65,14 @@
 				D79FD9572E49BDD1000D2333 /* Burned.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		D79FD9672E49BE80000D2333 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				D79FD9662E49BE80000D2333 /* HealthKit.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -65,6 +95,8 @@
 			);
 			name = Burned;
 			packageProductDependencies = (
+				D79FD98B2E49C804000D2333 /* OneSignalFramework */,
+				D79FD98D2E49C804000D2333 /* OneSignalInAppMessages */,
 			);
 			productName = Burned;
 			productReference = D79FD9572E49BDD1000D2333 /* Burned.app */;
@@ -94,6 +126,9 @@
 			);
 			mainGroup = D79FD94E2E49BDD1000D2333;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				D79FD98A2E49C804000D2333 /* XCRemoteSwiftPackageReference "OneSignal-iOS-SDK" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D79FD9582E49BDD1000D2333 /* Products */;
 			projectDirPath = "";
@@ -251,11 +286,15 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Burned/Burned.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = DDM6T9JRUS;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Burned/Info.plist;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "This app uses your health data to create personalized fitness roasts and motivation based on your activity levels, heart rate, and sleep patterns.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "This app may update your health data for tracking purposes.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -279,11 +318,15 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Burned/Burned.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = DDM6T9JRUS;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Burned/Info.plist;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "This app uses your health data to create personalized fitness roasts and motivation based on your activity levels, heart rate, and sleep patterns.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "This app may update your health data for tracking purposes.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -324,6 +367,30 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		D79FD98A2E49C804000D2333 /* XCRemoteSwiftPackageReference "OneSignal-iOS-SDK" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/OneSignal/OneSignal-iOS-SDK";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.2.14;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		D79FD98B2E49C804000D2333 /* OneSignalFramework */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D79FD98A2E49C804000D2333 /* XCRemoteSwiftPackageReference "OneSignal-iOS-SDK" */;
+			productName = OneSignalFramework;
+		};
+		D79FD98D2E49C804000D2333 /* OneSignalInAppMessages */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D79FD98A2E49C804000D2333 /* XCRemoteSwiftPackageReference "OneSignal-iOS-SDK" */;
+			productName = OneSignalInAppMessages;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = D79FD94F2E49BDD1000D2333 /* Project object */;
 }
