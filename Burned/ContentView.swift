@@ -18,45 +18,240 @@ struct ContentView: View {
                     Text("Home")
                 }
             
-            HeartRateTab()
+            ExploreTab()
                 .tabItem {
-                    Image(systemName: "heart.fill")
-                    Text("Heart Rate")
+                    Image(systemName: "safari.fill")
+                    Text("Explore")
                 }
             
-            DurationTab()
+            SettingsTab()
                 .tabItem {
-                    Image(systemName: "timer")
-                    Text("Duration")
+                    Image(systemName: "gearshape.fill")
+                    Text("Settings")
                 }
             
-            PaceTab()
+            SummaryTab()
                 .tabItem {
-                    Image(systemName: "speedometer")
-                    Text("Pace")
-                }
-            
-            CaloriesTab()
-                .tabItem {
-                    Image(systemName: "flame.fill")
-                    Text("Calories")
-                }
-            
-            ConsistencyTab()
-                .tabItem {
-                    Image(systemName: "chart.line.uptrend.xyaxis")
-                    Text("Consistency")
-                }
-            
-            TestTab()
-                .tabItem {
-                    Image(systemName: "bell.badge")
-                    Text("Test")
+                    Image(systemName: "chart.bar.fill")
+                    Text("Summary")
                 }
         }
+        .accentColor(.orange)
         .onAppear {
             healthKitManager.requestAuthorization()
+            configureTabBarAppearance()
         }
+    }
+    
+    private func configureTabBarAppearance() {
+        let appearance = UITabBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = UIColor.black
+        
+        // Normal state
+        appearance.stackedLayoutAppearance.normal.iconColor = UIColor.gray
+        appearance.stackedLayoutAppearance.normal.titleTextAttributes = [
+            .foregroundColor: UIColor.gray
+        ]
+        
+        // Selected state
+        appearance.stackedLayoutAppearance.selected.iconColor = UIColor.systemOrange
+        appearance.stackedLayoutAppearance.selected.titleTextAttributes = [
+            .foregroundColor: UIColor.systemOrange
+        ]
+        
+        UITabBar.appearance().standardAppearance = appearance
+        UITabBar.appearance().scrollEdgeAppearance = appearance
+    }
+}
+
+struct ExploreTab: View {
+    @State private var selectedPersona = 0
+    @StateObject private var speechManager = ElevenLabsManager.shared
+    
+    private let personas = [
+        (emoji: "🔥", name: "Savage", tagline: "No mercy mode", preview: "You're not ready for this level of brutal honesty."),
+        (emoji: "😈", name: "Brutal", tagline: "Maximum damage", preview: "I specialize in crushing dreams and fitness goals equally."),
+        (emoji: "💀", name: "Ruthless", tagline: "Emotional destruction", preview: "Your workout routine is as dead as my patience."),
+        (emoji: "🤡", name: "Sarcastic", tagline: "Witty roasts", preview: "Oh wow, another 'I'll start Monday' story. Riveting.")
+    ]
+    
+    private let challenges = [
+        "Survive 30 days without excuses",
+        "Beat your laziest week record",
+        "Burn more calories than you make excuses",
+        "Take more steps than selfies"
+    ]
+    
+    var body: some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+            
+            ScrollView {
+                VStack(spacing: 40) {
+                    VStack(spacing: 8) {
+                        Text("Choose Your Roaster")
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                        
+                        Text("Pick the personality that will destroy your excuses")
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+                    }
+                    .padding(.top, 20)
+                    
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 20) {
+                            ForEach(Array(personas.enumerated()), id: \.offset) { index, persona in
+                                PersonalityCardView(
+                                    persona: persona,
+                                    isSelected: selectedPersona == index,
+                                    speechManager: speechManager
+                                ) {
+                                    withAnimation(.spring()) {
+                                        selectedPersona = index
+                                    }
+                                }
+                            }
+                        }
+                        .padding(.horizontal, 20)
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 20) {
+                        HStack {
+                            Text("Challenges")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                            Spacer()
+                        }
+                        .padding(.horizontal, 20)
+                        
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 16) {
+                                ForEach(challenges, id: \.self) { challenge in
+                                    ChallengeCardView(challenge: challenge)
+                                }
+                            }
+                            .padding(.horizontal, 20)
+                        }
+                    }
+                    
+                    Spacer(minLength: 40)
+                }
+            }
+        }
+    }
+}
+
+struct PersonalityCardView: View {
+    let persona: (emoji: String, name: String, tagline: String, preview: String)
+    let isSelected: Bool
+    let speechManager: ElevenLabsManager
+    let action: () -> Void
+    
+    var body: some View {
+        VStack(spacing: 16) {
+            ZStack {
+                Circle()
+                    .fill(LinearGradient(
+                        gradient: Gradient(colors: isSelected ? [.orange, .red] : [.gray.opacity(0.3), .gray.opacity(0.1)]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ))
+                    .frame(width: 100, height: 100)
+                    .scaleEffect(isSelected ? 1.1 : 1.0)
+                    .animation(.spring(), value: isSelected)
+                
+                Text(persona.emoji)
+                    .font(.system(size: 50))
+                    .scaleEffect(isSelected ? 1.2 : 1.0)
+                    .animation(.spring(), value: isSelected)
+            }
+            
+            VStack(spacing: 8) {
+                Text(persona.name)
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                
+                Text(persona.tagline)
+                    .font(.caption)
+                    .foregroundColor(isSelected ? .orange : .gray)
+                    .fontWeight(.medium)
+            }
+            
+            Button(action: {
+                speechManager.speakRoast(persona.preview)
+            }) {
+                HStack(spacing: 8) {
+                    Image(systemName: speechManager.isSpeaking ? "speaker.wave.2.fill" : "play.fill")
+                        .font(.caption)
+                    Text("Preview")
+                        .font(.caption)
+                        .fontWeight(.medium)
+                }
+                .foregroundColor(isSelected ? .black : .white)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(
+                    RoundedRectangle(cornerRadius: 20)
+                        .fill(isSelected ? Color.white : Color.clear)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                        )
+                )
+            }
+            .disabled(speechManager.isSpeaking)
+        }
+        .frame(width: 160)
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color(.systemGray6).opacity(0.05))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(isSelected ? Color.orange.opacity(0.5) : Color.clear, lineWidth: 2)
+                )
+        )
+        .onTapGesture {
+            action()
+        }
+    }
+}
+
+struct ChallengeCardView: View {
+    let challenge: String
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Image(systemName: "flame.fill")
+                    .foregroundColor(.orange)
+                Spacer()
+                Image(systemName: "arrow.right")
+                    .foregroundColor(.gray)
+                    .font(.caption)
+            }
+            
+            Text(challenge)
+                .font(.body)
+                .fontWeight(.medium)
+                .foregroundColor(.white)
+                .multilineTextAlignment(.leading)
+        }
+        .frame(width: 200)
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color(.systemGray6).opacity(0.1))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Color.orange.opacity(0.2), lineWidth: 1)
+                )
+        )
     }
 }
 
@@ -304,119 +499,190 @@ struct ConsistencyTab: View {
 struct HomeTab: View {
     @EnvironmentObject var healthKitManager: HealthKitManager
     @StateObject private var speechManager = ElevenLabsManager.shared
+    @State private var selectedPersona = "🔥"
+    
+    private let personas = [
+        ("🔥", "Savage", "No mercy mode"),
+        ("😈", "Brutal", "Maximum damage"),
+        ("💀", "Ruthless", "Emotional destruction"),
+        ("🤡", "Sarcastic", "Witty roasts")
+    ]
     
     var body: some View {
-        NavigationView {
-            VStack(spacing: 0) {
-                // Header with current stats
-                VStack(spacing: 15) {
-                    HStack {
-                        VStack(alignment: .leading) {
-                            Text("Today's Stats")
-                                .font(.headline)
-                                .foregroundColor(.primary)
-                            
-                            HStack(spacing: 20) {
-                                VStack {
-                                    Text("\(healthKitManager.stepCount)")
-                                        .font(.title2)
-                                        .fontWeight(.bold)
-                                        .foregroundColor(.blue)
-                                    Text("Steps")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                }
-                                
-                                VStack {
-                                    Text("\(Int(healthKitManager.heartRate))")
-                                        .font(.title2)
-                                        .fontWeight(.bold)
-                                        .foregroundColor(.red)
-                                    Text("BPM")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                }
-                                
-                                if let workout = healthKitManager.latestWorkout {
-                                    VStack {
-                                        Text("\(Int(workout.calories))")
-                                            .font(.title2)
-                                            .fontWeight(.bold)
-                                            .foregroundColor(.orange)
-                                        Text("Calories")
-                                            .font(.caption)
-                                            .foregroundColor(.secondary)
-                                    }
-                                }
-                            }
-                        }
-                        Spacer()
-                        
-                        Button(action: {
-                            let roast = healthKitManager.getCurrentRoast()
-                            speechManager.speakRoast(roast)
-                        }) {
-                            VStack {
-                                if speechManager.isLoading {
-                                    ProgressView()
-                                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                                        .scaleEffect(0.8)
-                                } else {
-                                    Image(systemName: speechManager.isSpeaking ? "speaker.wave.3.fill" : "speaker.2.fill")
-                                        .font(.title2)
-                                        .foregroundColor(.white)
-                                }
-                                Text("Roast Me")
-                                    .font(.caption)
-                                    .foregroundColor(.white)
-                            }
-                            .padding()
-                            .background(
-                                LinearGradient(
+        ZStack {
+            Color.black.ignoresSafeArea()
+            
+            ScrollView {
+                VStack(spacing: 40) {
+                    // Hero Roast Banner
+                    VStack(spacing: 20) {
+                        // Animated persona avatar
+                        ZStack {
+                            Circle()
+                                .fill(LinearGradient(
                                     gradient: Gradient(colors: [.orange, .red]),
                                     startPoint: .topLeading,
                                     endPoint: .bottomTrailing
-                                )
-                            )
-                            .cornerRadius(12)
+                                ))
+                                .frame(width: 120, height: 120)
+                                .scaleEffect(speechManager.isSpeaking ? 1.1 : 1.0)
+                                .animation(.easeInOut(duration: 0.5).repeatForever(autoreverses: true), value: speechManager.isSpeaking)
+                            
+                            Text(selectedPersona)
+                                .font(.system(size: 60))
+                                .scaleEffect(speechManager.isSpeaking ? 1.2 : 1.0)
+                                .animation(.easeInOut(duration: 0.3), value: speechManager.isSpeaking)
                         }
-                        .disabled(speechManager.isSpeaking || speechManager.isLoading)
-                    }
-                }
-                .padding()
-                .background(Color(.systemGray6))
-                
-                // Workout History List
-                if healthKitManager.workoutHistory.isEmpty {
-                    VStack(spacing: 20) {
-                        Spacer()
-                        Image(systemName: "figure.run")
-                            .font(.system(size: 60))
-                            .foregroundColor(.gray)
-                        Text("No workouts found")
+                        
+                        // Dynamic roast text
+                        Text(speechManager.isSpeaking ? "Roasting you..." : "Ready to get burned?")
                             .font(.title2)
-                            .fontWeight(.medium)
-                            .foregroundColor(.secondary)
-                        Text("Start working out to get roasted!")
-                            .font(.body)
-                            .foregroundColor(.secondary)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
                             .multilineTextAlignment(.center)
-                        Spacer()
+                            .opacity(speechManager.isLoading ? 0.5 : 1.0)
                     }
-                    .padding()
-                } else {
-                    List(healthKitManager.workoutHistory) { workout in
-                        WorkoutRowView(workout: workout, speechManager: speechManager)
-                            .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                    .padding(.top, 20)
+                    
+                    // Three Big Stat Blocks
+                    VStack(spacing: 20) {
+                        // Steps Block
+                        StatBlockView(
+                            title: "STEPS",
+                            value: "\(healthKitManager.stepCount)",
+                            color: .blue,
+                            icon: "figure.walk"
+                        ) {
+                            let roast = RoastGenerator.generateStepRoast(stepCount: healthKitManager.stepCount)
+                            speechManager.speakRoast(roast)
+                        }
+                        
+                        // Calories Block
+                        StatBlockView(
+                            title: "CALORIES",
+                            value: "\(Int(healthKitManager.latestWorkout?.calories ?? 0))",
+                            color: .orange,
+                            icon: "flame.fill"
+                        ) {
+                            let roast = RoastGenerator.generateCalorieRoast(calories: healthKitManager.latestWorkout?.calories ?? 0)
+                            speechManager.speakRoast(roast)
+                        }
+                        
+                        // Workout Time Block
+                        StatBlockView(
+                            title: "WORKOUT TIME",
+                            value: formatDuration(healthKitManager.latestWorkout?.duration ?? 0),
+                            color: .green,
+                            icon: "timer"
+                        ) {
+                            let roast = RoastGenerator.generateDurationRoast(duration: healthKitManager.latestWorkout?.duration ?? 0)
+                            speechManager.speakRoast(roast)
+                        }
                     }
-                    .listStyle(PlainListStyle())
+                    .padding(.horizontal, 20)
+                    
+                    // Burn Me Again Button
+                    Button(action: {
+                        let roast = healthKitManager.getCurrentRoast()
+                        speechManager.speakRoast(roast)
+                    }) {
+                        HStack(spacing: 12) {
+                            if speechManager.isLoading {
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle(tint: .black))
+                                    .scaleEffect(0.8)
+                            } else {
+                                Image(systemName: speechManager.isSpeaking ? "speaker.wave.3.fill" : "flame.fill")
+                                    .font(.title2)
+                                    .foregroundColor(.black)
+                            }
+                            
+                            Text("BURN ME AGAIN")
+                                .font(.title3)
+                                .fontWeight(.bold)
+                                .foregroundColor(.black)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 20)
+                        .background(
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(LinearGradient(
+                                    gradient: Gradient(colors: [.orange, .red]),
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                ))
+                        )
+                        .scaleEffect(speechManager.isSpeaking ? 0.95 : 1.0)
+                        .animation(.easeInOut(duration: 0.1), value: speechManager.isSpeaking)
+                    }
+                    .disabled(speechManager.isSpeaking || speechManager.isLoading)
+                    .padding(.horizontal, 20)
+                    
+                    Spacer(minLength: 40)
                 }
-            }
-            .navigationTitle("🔥 Burned")
-            .onAppear {
-                healthKitManager.fetchWorkoutHistory()
             }
         }
+        .onAppear {
+            healthKitManager.fetchWorkoutHistory()
+        }
+    }
+    
+    private func formatDuration(_ duration: TimeInterval) -> String {
+        let minutes = Int(duration) / 60
+        if minutes == 0 {
+            return "0m"
+        }
+        return "\(minutes)m"
+    }
+}
+
+struct StatBlockView: View {
+    let title: String
+    let value: String
+    let color: Color
+    let icon: String
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 16) {
+                HStack {
+                    Image(systemName: icon)
+                        .font(.title2)
+                        .foregroundColor(color)
+                    
+                    Spacer()
+                    
+                    Text("TAP TO ROAST")
+                        .font(.caption)
+                        .fontWeight(.medium)
+                        .foregroundColor(.gray)
+                }
+                
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(title)
+                        .font(.caption)
+                        .fontWeight(.medium)
+                        .foregroundColor(.gray)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    
+                    Text(value)
+                        .font(.system(size: 48, weight: .bold, design: .rounded))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+            }
+            .padding(24)
+            .background(
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(Color(.systemGray6).opacity(0.1))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 20)
+                            .stroke(color.opacity(0.3), lineWidth: 1)
+                    )
+            )
+        }
+        .buttonStyle(PlainButtonStyle())
     }
 }
 
@@ -714,6 +980,360 @@ struct TestTab: View {
                     self.notificationStatus = "Unknown permission status"
                 }
             }
+        }
+    }
+}
+
+struct SettingsTab: View {
+    @State private var roastIntensity: Double = 3.0
+    @State private var notificationStyle: Int = 0
+    @State private var autoPostToX: Bool = false
+    @State private var reminderFrequency: Double = 4.0
+    
+    private let notificationStyles = ["Ping me when I'm lazy", "Humiliate me publicly"]
+    private let intensityEmojis = ["🙂", "😐", "😬", "🔥", "💀"]
+    
+    var body: some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+            
+            ScrollView {
+                VStack(spacing: 32) {
+                    VStack(spacing: 8) {
+                        Text("Settings")
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                        
+                        Text("Configure your destruction preferences")
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+                    }
+                    .padding(.top, 20)
+                    
+                    VStack(spacing: 24) {
+                        NewSettingCardView {
+                            VStack(alignment: .leading, spacing: 16) {
+                                HStack {
+                                    Text("Roast Intensity")
+                                        .font(.headline)
+                                        .foregroundColor(.white)
+                                    Spacer()
+                                    Text(intensityEmojis[min(Int(roastIntensity), intensityEmojis.count - 1)])
+                                        .font(.title2)
+                                }
+                                
+                                HStack {
+                                    Text("Gentle")
+                                        .font(.caption)
+                                        .foregroundColor(.gray)
+                                    
+                                    Slider(value: $roastIntensity, in: 0...4, step: 1)
+                                        .accentColor(.orange)
+                                    
+                                    Text("Savage")
+                                        .font(.caption)
+                                        .foregroundColor(.gray)
+                                }
+                            }
+                        }
+                        
+                        NewSettingCardView {
+                            VStack(alignment: .leading, spacing: 16) {
+                                Text("Notification Style")
+                                    .font(.headline)
+                                    .foregroundColor(.white)
+                                
+                                Picker("Notification Style", selection: $notificationStyle) {
+                                    ForEach(Array(notificationStyles.enumerated()), id: \.offset) { index, style in
+                                        Text(style)
+                                            .foregroundColor(.white)
+                                            .tag(index)
+                                    }
+                                }
+                                .pickerStyle(SegmentedPickerStyle())
+                            }
+                        }
+                        
+                        NewSettingCardView {
+                            VStack(alignment: .leading, spacing: 16) {
+                                HStack {
+                                    Text("Reminder Frequency")
+                                        .font(.headline)
+                                        .foregroundColor(.white)
+                                    Spacer()
+                                    Text("\(Int(reminderFrequency))h")
+                                        .font(.caption)
+                                        .foregroundColor(.orange)
+                                }
+                                
+                                HStack {
+                                    Text("1h")
+                                        .font(.caption)
+                                        .foregroundColor(.gray)
+                                    
+                                    Slider(value: $reminderFrequency, in: 1...12, step: 1)
+                                        .accentColor(.orange)
+                                    
+                                    Text("12h")
+                                        .font(.caption)
+                                        .foregroundColor(.gray)
+                                }
+                            }
+                        }
+                        
+                        NewSettingCardView {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("Auto-Post to X")
+                                        .font(.headline)
+                                        .foregroundColor(.white)
+                                    Text("Share your shame automatically")
+                                        .font(.caption)
+                                        .foregroundColor(.gray)
+                                }
+                                
+                                Spacer()
+                                
+                                Toggle("", isOn: $autoPostToX)
+                                    .toggleStyle(SwitchToggleStyle(tint: .orange))
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                    
+                    VStack(spacing: 16) {
+                        Text("Burned is not responsible for hurt feelings.")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                            .multilineTextAlignment(.center)
+                        
+                        Button("Reset All Settings") {
+                            withAnimation {
+                                roastIntensity = 3.0
+                                notificationStyle = 0
+                                autoPostToX = false
+                                reminderFrequency = 4.0
+                            }
+                        }
+                        .font(.caption)
+                        .foregroundColor(.red)
+                    }
+                    .padding(.horizontal, 20)
+                    
+                    Spacer(minLength: 40)
+                }
+            }
+        }
+    }
+}
+
+struct NewSettingCardView<Content: View>: View {
+    let content: Content
+    
+    init(@ViewBuilder content: () -> Content) {
+        self.content = content()
+    }
+    
+    var body: some View {
+        content
+            .padding(20)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color(.systemGray6).opacity(0.1))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(Color.orange.opacity(0.2), lineWidth: 1)
+                    )
+            )
+    }
+}
+
+struct SummaryTab: View {
+    @EnvironmentObject var healthKitManager: HealthKitManager
+    @StateObject private var speechManager = ElevenLabsManager.shared
+    
+    var body: some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+            
+            ScrollView {
+                VStack(spacing: 40) {
+                    VStack(spacing: 8) {
+                        Text("Daily Summary")
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                        
+                        Text("Your complete failure analysis")
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+                    }
+                    .padding(.top, 20)
+                    
+                    VStack(spacing: 30) {
+                        Text(generateDailySummaryRoast())
+                            .font(.title3)
+                            .fontWeight(.medium)
+                            .foregroundColor(.white)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 30)
+                            .background(
+                                RoundedRectangle(cornerRadius: 20)
+                                    .fill(Color(.systemGray6).opacity(0.1))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 20)
+                                            .stroke(Color.orange.opacity(0.3), lineWidth: 1)
+                                    )
+                            )
+                            .padding(.horizontal, 20)
+                        
+                        VStack(spacing: 20) {
+                            SummaryStatCard(
+                                title: "Steps",
+                                value: "\(healthKitManager.stepCount)",
+                                subtitle: "Barely counts as movement",
+                                color: .blue
+                            )
+                            
+                            SummaryStatCard(
+                                title: "Calories",
+                                value: "\(Int(healthKitManager.latestWorkout?.calories ?? 0))",
+                                subtitle: "Could be offset by a breath mint",
+                                color: .orange
+                            )
+                            
+                            SummaryStatCard(
+                                title: "Workout Time",
+                                value: formatDuration(healthKitManager.latestWorkout?.duration ?? 0),
+                                subtitle: "Commercials last longer",
+                                color: .green
+                            )
+                        }
+                        .padding(.horizontal, 20)
+                        
+                        Button(action: {
+                            let roast = generateDailySummaryRoast()
+                            speechManager.speakRoast(roast)
+                        }) {
+                            HStack(spacing: 12) {
+                                if speechManager.isLoading {
+                                    ProgressView()
+                                        .progressViewStyle(CircularProgressViewStyle(tint: .black))
+                                        .scaleEffect(0.8)
+                                } else {
+                                    Image(systemName: "square.and.arrow.up")
+                                        .font(.title2)
+                                        .foregroundColor(.black)
+                                }
+                                
+                                Text("SHARE ROAST")
+                                    .font(.title3)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.black)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 20)
+                            .background(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(LinearGradient(
+                                        gradient: Gradient(colors: [.orange, .red]),
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    ))
+                            )
+                        }
+                        .disabled(speechManager.isSpeaking || speechManager.isLoading)
+                        .padding(.horizontal, 20)
+                    }
+                    
+                    Spacer(minLength: 40)
+                }
+            }
+        }
+        .onAppear {
+            healthKitManager.fetchWorkoutHistory()
+        }
+    }
+    
+    private func generateDailySummaryRoast() -> String {
+        let steps = healthKitManager.stepCount
+        let calories = Int(healthKitManager.latestWorkout?.calories ?? 0)
+        let duration = healthKitManager.latestWorkout?.duration ?? 0
+        
+        if steps < 1000 && calories < 100 && duration < 600 {
+            return "Today's performance: Absolutely pathetic. You've redefined rock bottom."
+        } else if steps < 3000 {
+            return "\(steps) steps, \(calories) calories burned. Even my calculator is embarrassed by these numbers."
+        } else if calories < 200 {
+            return "\(calories) calories? You've burned more energy being disappointed in yourself."
+        } else {
+            return "Not completely terrible today. Don't let it go to your head - tomorrow you'll probably disappoint me again."
+        }
+    }
+    
+    private func formatDuration(_ duration: TimeInterval) -> String {
+        let minutes = Int(duration) / 60
+        if minutes == 0 {
+            return "0m"
+        }
+        return "\(minutes)m"
+    }
+}
+
+struct SummaryStatCard: View {
+    let title: String
+    let value: String
+    let subtitle: String
+    let color: Color
+    
+    var body: some View {
+        HStack(spacing: 16) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title.uppercased())
+                    .font(.caption)
+                    .fontWeight(.medium)
+                    .foregroundColor(.gray)
+                
+                Text(value)
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                
+                Text(subtitle)
+                    .font(.caption)
+                    .foregroundColor(.gray)
+            }
+            
+            Spacer()
+            
+            Circle()
+                .fill(color.opacity(0.2))
+                .frame(width: 60, height: 60)
+                .overlay(
+                    Image(systemName: iconForTitle(title))
+                        .font(.title2)
+                        .foregroundColor(color)
+                )
+        }
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color(.systemGray6).opacity(0.05))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(color.opacity(0.2), lineWidth: 1)
+                )
+        )
+    }
+    
+    private func iconForTitle(_ title: String) -> String {
+        switch title.lowercased() {
+        case "steps": return "figure.walk"
+        case "calories": return "flame.fill"
+        case "workout time": return "timer"
+        default: return "chart.bar.fill"
         }
     }
 }

@@ -176,4 +176,64 @@ class RoastGenerator {
         return specificCrossoverRoasts.randomElement()!
     }
     
+    static func generateStepRoast(stepCount: Int) -> String {
+        if stepCount < 500 {
+            let lowStepRoasts = [
+                "Step count so low I thought your phone was charging all day.",
+                "You've taken more screenshots than steps today.",
+                "Wow. You're single-handedly keeping the couch industry alive.",
+                "Fitbit would've just given up on you by now.",
+                "Your step counter is having an existential crisis.",
+                "Even statues move more than you do.",
+                "Your daily steps wouldn't even cover a grocery store aisle.",
+                "Houseplants are getting more exercise than you."
+            ]
+            return lowStepRoasts.randomElement()!
+        } else if stepCount < 2000 {
+            return "\\(stepCount) steps? That's cute. Most people walk more just thinking about exercise."
+        } else if stepCount < 5000 {
+            return "\\(stepCount) steps today. You're basically a professional couch potato with delusions of activity."
+        } else {
+            return "\\(stepCount) steps? Not terrible, but let's see if you can keep this up for more than a day."
+        }
+    }
+    
+    static func generateCalorieRoast(calories: Double) -> String {
+        let cal = Int(calories)
+        if cal < 50 {
+            let lowCalRoasts = [
+                "\\(cal) calories? That's barely enough to power a night light.",
+                "You burned \\(cal) calories... hope that sip of water was worth it.",
+                "\\(cal) calories burned? Even thinking burns more than that.",
+                "\\(cal) calories? You've basically achieved negative productivity."
+            ]
+            return lowCalRoasts.randomElement()!
+        } else if cal < 150 {
+            return "\\(cal) calories? Congratulations, you've earned yourself exactly one bite of an apple."
+        } else if cal < 300 {
+            return "\\(cal) calories burned. That's almost impressive... for a sedentary lifestyle."
+        } else {
+            return "\\(cal) calories? Finally, some actual effort. Don't let it go to your head."
+        }
+    }
+    
+    static func generateDurationRoast(duration: TimeInterval) -> String {
+        let minutes = Int(duration) / 60
+        if minutes == 0 {
+            return "0 minutes? Did you even start, or just open the app by accident?"
+        } else if minutes < 15 {
+            let shortWorkoutRoasts = [
+                "\\(minutes) minutes? My toddler has longer attention spans.",
+                "\\(minutes)-minute workout? That's not exercise, that's a bathroom break.",
+                "\\(minutes) minutes of 'effort'? I've seen longer commercial breaks.",
+                "\\(minutes) minutes? Your commitment issues are showing."
+            ]
+            return shortWorkoutRoasts.randomElement()!
+        } else if minutes < 30 {
+            return "\\(minutes) minutes? Getting warmer, but you're still in amateur hour territory."
+        } else {
+            return "\\(minutes) minutes? Look at you actually putting in some time. Don't strain yourself."
+        }
+    }
+    
 }
