@@ -788,6 +788,32 @@ struct HomeTab: View {
                     }
                     .padding(.top, 20)
                     
+                    // Last Workout Section (if within 24 hours)
+                    if let lastWorkout = getLastWorkoutWithin24Hours() {
+                        VStack(alignment: .leading, spacing: 16) {
+                            HStack {
+                                Text("Last Workout")
+                                    .font(.title3)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                                Spacer()
+                                Text("Tap to roast")
+                                    .font(.caption)
+                                    .foregroundColor(.gray)
+                            }
+                            .padding(.horizontal, 20)
+                            
+                            HStack {
+                                Spacer()
+                                RecentWorkoutCardView(
+                                    workout: lastWorkout,
+                                    speechManager: speechManager
+                                )
+                                Spacer()
+                            }
+                        }
+                    }
+                    
                     // Three Big Stat Blocks
                     VStack(spacing: 20) {
                         // Steps Block
@@ -938,6 +964,15 @@ struct HomeTab: View {
             return "0m"
         }
         return "\(minutes)m"
+    }
+    
+    private func getLastWorkoutWithin24Hours() -> WorkoutHistoryItem? {
+        let now = Date()
+        let twentyFourHoursAgo = Calendar.current.date(byAdding: .hour, value: -24, to: now) ?? now
+        
+        return healthKitManager.workoutHistory.first { workout in
+            workout.date >= twentyFourHoursAgo
+        }
     }
 }
 
