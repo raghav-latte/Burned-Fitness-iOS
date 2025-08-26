@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>TECHNICAL_SPECIFICATIONS</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.1.0/github-markdown-light.min.css" />
+</head>
+<body>
+<h1 id="burned-technical-specifications">Burned: Technical
+Specifications</h1>
+<h2 id="architecture-overview">Architecture Overview</h2>
+<h3 id="system-architecture">System Architecture</h3>
+<pre><code>┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   iOS Client    │    │  Third-Party    │    │   Apple Health │
+│    (SwiftUI)    │◄──►│    Services     │    │     (HealthKit) │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+         │                       │
+         │              ┌─────────────────┐
+         └──────────────►│   ElevenLabs    │
+                        │      API        │
+                        └─────────────────┘
+                        ┌─────────────────┐
+                        │   OneSignal     │
+                        │      API        │
+                        └─────────────────┘</code></pre>
+<h2 id="frontend-architecture-ios">Frontend Architecture (iOS)</h2>
+<h3 id="technology-stack">Technology Stack</h3>
+<ul>
+<li><strong>Framework</strong>: SwiftUI (iOS 14.0+)</li>
+<li><strong>Language</strong>: Swift 5.7+</li>
+<li><strong>Architecture Pattern</strong>: MVVM
+(Model-View-ViewModel)</li>
+<li><strong>State Management</strong>: Combine Framework +
+ObservableObject</li>
+<li><strong>Deployment Target</strong>: iOS 14.0 minimum</li>
+</ul>
+<h3 id="key-components">Key Components</h3>
+<h4 id="app-structure">1. App Structure</h4>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode swift"><code class="sourceCode swift"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>BurnedApp<span class="op">.</span>swift                 <span class="co">// App entry point and initialization</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>├── ContentView<span class="op">.</span>swift          <span class="co">// Main tab container</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>├── Models<span class="op">/</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>│   └── Character<span class="op">.</span>swift        <span class="co">// Voice character definitions</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>├── ViewModels<span class="op">/</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>│   └── CharacterViewModel<span class="op">.</span>swift <span class="co">// Character selection logic</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>├── Views<span class="op">/</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>│   └── CharacterSelectionView<span class="op">.</span>swift <span class="co">// Character picker UI</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>└── Managers<span class="op">/</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    ├── HealthKitManager<span class="op">.</span>swift    <span class="co">// Health data integration</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    ├── ElevenLabsManager<span class="op">.</span>swift   <span class="co">// Voice synthesis</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    ├── NotificationManager<span class="op">.</span>swift <span class="co">// Local notifications</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    └── OneSignalManager<span class="op">.</span>swift    <span class="co">// Push notifications</span></span></code></pre></div>
+<h4 id="data-flow-architecture">2. Data Flow Architecture</h4>
+<pre><code>User Interaction → View → ViewModel → Manager → External Service
+                                   ↓
+Health Data ← HealthKitManager ← HealthKit Framework
+Voice Audio ← ElevenLabsManager ← ElevenLabs API
+Notifications ← NotificationManager ← UserNotifications Framework
+Push Notifications ← OneSignalManager ← OneSignal SDK</code></pre>
+<h3 id="core-managers">Core Managers</h3>
+<h4 id="healthkitmanager">HealthKitManager</h4>
+<ul>
+<li><strong>Purpose</strong>: Interface with Apple HealthKit for fitness
+data</li>
+<li><strong>Responsibilities</strong>:
+<ul>
+<li>Request health data permissions</li>
+<li>Fetch daily metrics (steps, calories, heart rate)</li>
+<li>Monitor workout sessions</li>
+<li>Retrieve 30-day workout history</li>
+<li>Background health data processing</li>
+</ul></li>
+</ul>
+<p><strong>Key Methods</strong>:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode swift"><code class="sourceCode swift"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">func</span> <span class="fu">requestAuthorization</span><span class="op">()</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">func</span> <span class="fu">fetchTodaysData</span><span class="op">()</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="kw">func</span> <span class="fu">getCurrentRoast</span><span class="op">()</span> -&gt; <span class="fu">String</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="kw">func</span> <span class="fu">checkForNewWorkoutAndNotify</span><span class="op">()</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="kw">func</span> <span class="fu">fetchWorkoutHistory</span><span class="op">()</span></span></code></pre></div>
+<h4 id="elevenlabsmanager">ElevenLabsManager</h4>
+<ul>
+<li><strong>Purpose</strong>: AI voice synthesis for character
+roasts</li>
+<li><strong>Responsibilities</strong>:
+<ul>
+<li>Manage voice character settings</li>
+<li>Convert text to speech via API</li>
+<li>Handle audio playback</li>
+<li>Manage loading and speaking states</li>
+</ul></li>
+</ul>
+<p><strong>API Integration</strong>:</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode swift"><code class="sourceCode swift"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Request Configuration</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>URL<span class="op">:</span> https<span class="op">:</span><span class="co">//api.elevenlabs.io/v1/text-to-speech/{voice_id}</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>Method<span class="op">:</span> POST</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>Headers<span class="op">:</span> </span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="op">-</span> Content<span class="op">-</span>Type<span class="op">:</span> application<span class="op">/</span>json</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="op">-</span> xi<span class="op">-</span>api<span class="op">-</span>key<span class="op">:</span> <span class="op">{</span>api_key<span class="op">}</span></span></code></pre></div>
+<p><strong>Voice Settings Per Character</strong>:</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode swift"><code class="sourceCode swift"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> VoiceSettings <span class="op">{</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> <span class="va">stability</span><span class="op">:</span> Double        <span class="co">// 0.0-1.0</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> <span class="va">similarityBoost</span><span class="op">:</span> Double  <span class="co">// 0.0-1.0  </span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> <span class="va">style</span><span class="op">:</span> Double           <span class="co">// 0.0-1.0</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> <span class="va">speakerBoost</span><span class="op">:</span> Bool      <span class="co">// true/false</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h4 id="roastgenerator">RoastGenerator</h4>
+<ul>
+<li><strong>Purpose</strong>: Generate contextual fitness roasts</li>
+<li><strong>Responsibilities</strong>:
+<ul>
+<li>Analyze health metrics</li>
+<li>Select appropriate roast based on performance</li>
+<li>Character-specific roast customization</li>
+<li>Multi-factor roast generation</li>
+</ul></li>
+</ul>
+<p><strong>Roast Categories</strong>: - No workout roasts (when user
+hasn’t exercised) - Duration-based roasts (short workouts) - Heart rate
+roasts (low intensity) - Calorie roasts (minimal burn) - Pace roasts
+(slow running) - Step count roasts (low activity) - Character-specific
+roasts (especially “Your Ex”)</p>
+<h2 id="data-models">Data Models</h2>
+<h3 id="character-model">Character Model</h3>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode swift"><code class="sourceCode swift"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> Character<span class="op">:</span> <span class="dt">Identifiable</span><span class="op">,</span> <span class="dt">Equatable</span> <span class="op">{</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> <span class="va">id</span><span class="op">:</span> UUID</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> <span class="va">name</span><span class="op">:</span> String</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> <span class="va">voiceId</span><span class="op">:</span> String          <span class="co">// ElevenLabs voice ID</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> <span class="va">description</span><span class="op">:</span> String</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> <span class="va">imageName</span><span class="op">:</span> String</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> <span class="va">voiceSettings</span><span class="op">:</span> VoiceSettings</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h3 id="workoutdata-model">WorkoutData Model</h3>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode swift"><code class="sourceCode swift"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> WorkoutData <span class="op">{</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> <span class="va">duration</span><span class="op">:</span> TimeInterval</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> <span class="va">distance</span><span class="op">:</span> Double</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> <span class="va">heartRate</span><span class="op">:</span> Double</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> <span class="va">calories</span><span class="op">:</span> Double</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> <span class="va">workoutType</span><span class="op">:</span> String</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h3 id="workouthistoryitem-model">WorkoutHistoryItem Model</h3>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode swift"><code class="sourceCode swift"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> WorkoutHistoryItem<span class="op">:</span> <span class="dt">Identifiable</span> <span class="op">{</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> <span class="va">id</span><span class="op">:</span> UUID</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> <span class="va">date</span><span class="op">:</span> Date</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> <span class="va">workoutType</span><span class="op">:</span> String</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> <span class="va">duration</span><span class="op">:</span> TimeInterval</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> <span class="va">distance</span><span class="op">:</span> Double</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> <span class="va">heartRate</span><span class="op">:</span> Double</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> <span class="va">calories</span><span class="op">:</span> Double</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h2 id="third-party-integrations">Third-Party Integrations</h2>
+<h3 id="elevenlabs-api">ElevenLabs API</h3>
+<ul>
+<li><strong>Service</strong>: Text-to-Speech voice synthesis</li>
+<li><strong>Pricing</strong>: Pay-per-use model (~$0.30 per 1K
+characters)</li>
+<li><strong>Rate Limits</strong>: 2 requests per second (free tier)</li>
+<li><strong>Voice Quality</strong>: Professional-grade AI voices</li>
+<li><strong>Latency</strong>: ~2-3 seconds response time</li>
+</ul>
+<p><strong>Character Voice Mappings</strong>:</p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode swift"><code class="sourceCode swift"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;Drill Sergeant&quot;</span> → <span class="st">&quot;DGzg6RaUqxGRTHSBjfgF&quot;</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;British Narrator&quot;</span> → <span class="st">&quot;WdZjiN0nNcik2LBjOHiv&quot;</span>  </span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;Your Ex&quot;</span> → <span class="st">&quot;T7eLpgAAhoXHlrNajG8v&quot;</span></span></code></pre></div>
+<h3 id="onesignal-push-notifications">OneSignal Push Notifications</h3>
+<ul>
+<li><strong>Service</strong>: Cross-platform push notification
+delivery</li>
+<li><strong>Features</strong>:
+<ul>
+<li>Scheduled notifications</li>
+<li>User segmentation</li>
+<li>A/B testing capabilities</li>
+<li>Rich media support</li>
+</ul></li>
+<li><strong>Integration</strong>: iOS SDK with automatic setup</li>
+</ul>
+<h3 id="apple-healthkit">Apple HealthKit</h3>
+<ul>
+<li><strong>Framework</strong>: Native iOS health data access</li>
+<li><strong>Permissions Required</strong>:
+<ul>
+<li>Step Count (HKQuantityType.stepCount)</li>
+<li>Heart Rate (HKQuantityType.heartRate)<br />
+</li>
+<li>Workout Sessions (HKObjectType.workoutType)</li>
+<li>Sleep Analysis (HKCategoryType.sleepAnalysis)</li>
+<li>Active Energy Burned (HKQuantityType.activeEnergyBurned)</li>
+<li>Distance Walking/Running
+(HKQuantityType.distanceWalkingRunning)</li>
+</ul></li>
+</ul>
+<p><strong>Data Fetching Strategy</strong>: - Real-time queries for
+current day metrics - Historical queries for workout analysis -
+Background app refresh for workout detection</p>
+<h2 id="background-processing">Background Processing</h2>
+<h3 id="ios-background-tasks">iOS Background Tasks</h3>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode swift"><code class="sourceCode swift"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>BGTaskScheduler Identifier<span class="op">:</span> <span class="st">&quot;com.niyat.Burned.workout-check&quot;</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>Frequency<span class="op">:</span> Every <span class="dv">4</span> hours</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>Purpose<span class="op">:</span> Detect new workouts and trigger notifications</span></code></pre></div>
+<h3 id="background-workflow">Background Workflow</h3>
+<ol type="1">
+<li>System triggers background refresh</li>
+<li>HealthKitManager fetches latest workout data</li>
+<li>Compare with previous workout state</li>
+<li>Generate appropriate roast (workout or no-workout)</li>
+<li>Schedule local notification</li>
+<li>Update app state for next launch</li>
+</ol>
+<h2 id="security-privacy">Security &amp; Privacy</h2>
+<h3 id="api-key-management">API Key Management</h3>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode swift"><code class="sourceCode swift"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Current Implementation (Development)</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="kw">let</span> <span class="va">apiKey</span> <span class="op">=</span> <span class="st">&quot;sk_718429774ae8d84a76e209e237172d4682f2be00995b05e0&quot;</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Production Implementation (Recommended)</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="kw">let</span> <span class="va">apiKey</span> <span class="op">=</span> Bundle<span class="op">.</span>main<span class="op">.</span>object<span class="op">(</span>forInfoDictionaryKey<span class="op">:</span> <span class="st">&quot;ELEVENLABS_API_KEY&quot;</span><span class="op">)</span> <span class="kw">as</span><span class="op">?</span> String</span></code></pre></div>
+<h3 id="health-data-privacy">Health Data Privacy</h3>
+<ul>
+<li><strong>Local Processing</strong>: All health data analysis
+performed on-device</li>
+<li><strong>Minimal Cloud Transmission</strong>: Only roast text sent to
+ElevenLabs</li>
+<li><strong>User Consent</strong>: Explicit HealthKit permission
+requests</li>
+<li><strong>Data Retention</strong>: No long-term health data
+storage</li>
+</ul>
+<h3 id="user-privacy-controls">User Privacy Controls</h3>
+<ul>
+<li><strong>Roast Intensity</strong>: 5-level scale (gentle to
+savage)</li>
+<li><strong>Notification Frequency</strong>: User-configurable
+timing</li>
+<li><strong>Character Selection</strong>: Full control over voice
+personality</li>
+<li><strong>Data Sharing</strong>: Optional social media
+integration</li>
+</ul>
+<h2 id="performance-considerations">Performance Considerations</h2>
+<h3 id="audio-caching-strategy">Audio Caching Strategy</h3>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode swift"><code class="sourceCode swift"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Current: No caching (fresh API calls)</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="co">// Recommended: Implement audio file caching for repeated roasts</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> AudioCache <span class="op">{</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="kw">var</span> <span class="va">cache</span><span class="op">:</span> <span class="op">[</span>String<span class="op">:</span> Data<span class="op">]</span> <span class="op">=</span> <span class="op">[:]</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">func</span> <span class="fu">cacheAudio</span><span class="op">(</span><span class="va">for</span> <span class="va">text</span><span class="op">:</span> <span class="dt">String</span><span class="op">,</span> <span class="va">data</span><span class="op">:</span> <span class="dt">Data</span><span class="op">)</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">func</span> <span class="fu">getCachedAudio</span><span class="op">(</span><span class="va">for</span> <span class="va">text</span><span class="op">:</span> <span class="dt">String</span><span class="op">)</span> -&gt; <span class="fu">Data</span>?</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h3 id="healthkit-query-optimization">HealthKit Query Optimization</h3>
+<ul>
+<li><strong>Batch Queries</strong>: Minimize individual API calls</li>
+<li><strong>Predicate Filtering</strong>: Date range and sample type
+restrictions</li>
+<li><strong>Background Limits</strong>: Respect iOS background execution
+time limits</li>
+</ul>
+<h3 id="memory-management">Memory Management</h3>
+<ul>
+<li><strong>Weak References</strong>: Prevent retain cycles in
+closures</li>
+<li><strong>Audio Player Cleanup</strong>: Proper AVAudioPlayer
+disposal</li>
+<li><strong>Large Data Handling</strong>: Stream workout history instead
+of loading all at once</li>
+</ul>
+<h2 id="development-environment">Development Environment</h2>
+<h3 id="build-configuration">Build Configuration</h3>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">Development</span><span class="kw">:</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">Bundle ID</span><span class="kw">:</span><span class="at"> com.niyat.Burned</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">Team ID</span><span class="kw">:</span><span class="at"> Developer Team ID</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">Provisioning</span><span class="kw">:</span><span class="at"> Development Profile</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">Signing</span><span class="kw">:</span><span class="at"> Automatic</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="fu">Production</span><span class="kw">:</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">Bundle ID</span><span class="kw">:</span><span class="at"> com.niyat.Burned</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">Team ID</span><span class="kw">:</span><span class="at"> Distribution Team ID  </span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">Provisioning</span><span class="kw">:</span><span class="at"> App Store Profile</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">Signing</span><span class="kw">:</span><span class="at"> Manual</span></span></code></pre></div>
+<h3 id="dependencies">Dependencies</h3>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode swift"><code class="sourceCode swift"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Package.swift dependencies</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>dependencies<span class="op">:</span> <span class="op">[</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span>package<span class="op">(</span>url<span class="op">:</span> <span class="st">&quot;https://github.com/OneSignal/OneSignal-iOS-SDK&quot;</span><span class="op">,</span> from<span class="op">:</span> <span class="st">&quot;3.0.0&quot;</span><span class="op">)</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="op">]</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="co">// Manual Integrations</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="op">-</span> ElevenLabs API <span class="op">(</span>REST API calls<span class="op">)</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="op">-</span> HealthKit Framework <span class="op">(</span>Native iOS<span class="op">)</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="op">-</span> AVFoundation <span class="op">(</span>Audio playback<span class="op">)</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="op">-</span> UserNotifications <span class="op">(</span>Local notifications<span class="op">)</span></span></code></pre></div>
+<h2 id="testing-strategy">Testing Strategy</h2>
+<h3 id="unit-testing">Unit Testing</h3>
+<ul>
+<li><strong>RoastGenerator</strong>: Test roast selection logic</li>
+<li><strong>HealthKitManager</strong>: Mock health data scenarios</li>
+<li><strong>ElevenLabsManager</strong>: API response handling</li>
+<li><strong>Character Models</strong>: Data validation</li>
+</ul>
+<h3 id="integration-testing">Integration Testing</h3>
+<ul>
+<li><strong>HealthKit Permissions</strong>: Authorization flow</li>
+<li><strong>Audio Playback</strong>: End-to-end voice synthesis</li>
+<li><strong>Background Tasks</strong>: Workout detection accuracy</li>
+<li><strong>Notification Delivery</strong>: Local and push
+notifications</li>
+</ul>
+<h3 id="ui-testing">UI Testing</h3>
+<ul>
+<li><strong>Tab Navigation</strong>: User flow between screens</li>
+<li><strong>Character Selection</strong>: Voice preview
+functionality</li>
+<li><strong>Settings Configuration</strong>: Preference persistence</li>
+<li><strong>Accessibility</strong>: VoiceOver support</li>
+</ul>
+<h2 id="deployment-pipeline">Deployment Pipeline</h2>
+<h3 id="app-store-requirements">App Store Requirements</h3>
+<ul>
+<li><strong>iOS Version Support</strong>: iOS 14.0+</li>
+<li><strong>Device Compatibility</strong>: iPhone and iPad</li>
+<li><strong>App Store Categories</strong>: Health &amp; Fitness,
+Entertainment</li>
+<li><strong>Content Rating</strong>: 12+ (Mild Language, Simulated
+Gambling)</li>
+</ul>
+<h3 id="release-process">Release Process</h3>
+<ol type="1">
+<li><strong>Development Build</strong>: Internal testing and
+validation</li>
+<li><strong>TestFlight Beta</strong>: External user testing program</li>
+<li><strong>App Store Review</strong>: Apple review process (7-14
+days)</li>
+<li><strong>Production Release</strong>: Public app store
+availability</li>
+</ol>
+<h3 id="monitoring-analytics">Monitoring &amp; Analytics</h3>
+<ul>
+<li><strong>Crash Reporting</strong>: Xcode Organizer / Crashlytics</li>
+<li><strong>Usage Analytics</strong>: Custom event tracking</li>
+<li><strong>Performance Monitoring</strong>: App launch time, API
+response times</li>
+<li><strong>User Feedback</strong>: App Store reviews and in-app
+feedback</li>
+</ul>
+<h2 id="scalability-considerations">Scalability Considerations</h2>
+<h3 id="api-cost-management">API Cost Management</h3>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode swift"><code class="sourceCode swift"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co">// ElevenLabs cost optimization</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="op">-</span> Character count limits per user</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="op">-</span> Audio caching <span class="cf">for</span> repeated roasts</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="op">-</span> Batch processing <span class="cf">for</span> multiple roasts</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="op">-</span> Usage analytics and cost monitoring</span></code></pre></div>
+<h3 id="user-base-growth">User Base Growth</h3>
+<ul>
+<li><strong>Background Task Limits</strong>: iOS system limitations on
+background refresh</li>
+<li><strong>Notification Rate Limits</strong>: OneSignal delivery
+quotas</li>
+<li><strong>HealthKit Query Performance</strong>: Optimize for large
+user bases</li>
+<li><strong>Server Infrastructure</strong>: Future backend API
+considerations</li>
+</ul>
+<h3 id="feature-expansion">Feature Expansion</h3>
+<ul>
+<li><strong>Additional Characters</strong>: Scalable voice character
+system</li>
+<li><strong>Cross-Platform</strong>: Android development
+considerations</li>
+<li><strong>Wearable Integration</strong>: Apple Watch and fitness
+tracker support</li>
+<li><strong>Social Features</strong>: User-generated content and sharing
+capabilities</li>
+</ul>
+<h2 id="future-technical-roadmap">Future Technical Roadmap</h2>
+<h3 id="phase-1-improvements">Phase 1 Improvements</h3>
+<ul>
+<li>Audio caching system implementation</li>
+<li>Background processing optimization</li>
+<li>Enhanced error handling and retry logic</li>
+<li>Performance monitoring integration</li>
+</ul>
+<h3 id="phase-2-enhancements">Phase 2 Enhancements</h3>
+<ul>
+<li>Custom voice character creation</li>
+<li>Advanced health data analysis (trends, patterns)</li>
+<li>Machine learning for personalized roast selection</li>
+<li>Social sharing and community features</li>
+</ul>
+<h3 id="phase-3-platform-expansion">Phase 3 Platform Expansion</h3>
+<ul>
+<li>Android application development</li>
+<li>Web dashboard for detailed analytics</li>
+<li>API backend for user data synchronization</li>
+<li>Enterprise/corporate wellness integration</li>
+</ul>
+<h2 id="risk-mitigation">Risk Mitigation</h2>
+<h3 id="technical-risks">Technical Risks</h3>
+<ol type="1">
+<li><strong>ElevenLabs API Downtime</strong>
+<ul>
+<li>Fallback to cached audio files</li>
+<li>Alternative TTS service integration</li>
+<li>Graceful degradation with text-only mode</li>
+</ul></li>
+<li><strong>iOS Background Limitations</strong>
+<ul>
+<li>Optimize background execution time</li>
+<li>Implement push notification fallbacks</li>
+<li>User education on background refresh settings</li>
+</ul></li>
+<li><strong>HealthKit Data Availability</strong>
+<ul>
+<li>Handle missing or incomplete data gracefully</li>
+<li>Provide manual data entry options</li>
+<li>Clear user guidance on data permissions</li>
+</ul></li>
+</ol>
+<h3 id="operational-risks">Operational Risks</h3>
+<ol type="1">
+<li><strong>High API Costs</strong>
+<ul>
+<li>Implement usage quotas per user</li>
+<li>Optimize character count in roasts</li>
+<li>Consider premium tier restrictions</li>
+</ul></li>
+<li><strong>App Store Rejection</strong>
+<ul>
+<li>Content review and moderation</li>
+<li>Compliance with App Store guidelines</li>
+<li>Age rating and content warnings</li>
+</ul></li>
+<li><strong>User Privacy Concerns</strong>
+<ul>
+<li>Transparent data usage policies</li>
+<li>Minimal data collection approach</li>
+<li>User control over all privacy settings</li>
+</ul></li>
+</ol>
+</body>
+</html>

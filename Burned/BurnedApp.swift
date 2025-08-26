@@ -11,11 +11,13 @@ import BackgroundTasks
 @main
 struct BurnedApp: App {
     @StateObject private var healthKitManager = HealthKitManager()
+    @StateObject private var characterViewModel = CharacterViewModel()
     
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environmentObject(healthKitManager)
+                .environmentObject(characterViewModel)
                 .onAppear {
                     // Initialize OneSignal
                     OneSignalManager.shared.initialize()

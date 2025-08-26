@@ -9,9 +9,11 @@ import SwiftUI
 
 struct ContentView: View {
     @EnvironmentObject var healthKitManager: HealthKitManager
+    @EnvironmentObject var characterViewModel: CharacterViewModel
     
     var body: some View {
-        TabView {
+        ZStack {
+            TabView {
             HomeTab()
                 .tabItem {
                     Image(systemName: "house.fill")
@@ -41,6 +43,21 @@ struct ContentView: View {
             healthKitManager.requestAuthorization()
             configureTabBarAppearance()
         }
+            
+            // Character selection overlay
+            if characterViewModel.selectedCharacter == nil || characterViewModel.showCharacterSelection {
+                CharacterSelectionView(selectedCharacter: Binding(
+                    get: { characterViewModel.selectedCharacter },
+                    set: { character in
+                        if let character = character {
+                            characterViewModel.selectCharacter(character)
+                        }
+                    }
+                ))
+                .transition(.move(edge: .bottom))
+                .zIndex(1)
+            }
+        }
     }
     
     private func configureTabBarAppearance() {
@@ -66,15 +83,11 @@ struct ContentView: View {
 }
 
 struct ExploreTab: View {
-    @State private var selectedPersona = 0
+    @State private var selectedCharacterIndex = 0
     @StateObject private var speechManager = ElevenLabsManager.shared
+    @EnvironmentObject var characterViewModel: CharacterViewModel
     
-    private let personas = [
-        (emoji: "🔥", name: "Savage", tagline: "No mercy mode", preview: "You're not ready for this level of brutal honesty."),
-        (emoji: "😈", name: "Brutal", tagline: "Maximum damage", preview: "I specialize in crushing dreams and fitness goals equally."),
-        (emoji: "💀", name: "Ruthless", tagline: "Emotional destruction", preview: "Your workout routine is as dead as my patience."),
-        (emoji: "🤡", name: "Sarcastic", tagline: "Witty roasts", preview: "Oh wow, another 'I'll start Monday' story. Riveting.")
-    ]
+    private let characters = Character.allCharacters
     
     private let challenges = [
         "Survive 30 days without excuses",
@@ -89,33 +102,21 @@ struct ExploreTab: View {
             
             ScrollView {
                 VStack(spacing: 40) {
-                    VStack(spacing: 8) {
+                    // Character Card Deck Section
+                    VStack(spacing: 20) {
                         Text("Choose Your Roaster")
                             .font(.largeTitle)
                             .fontWeight(.bold)
                             .foregroundColor(.white)
+                            .padding(.top, 20)
                         
-                        Text("Pick the personality that will destroy your excuses")
-                            .font(.subheadline)
-                            .foregroundColor(.gray)
-                    }
-                    .padding(.top, 20)
-                    
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 20) {
-                            ForEach(Array(personas.enumerated()), id: \.offset) { index, persona in
-                                PersonalityCardView(
-                                    persona: persona,
-                                    isSelected: selectedPersona == index,
-                                    speechManager: speechManager
-                                ) {
-                                    withAnimation(.spring()) {
-                                        selectedPersona = index
-                                    }
-                                }
-                            }
+                        CharacterCardDeckView(
+                            characters: characters,
+                            selectedIndex: $selectedCharacterIndex,
+                            speechManager: speechManager
+                        ) { character in
+                            characterViewModel.selectCharacter(character)
                         }
-                        .padding(.horizontal, 20)
                     }
                     
                     VStack(alignment: .leading, spacing: 20) {
@@ -141,6 +142,248 @@ struct ExploreTab: View {
                     Spacer(minLength: 40)
                 }
             }
+        }
+    }
+}
+
+struct CharacterCardDeckView: View {
+    let characters: [Character]
+    @Binding var selectedIndex: Int
+    let speechManager: ElevenLabsManager
+    let onCharacterSelect: (Character) -> Void
+    
+    var body: some View {
+        GeometryReader { geometry in
+            let cardWidth = geometry.size.width * 0.8
+            let cardHeight: CGFloat = 450
+            
+            ZStack {
+                ForEach(Array(characters.enumerated().reversed()), id: \.offset) { index, character in
+                    CharacterCardView(
+                        character: character,
+                        isSelected: selectedIndex == index,
+                        speechManager: speechManager
+                    ) {
+                        onCharacterSelect(character)
+                    }
+                    .frame(width: cardWidth, height: cardHeight)
+                    .scaleEffect(selectedIndex == index ? 1.0 : 0.9)
+                    .offset(x: offsetForCard(at: index, cardWidth: cardWidth))
+                    .zIndex(selectedIndex == index ? 1000 : Double(characters.count - index))
+                    .animation(.spring(response: 0.6, dampingFraction: 0.8), value: selectedIndex)
+                    .onTapGesture {
+                        withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                            selectedIndex = index
+                        }
+                    }
+                }
+            }
+            .frame(height: cardHeight)
+            .gesture(
+                DragGesture()
+                    .onEnded { value in
+                        let threshold: CGFloat = 50
+                        if value.translation.width > threshold {
+                            // Swipe right - previous card
+                            withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                                selectedIndex = max(0, selectedIndex - 1)
+                            }
+                        } else if value.translation.width < -threshold {
+                            // Swipe left - next card
+                            withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                                selectedIndex = min(characters.count - 1, selectedIndex + 1)
+                            }
+                        }
+                    }
+            )
+        }
+        .frame(height: 450)
+        .padding(.horizontal, 20)
+    }
+    
+    private func offsetForCard(at index: Int, cardWidth: CGFloat) -> CGFloat {
+        let spacing: CGFloat = cardWidth * 0.15
+        let baseOffset = CGFloat(index - selectedIndex) * spacing
+        
+        if index == selectedIndex {
+            return 0
+        } else if index < selectedIndex {
+            // Cards to the left - stack them behind
+            return baseOffset - 20
+        } else {
+            // Cards to the right - show preview sliver
+            return baseOffset + 20
+        }
+    }
+}
+
+struct CharacterCardView: View {
+    let character: Character
+    let isSelected: Bool
+    let speechManager: ElevenLabsManager
+    let onSelect: () -> Void
+    
+    var body: some View {
+        ZStack {
+            // Background gradient based on character
+            RoundedRectangle(cornerRadius: 20)
+                .fill(
+                    LinearGradient(
+                        gradient: gradientForCharacter(character.name),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .shadow(color: .black.opacity(0.3), radius: 10, x: 0, y: 5)
+            
+            VStack(spacing: 0) {
+                // Character Image Placeholder
+                ZStack {
+                    RoundedRectangle(cornerRadius: 15)
+                        .fill(Color.black.opacity(0.3))
+                        .frame(height: 250)
+                    
+                    // Placeholder for character image
+                    VStack {
+                        Image(systemName: characterIcon(for: character.name))
+                            .font(.system(size: 80, weight: .light))
+                            .foregroundColor(.white.opacity(0.8))
+                        
+                        Text("Image Placeholder")
+                            .font(.caption)
+                            .foregroundColor(.white.opacity(0.6))
+                    }
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 20)
+                
+                // Character Info Section
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(character.name.uppercased())
+                                .font(.title2)
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                            
+                            Text(character.description)
+                                .font(.body)
+                                .foregroundColor(.white.opacity(0.9))
+                                .multilineTextAlignment(.leading)
+                        }
+                        
+                        Spacer()
+                        
+                        // Arrow indicators (inspired by reference image)
+                        if !isSelected {
+                            Image(systemName: "chevron.right")
+                                .font(.title3)
+                                .foregroundColor(.white.opacity(0.7))
+                        }
+                    }
+                    
+                    // Buttons row
+                    HStack(spacing: 12) {
+                        // Preview button
+                        Button(action: {
+                            let sampleRoast = getSampleRoast(for: character.name)
+                            speechManager.speakRoast(sampleRoast)
+                        }) {
+                            HStack(spacing: 8) {
+                                Image(systemName: speechManager.isSpeaking ? "speaker.wave.2.fill" : "play.circle.fill")
+                                    .font(.body)
+                                Text("PREVIEW")
+                                    .font(.caption)
+                                    .fontWeight(.bold)
+                            }
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
+                            .background(
+                                RoundedRectangle(cornerRadius: 20)
+                                    .fill(Color.white.opacity(0.2))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 20)
+                                            .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                                    )
+                            )
+                        }
+                        .disabled(speechManager.isSpeaking)
+                        
+                        // Set as Roaster button
+                        Button(action: {
+                            onSelect()
+                        }) {
+                            HStack(spacing: 8) {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .font(.body)
+                                Text("SET AS ROASTER")
+                                    .font(.caption)
+                                    .fontWeight(.bold)
+                            }
+                            .foregroundColor(.black)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
+                            .background(
+                                RoundedRectangle(cornerRadius: 20)
+                                    .fill(Color.white)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 20)
+                                            .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                                    )
+                            )
+                        }
+                    }
+                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 20)
+            }
+        }
+        .cornerRadius(20)
+    }
+    
+    private func gradientForCharacter(_ name: String) -> Gradient {
+        switch name {
+        case "Drill Sergeant":
+            return Gradient(colors: [Color.green.opacity(0.8), Color.black])
+        case "British Narrator":
+            return Gradient(colors: [Color.blue.opacity(0.8), Color.indigo])
+        case "Your Ex":
+            return Gradient(colors: [Color.purple.opacity(0.8), Color.pink.opacity(0.6)])
+        case "The Savage":
+            return Gradient(colors: [Color.red.opacity(0.8), Color.orange.opacity(0.7)])
+        default:
+            return Gradient(colors: [Color.gray.opacity(0.8), Color.black])
+        }
+    }
+    
+    private func characterIcon(for name: String) -> String {
+        switch name {
+        case "Drill Sergeant":
+            return "shield.fill"
+        case "British Narrator":
+            return "mic.fill"
+        case "Your Ex":
+            return "heart.slash.fill"
+        case "The Savage":
+            return "flame.fill"
+        default:
+            return "person.fill"
+        }
+    }
+    
+    private func getSampleRoast(for characterName: String) -> String {
+        switch characterName {
+        case "Drill Sergeant":
+            return "Drop and give me twenty! Your workout performance is more disappointing than a broken treadmill!"
+        case "British Narrator":
+            return "And here we observe the human in their natural habitat, avoiding exercise with the dedication of a professional couch potato."
+        case "Your Ex":
+            return "Still working out alone, I see. At least the gym equipment won't ghost you like I did."
+        case "The Savage":
+            return "Your fitness level is so low, even your shadow is embarrassed to follow you around."
+        default:
+            return "Time to get roasted!"
         }
     }
 }
@@ -498,6 +741,7 @@ struct ConsistencyTab: View {
 
 struct HomeTab: View {
     @EnvironmentObject var healthKitManager: HealthKitManager
+    @EnvironmentObject var characterViewModel: CharacterViewModel
     @StateObject private var speechManager = ElevenLabsManager.shared
     @State private var selectedPersona = "🔥"
     
@@ -553,7 +797,7 @@ struct HomeTab: View {
                             color: .blue,
                             icon: "figure.walk"
                         ) {
-                            let roast = RoastGenerator.generateStepRoast(stepCount: healthKitManager.stepCount)
+                            let roast = RoastGenerator.generateStepRoast(stepCount: healthKitManager.stepCount, character: characterViewModel.selectedCharacter)
                             speechManager.speakRoast(roast)
                         }
                         
@@ -564,7 +808,7 @@ struct HomeTab: View {
                             color: .orange,
                             icon: "flame.fill"
                         ) {
-                            let roast = RoastGenerator.generateCalorieRoast(calories: healthKitManager.latestWorkout?.calories ?? 0)
+                            let roast = RoastGenerator.generateCalorieRoast(calories: healthKitManager.latestWorkout?.calories ?? 0, character: characterViewModel.selectedCharacter)
                             speechManager.speakRoast(roast)
                         }
                         
@@ -575,7 +819,7 @@ struct HomeTab: View {
                             color: .green,
                             icon: "timer"
                         ) {
-                            let roast = RoastGenerator.generateDurationRoast(duration: healthKitManager.latestWorkout?.duration ?? 0)
+                            let roast = RoastGenerator.generateDurationRoast(duration: healthKitManager.latestWorkout?.duration ?? 0, character: characterViewModel.selectedCharacter)
                             speechManager.speakRoast(roast)
                         }
                     }
@@ -583,7 +827,13 @@ struct HomeTab: View {
                     
                     // Burn Me Again Button
                     Button(action: {
-                        let roast = healthKitManager.getCurrentRoast()
+                        let roast = RoastGenerator.generateRoast(
+                            stepCount: healthKitManager.stepCount,
+                            heartRate: healthKitManager.heartRate,
+                            sleepHours: healthKitManager.sleepHours,
+                            workoutData: healthKitManager.latestWorkout,
+                            character: characterViewModel.selectedCharacter
+                        )
                         speechManager.speakRoast(roast)
                     }) {
                         HStack(spacing: 12) {
@@ -618,6 +868,61 @@ struct HomeTab: View {
                     .disabled(speechManager.isSpeaking || speechManager.isLoading)
                     .padding(.horizontal, 20)
                     
+                    // Recent Workouts Section
+                    VStack(alignment: .leading, spacing: 20) {
+                        HStack {
+                            Text("Recent Workouts")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                            Spacer()
+                            Text("Tap to roast")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                        }
+                        .padding(.horizontal, 20)
+                        
+                        if healthKitManager.workoutHistory.isEmpty {
+                            VStack(spacing: 12) {
+                                Image(systemName: "figure.run.circle")
+                                    .font(.system(size: 40))
+                                    .foregroundColor(.gray)
+                                
+                                Text("No recent workouts")
+                                    .font(.body)
+                                    .foregroundColor(.gray)
+                                
+                                Text("Time to get moving and earn some roasts!")
+                                    .font(.caption)
+                                    .foregroundColor(.gray.opacity(0.7))
+                                    .multilineTextAlignment(.center)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 30)
+                            .background(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(Color(.systemGray6).opacity(0.05))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 16)
+                                            .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                                    )
+                            )
+                            .padding(.horizontal, 20)
+                        } else {
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: 16) {
+                                    ForEach(Array(healthKitManager.workoutHistory.prefix(5).enumerated()), id: \.offset) { index, workout in
+                                        RecentWorkoutCardView(
+                                            workout: workout,
+                                            speechManager: speechManager
+                                        )
+                                    }
+                                }
+                                .padding(.horizontal, 20)
+                            }
+                        }
+                    }
+                    
                     Spacer(minLength: 40)
                 }
             }
@@ -633,6 +938,218 @@ struct HomeTab: View {
             return "0m"
         }
         return "\(minutes)m"
+    }
+}
+
+struct RecentWorkoutCardView: View {
+    let workout: WorkoutHistoryItem
+    let speechManager: ElevenLabsManager
+    @EnvironmentObject var characterViewModel: CharacterViewModel
+    
+    var body: some View {
+        Button(action: {
+            let workoutData = WorkoutData(
+                duration: workout.duration,
+                distance: workout.distance,
+                heartRate: workout.heartRate,
+                calories: workout.calories,
+                workoutType: workout.workoutType
+            )
+            
+            let roast = RoastGenerator.generateRoast(
+                stepCount: 0,
+                heartRate: workout.heartRate,
+                sleepHours: 0,
+                workoutData: workoutData,
+                character: characterViewModel.selectedCharacter
+            )
+            
+            speechManager.speakRoast(roast)
+        }) {
+            VStack(alignment: .leading, spacing: 12) {
+                // Workout type and date header
+                HStack {
+                    Image(systemName: workoutTypeIcon(workout.workoutType))
+                        .font(.title3)
+                        .foregroundColor(workoutTypeColor(workout.workoutType))
+                    
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(workout.workoutType)
+                            .font(.headline)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.white)
+                        
+                        Text(formatWorkoutDate(workout.date))
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    }
+                    
+                    Spacer()
+                    
+                    if speechManager.isSpeaking {
+                        Image(systemName: "speaker.wave.2.fill")
+                            .font(.caption)
+                            .foregroundColor(.orange)
+                    }
+                }
+                
+                // Key metrics
+                VStack(spacing: 8) {
+                    HStack(spacing: 16) {
+                        MetricPill(
+                            value: "\(Int(workout.duration / 60))m",
+                            label: "Duration",
+                            color: .blue
+                        )
+                        
+                        MetricPill(
+                            value: "\(Int(workout.calories))",
+                            label: "Calories",
+                            color: .orange
+                        )
+                    }
+                    
+                    HStack(spacing: 16) {
+                        if workout.distance > 0 {
+                            MetricPill(
+                                value: String(format: "%.1f mi", workout.distance),
+                                label: "Distance",
+                                color: .green
+                            )
+                        }
+                        
+                        if workout.heartRate > 0 {
+                            MetricPill(
+                                value: "\(Int(workout.heartRate)) BPM",
+                                label: "Avg HR",
+                                color: .red
+                            )
+                        }
+                    }
+                }
+                
+                // Performance indicators
+                HStack {
+                    ForEach(getPerformanceIndicators(), id: \.self) { indicator in
+                        Text(indicator)
+                            .font(.caption2)
+                            .fontWeight(.medium)
+                            .foregroundColor(.orange)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 2)
+                            .background(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(Color.orange.opacity(0.1))
+                            )
+                    }
+                    
+                    Spacer()
+                }
+            }
+            .padding(16)
+            .frame(width: 220)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color(.systemGray6).opacity(0.1))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(workoutTypeColor(workout.workoutType).opacity(0.3), lineWidth: 1)
+                    )
+            )
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+    
+    private func getPerformanceIndicators() -> [String] {
+        var indicators: [String] = []
+        
+        // Duration indicators
+        if workout.duration < 600 { // Less than 10 minutes
+            indicators.append("Short")
+        } else if workout.duration < 1200 { // Less than 20 minutes
+            indicators.append("Brief")
+        }
+        
+        // Calorie indicators
+        if workout.calories < 100 {
+            indicators.append("Low Cal")
+        }
+        
+        // Heart rate indicators
+        if workout.heartRate > 0 && workout.heartRate < 120 {
+            indicators.append("Easy")
+        } else if workout.heartRate > 160 {
+            indicators.append("Intense")
+        }
+        
+        // Pace indicators (for running/walking)
+        if workout.distance > 0 && (workout.workoutType.contains("Running") || workout.workoutType.contains("Walking")) {
+            let pace = workout.duration / (workout.distance * 60) // minutes per mile
+            if pace > 12 {
+                indicators.append("Slow")
+            } else if pace < 7 {
+                indicators.append("Fast")
+            }
+        }
+        
+        return Array(indicators.prefix(2)) // Limit to 2 indicators
+    }
+    
+    private func formatWorkoutDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM d"
+        return formatter.string(from: date)
+    }
+    
+    private func workoutTypeIcon(_ type: String) -> String {
+        switch type.lowercased() {
+        case "running": return "figure.run"
+        case "walking": return "figure.walk"
+        case "cycling": return "bicycle"
+        case "swimming": return "figure.pool.swim"
+        case "yoga": return "figure.mind.and.body"
+        case "strength training", "functional training": return "dumbbell"
+        case "core training": return "figure.core.training"
+        default: return "figure.mixed.cardio"
+        }
+    }
+    
+    private func workoutTypeColor(_ type: String) -> Color {
+        switch type.lowercased() {
+        case "running": return .green
+        case "walking": return .blue
+        case "cycling": return .orange
+        case "swimming": return .cyan
+        case "yoga": return .purple
+        case "strength training", "functional training": return .red
+        case "core training": return .pink
+        default: return .gray
+        }
+    }
+}
+
+struct MetricPill: View {
+    let value: String
+    let label: String
+    let color: Color
+    
+    var body: some View {
+        VStack(spacing: 2) {
+            Text(value)
+                .font(.caption)
+                .fontWeight(.bold)
+                .foregroundColor(.white)
+            
+            Text(label)
+                .font(.caption2)
+                .foregroundColor(.gray)
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(
+            RoundedRectangle(cornerRadius: 6)
+                .fill(color.opacity(0.2))
+        )
     }
 }
 
@@ -985,6 +1502,7 @@ struct TestTab: View {
 }
 
 struct SettingsTab: View {
+    @EnvironmentObject var characterViewModel: CharacterViewModel
     @State private var roastIntensity: Double = 3.0
     @State private var notificationStyle: Int = 0
     @State private var autoPostToX: Bool = false
@@ -1012,6 +1530,35 @@ struct SettingsTab: View {
                     .padding(.top, 20)
                     
                     VStack(spacing: 24) {
+                        // Character Selection Card
+                        NewSettingCardView {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("Voice Character")
+                                        .font(.headline)
+                                        .foregroundColor(.white)
+                                    Text(characterViewModel.selectedCharacter?.name ?? "None Selected")
+                                        .font(.caption)
+                                        .foregroundColor(.gray)
+                                }
+                                
+                                Spacer()
+                                
+                                Button(action: {
+                                    characterViewModel.showCharacterSelection = true
+                                }) {
+                                    HStack(spacing: 4) {
+                                        Text("Change")
+                                            .font(.caption)
+                                            .fontWeight(.medium)
+                                        Image(systemName: "chevron.right")
+                                            .font(.caption)
+                                    }
+                                    .foregroundColor(.orange)
+                                }
+                            }
+                        }
+                        
                         NewSettingCardView {
                             VStack(alignment: .leading, spacing: 16) {
                                 HStack {

@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>PRODUCT_REQUIREMENTS</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.1.0/github-markdown-light.min.css" />
+</head>
+<body>
+<h1 id="burned-product-requirements-document">Burned: Product
+Requirements Document</h1>
+<h2 id="executive-summary">Executive Summary</h2>
+<p><strong>Burned</strong> is a motivational fitness app that uses
+AI-powered roasting and shame-based motivation to encourage users to
+maintain their workout routines. By analyzing health data and delivering
+brutally honest, humorous critiques via voice, Burned transforms fitness
+tracking into an entertaining and engaging experience.</p>
+<h2 id="product-vision">Product Vision</h2>
+<p>“To revolutionize fitness motivation by replacing generic
+encouragement with personalized, brutally honest AI roasts that shame
+users into achieving their fitness goals.”</p>
+<h2 id="core-value-proposition">Core Value Proposition</h2>
+<ul>
+<li><strong>Unique Motivation Method</strong>: Uses humor and light
+shame instead of traditional positive reinforcement</li>
+<li><strong>Personalized AI Roasts</strong>: Contextual roasts based on
+actual fitness performance data</li>
+<li><strong>Voice-First Experience</strong>: Immersive audio experience
+with distinct character personalities</li>
+<li><strong>Real-Time Health Integration</strong>: Seamless HealthKit
+integration for automatic data collection</li>
+</ul>
+<h2 id="target-market">Target Market</h2>
+<h3 id="primary-users">Primary Users</h3>
+<ul>
+<li><strong>Millennials/Gen-Z (22-35)</strong>: Tech-savvy users who
+appreciate humor and sarcasm</li>
+<li><strong>Fitness Enthusiasts</strong>: Regular gym-goers who want
+accountability and motivation</li>
+<li><strong>Inconsistent Exercisers</strong>: People who struggle with
+workout consistency and need external motivation</li>
+</ul>
+<h3 id="market-size">Market Size</h3>
+<ul>
+<li>US fitness app market: $4.4B (2023)</li>
+<li>Projected growth rate: 14.7% CAGR through 2030</li>
+<li>Target addressable market: 15-20M users in English-speaking
+markets</li>
+</ul>
+<h2 id="product-features">Product Features</h2>
+<h3 id="core-features">Core Features</h3>
+<h4 id="ai-powered-roast-generation">1. AI-Powered Roast Generation</h4>
+<ul>
+<li><strong>Dynamic Content Creation</strong>: Contextual roasts based
+on workout performance metrics</li>
+<li><strong>Multi-Factor Analysis</strong>: Considers steps, calories,
+duration, heart rate, and consistency</li>
+<li><strong>Character-Specific Personalities</strong>: Different
+roasting styles per voice character</li>
+<li><strong>Performance-Based Escalation</strong>: Roast intensity
+scales with poor performance</li>
+</ul>
+<h4 id="voice-character-system">2. Voice Character System</h4>
+<ul>
+<li><strong>Multiple Personalities</strong>:
+<ul>
+<li>Drill Sergeant (tough love military style)</li>
+<li>British Narrator (David Attenborough-esque documentary style)</li>
+<li>Your Ex (toxic relationship manipulation)</li>
+</ul></li>
+<li><strong>ElevenLabs Integration</strong>: Premium AI voice synthesis
+for realistic character voices</li>
+<li><strong>Customizable Voice Settings</strong>: Stability, similarity,
+style, and speaker boost parameters</li>
+</ul>
+<h4 id="health-data-integration">3. Health Data Integration</h4>
+<ul>
+<li><strong>HealthKit Connectivity</strong>: Automatic sync with Apple
+Health</li>
+<li><strong>Comprehensive Metrics</strong>:
+<ul>
+<li>Daily step count</li>
+<li>Workout duration and intensity</li>
+<li>Heart rate monitoring</li>
+<li>Calorie burn tracking</li>
+<li>Sleep analysis</li>
+</ul></li>
+<li><strong>Real-Time Updates</strong>: Live data synchronization for
+immediate feedback</li>
+</ul>
+<h4 id="smart-notification-system">4. Smart Notification System</h4>
+<ul>
+<li><strong>Dual Notification Strategy</strong>:
+<ul>
+<li>OneSignal for push notifications</li>
+<li>Local notifications as backup</li>
+</ul></li>
+<li><strong>Intelligent Timing</strong>: Context-aware notification
+scheduling</li>
+<li><strong>Background Processing</strong>: Workout detection and
+analysis</li>
+</ul>
+<h3 id="user-experience-features">User Experience Features</h3>
+<h4 id="tab-based-navigation">1. Tab-Based Navigation</h4>
+<ul>
+<li><strong>Home Tab</strong>: Main dashboard with key stats and primary
+roast button</li>
+<li><strong>Explore Tab</strong>: Character selection and fitness
+challenges</li>
+<li><strong>Summary Tab</strong>: Daily performance overview and sharing
+capabilities</li>
+<li><strong>Settings Tab</strong>: Personalization and configuration
+options</li>
+</ul>
+<h4 id="interactive-stat-blocks">2. Interactive Stat Blocks</h4>
+<ul>
+<li><strong>Tap-to-Roast</strong>: Individual metric roasting for
+specific performance areas</li>
+<li><strong>Visual Feedback</strong>: Color-coded performance
+indicators</li>
+<li><strong>Real-Time Updates</strong>: Live metric refreshing</li>
+</ul>
+<h4 id="character-selection-interface">3. Character Selection
+Interface</h4>
+<ul>
+<li><strong>Visual Character Cards</strong>: Emoji-based character
+representation</li>
+<li><strong>Voice Previews</strong>: Sample roast playback for character
+evaluation</li>
+<li><strong>Easy Switching</strong>: Seamless character selection
+process</li>
+</ul>
+<h3 id="advanced-features">Advanced Features</h3>
+<h4 id="workout-history-analysis">1. Workout History Analysis</h4>
+<ul>
+<li><strong>30-Day Performance Tracking</strong>: Historical workout
+data visualization</li>
+<li><strong>Individual Workout Roasting</strong>: Specific roasts for
+past workout sessions</li>
+<li><strong>Performance Trend Analysis</strong>: Pattern recognition for
+consistent underperformance</li>
+</ul>
+<h4 id="customization-options">2. Customization Options</h4>
+<ul>
+<li><strong>Roast Intensity Slider</strong>: 5-level intensity scale
+(gentle to savage)</li>
+<li><strong>Notification Frequency</strong>: 1-12 hour reminder
+intervals</li>
+<li><strong>Auto-Sharing</strong>: Optional social media
+integration</li>
+</ul>
+<h4 id="challenge-system">3. Challenge System</h4>
+<ul>
+<li><strong>Pre-Defined Challenges</strong>: “Survive 30 days without
+excuses”, “Beat your laziest week record”</li>
+<li><strong>Gamification Elements</strong>: Progress tracking and
+achievement unlocks</li>
+</ul>
+<h2 id="technical-architecture">Technical Architecture</h2>
+<h3 id="frontend-ios---swiftui">Frontend (iOS - SwiftUI)</h3>
+<ul>
+<li><strong>SwiftUI Framework</strong>: Modern declarative UI
+framework</li>
+<li><strong>MVVM Architecture</strong>: Clean separation of
+concerns</li>
+<li><strong>Combine Framework</strong>: Reactive programming for data
+binding</li>
+<li><strong>Environment Objects</strong>: Shared state management</li>
+</ul>
+<h3 id="backend-integrations">Backend Integrations</h3>
+<ul>
+<li><strong>ElevenLabs API</strong>: Text-to-speech voice synthesis</li>
+<li><strong>Apple HealthKit</strong>: Health data retrieval and
+monitoring</li>
+<li><strong>OneSignal</strong>: Push notification delivery service</li>
+<li><strong>Background Tasks</strong>: iOS background app refresh for
+workout detection</li>
+</ul>
+<h3 id="data-management">Data Management</h3>
+<ul>
+<li><strong>Local Core Data</strong>: User preferences and cached
+data</li>
+<li><strong>HealthKit Store</strong>: Primary health data source</li>
+<li><strong>Cloud Sync</strong>: User settings and character
+preferences</li>
+</ul>
+<h3 id="security-privacy">Security &amp; Privacy</h3>
+<ul>
+<li><strong>HealthKit Permissions</strong>: Granular health data access
+controls</li>
+<li><strong>API Key Management</strong>: Secure storage of third-party
+service credentials</li>
+<li><strong>Local Data Processing</strong>: Minimize cloud data
+transmission</li>
+</ul>
+<h2 id="user-personas">User Personas</h2>
+<h3 id="accountable-alex---the-fitness-enthusiast">1. “Accountable Alex”
+- The Fitness Enthusiast</h3>
+<ul>
+<li><strong>Age</strong>: 28</li>
+<li><strong>Profile</strong>: Regular gym-goer who tracks all
+workouts</li>
+<li><strong>Pain Point</strong>: Needs external motivation to push
+harder during workouts</li>
+<li><strong>Use Case</strong>: Uses Burned for post-workout performance
+analysis and daily motivation</li>
+<li><strong>Preferred Character</strong>: Drill Sergeant for maximum
+intensity</li>
+</ul>
+<h3 id="inconsistent-ivy---the-fitness-struggler">2. “Inconsistent Ivy”
+- The Fitness Struggler</h3>
+<ul>
+<li><strong>Age</strong>: 25</li>
+<li><strong>Profile</strong>: Wants to be fit but struggles with
+consistency</li>
+<li><strong>Pain Point</strong>: Lacks accountability and external
+motivation</li>
+<li><strong>Use Case</strong>: Needs daily reminders and shame-based
+motivation to maintain routine</li>
+<li><strong>Preferred Character</strong>: Your Ex for emotional
+manipulation tactics</li>
+</ul>
+<h3 id="data-driven-dan---the-quantified-self-enthusiast">3.
+“Data-Driven Dan” - The Quantified Self Enthusiast</h3>
+<ul>
+<li><strong>Age</strong>: 32</li>
+<li><strong>Profile</strong>: Tracks everything and loves detailed
+analytics</li>
+<li><strong>Pain Point</strong>: Generic fitness apps lack personality
+and engagement</li>
+<li><strong>Use Case</strong>: Enjoys detailed performance breakdowns
+with entertaining commentary</li>
+<li><strong>Preferred Character</strong>: British Narrator for
+intellectual humor</li>
+</ul>
+<h2 id="user-journey">User Journey</h2>
+<h3 id="onboarding-flow">Onboarding Flow</h3>
+<ol type="1">
+<li><strong>App Launch</strong>: Character selection overlay</li>
+<li><strong>Health Permissions</strong>: HealthKit authorization
+request</li>
+<li><strong>Notification Setup</strong>: Push notification
+permissions</li>
+<li><strong>Initial Setup</strong>: Intensity preferences and reminder
+frequency</li>
+<li><strong>First Roast</strong>: Welcome roast from selected
+character</li>
+</ol>
+<h3 id="daily-usage-flow">Daily Usage Flow</h3>
+<ol type="1">
+<li><strong>Morning Check-in</strong>: App launch triggers health data
+sync</li>
+<li><strong>Performance Review</strong>: Real-time stat updates on home
+screen</li>
+<li><strong>Interactive Roasting</strong>: Tap individual stats for
+specific roasts</li>
+<li><strong>Workout Detection</strong>: Automatic detection and
+post-workout roasting</li>
+<li><strong>Evening Summary</strong>: Daily performance recap and
+sharing options</li>
+</ol>
+<h3 id="weekly-engagement">Weekly Engagement</h3>
+<ol type="1">
+<li><strong>Weekly Summary</strong>: Performance trends and consistency
+analysis</li>
+<li><strong>Challenge Updates</strong>: Progress on selected fitness
+challenges</li>
+<li><strong>Character Switching</strong>: Experimenting with different
+roasting personalities</li>
+</ol>
+<h2 id="monetization-strategy">Monetization Strategy</h2>
+<h3 id="freemium-model">Freemium Model</h3>
+<ul>
+<li><strong>Free Tier</strong>:
+<ul>
+<li>Basic roast generation (limited daily roasts)</li>
+<li>Single character access</li>
+<li>Standard notification frequency</li>
+</ul></li>
+<li><strong>Premium Tier</strong> ($4.99/month or $29.99/year):
+<ul>
+<li>Unlimited roasts</li>
+<li>All character voices</li>
+<li>Advanced customization options</li>
+<li>Priority support</li>
+</ul></li>
+</ul>
+<h3 id="revenue-streams">Revenue Streams</h3>
+<ol type="1">
+<li><strong>Subscription Revenue</strong>: Primary income from premium
+subscriptions</li>
+<li><strong>In-App Purchases</strong>: Additional character packs or
+voice customizations</li>
+<li><strong>Partnership Opportunities</strong>: Fitness brand
+integrations and sponsored challenges</li>
+</ol>
+<h3 id="user-acquisition">User Acquisition</h3>
+<ul>
+<li><strong>Organic Growth</strong>: Social sharing of entertaining
+roasts</li>
+<li><strong>Influencer Marketing</strong>: Fitness personality
+partnerships</li>
+<li><strong>App Store Optimization</strong>: Keyword optimization for
+fitness motivation apps</li>
+</ul>
+<h2 id="success-metrics">Success Metrics</h2>
+<h3 id="engagement-metrics">Engagement Metrics</h3>
+<ul>
+<li><strong>Daily Active Users (DAU)</strong>: Target 60% of monthly
+users</li>
+<li><strong>Session Length</strong>: Average 3-5 minutes per
+session</li>
+<li><strong>Roast Frequency</strong>: 5+ roasts per user per day</li>
+<li><strong>Voice Playback Rate</strong>: 80% of roasts played to
+completion</li>
+</ul>
+<h3 id="retention-metrics">Retention Metrics</h3>
+<ul>
+<li><strong>Day 1 Retention</strong>: 75% of new users return next
+day</li>
+<li><strong>Week 1 Retention</strong>: 45% of users remain active after
+7 days</li>
+<li><strong>Month 1 Retention</strong>: 25% of users remain active after
+30 days</li>
+</ul>
+<h3 id="business-metrics">Business Metrics</h3>
+<ul>
+<li><strong>Premium Conversion Rate</strong>: 15% of free users upgrade
+within 30 days</li>
+<li><strong>Monthly Recurring Revenue (MRR)</strong>: Target $50K within
+12 months</li>
+<li><strong>Customer Lifetime Value (LTV)</strong>: $25 average per
+user</li>
+<li><strong>Cost Per Acquisition (CPA)</strong>: Under $10 per user</li>
+</ul>
+<h3 id="health-impact-metrics">Health Impact Metrics</h3>
+<ul>
+<li><strong>Workout Frequency</strong>: 20% increase in user workout
+frequency</li>
+<li><strong>Step Count Improvement</strong>: 15% increase in average
+daily steps</li>
+<li><strong>Consistency Score</strong>: 30% improvement in workout
+regularity</li>
+</ul>
+<h2 id="risk-analysis">Risk Analysis</h2>
+<h3 id="technical-risks">Technical Risks</h3>
+<ul>
+<li><strong>ElevenLabs API Dependency</strong>: Voice synthesis service
+availability and cost scaling</li>
+<li><strong>HealthKit Limitations</strong>: iOS-only ecosystem limits
+Android expansion</li>
+<li><strong>Background Processing</strong>: iOS restrictions on
+background app refresh</li>
+</ul>
+<h3 id="market-risks">Market Risks</h3>
+<ul>
+<li><strong>Niche Appeal</strong>: Humor-based motivation may not appeal
+to all users</li>
+<li><strong>Competitive Landscape</strong>: Established fitness apps
+with larger user bases</li>
+<li><strong>Content Sensitivity</strong>: Roast content may be
+considered offensive by some users</li>
+</ul>
+<h3 id="mitigation-strategies">Mitigation Strategies</h3>
+<ul>
+<li><strong>API Redundancy</strong>: Backup voice synthesis
+solutions</li>
+<li><strong>Cross-Platform Development</strong>: Future Android version
+with Google Fit integration</li>
+<li><strong>Content Moderation</strong>: Intensity controls and opt-out
+mechanisms</li>
+</ul>
+<h2 id="development-roadmap">Development Roadmap</h2>
+<h3 id="phase-1-months-1-3-mvp-launch">Phase 1 (Months 1-3): MVP
+Launch</h3>
+<ul>
+<li>Core roasting functionality</li>
+<li>HealthKit integration</li>
+<li>Basic character system</li>
+<li>iOS App Store release</li>
+</ul>
+<h3 id="phase-2-months-4-6-enhancement">Phase 2 (Months 4-6):
+Enhancement</h3>
+<ul>
+<li>Additional voice characters</li>
+<li>Advanced customization options</li>
+<li>Social sharing features</li>
+<li>Premium subscription launch</li>
+</ul>
+<h3 id="phase-3-months-7-12-expansion">Phase 3 (Months 7-12):
+Expansion</h3>
+<ul>
+<li>Android version development</li>
+<li>Fitness tracking device integrations</li>
+<li>Community features and challenges</li>
+<li>International market expansion</li>
+</ul>
+<h2 id="competitive-analysis">Competitive Analysis</h2>
+<h3 id="direct-competitors">Direct Competitors</h3>
+<ul>
+<li><strong>MyFitnessPal</strong>: Traditional positive reinforcement
+approach</li>
+<li><strong>Strava</strong>: Social fitness tracking with community
+motivation</li>
+<li><strong>Nike Training Club</strong>: Professional trainer
+guidance</li>
+</ul>
+<h3 id="competitive-advantages">Competitive Advantages</h3>
+<ul>
+<li><strong>Unique Motivation Approach</strong>: Only app using
+AI-powered roasting for fitness motivation</li>
+<li><strong>Voice-First Experience</strong>: Immersive audio personality
+system</li>
+<li><strong>Real-Time Contextual Feedback</strong>: Instant
+performance-based roasting</li>
+<li><strong>Entertainment Value</strong>: High shareability and viral
+potential</li>
+</ul>
+<h3 id="differentiation-strategy">Differentiation Strategy</h3>
+<ul>
+<li><strong>Humor as Motivation</strong>: Transform fitness tracking
+into entertainment</li>
+<li><strong>Personality-Driven Experience</strong>: Strong character
+development and voice acting</li>
+<li><strong>Anti-Motivational Motivation</strong>: Reverse psychology
+approach to fitness encouragement</li>
+</ul>
+<h2 id="conclusion">Conclusion</h2>
+<p>Burned represents a revolutionary approach to fitness motivation,
+combining cutting-edge AI voice synthesis with brutally honest
+performance analysis to create an engaging and effective fitness
+companion. By targeting users who respond to humor and light shame as
+motivation techniques, Burned fills a unique niche in the crowded
+fitness app market while providing genuine value through personalized,
+contextual feedback based on real health data.</p>
+<p>The app’s success will depend on its ability to balance entertainment
+value with genuine fitness motivation, ensuring that users find the
+experience both enjoyable and effective in improving their health
+outcomes. With proper execution and user acquisition strategies, Burned
+has the potential to become a category-defining application in the
+fitness technology space.</p>
+</body>
+</html>

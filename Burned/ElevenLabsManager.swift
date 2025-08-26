@@ -6,7 +6,7 @@ class ElevenLabsManager: NSObject, ObservableObject {
     
     // IMPORTANT: Move this to a secure location in production
     private let apiKey = "sk_718429774ae8d84a76e209e237172d4682f2be00995b05e0"
-    private let voiceId = "DGzg6RaUqxGRTHSBjfgF" // Drill seargent voice - sassy and clear
+    @Published var currentCharacter: Character = Character.allCharacters[0]
     
     private var audioPlayer: AVAudioPlayer?
     @Published var isSpeaking = false
@@ -38,21 +38,21 @@ class ElevenLabsManager: NSObject, ObservableObject {
         }
         
         // Create the request
-        let url = URL(string: "https://api.elevenlabs.io/v1/text-to-speech/\(voiceId)")!
+        let url = URL(string: "https://api.elevenlabs.io/v1/text-to-speech/\(currentCharacter.voiceId)")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.addValue(apiKey, forHTTPHeaderField: "xi-api-key")
         
-        // Configure voice settings for maximum sass
+        // Configure voice settings based on character
         let body: [String: Any] = [
             "text": text,
             "model_id": "eleven_monolingual_v1",
             "voice_settings": [
-                "stability": 0.5,
-                "similarity_boost": 0.75,
-                "style": 0.4,
-                "use_speaker_boost": true
+                "stability": currentCharacter.voiceSettings.stability,
+                "similarity_boost": currentCharacter.voiceSettings.similarityBoost,
+                "style": currentCharacter.voiceSettings.style,
+                "use_speaker_boost": currentCharacter.voiceSettings.speakerBoost
             ]
         ]
         

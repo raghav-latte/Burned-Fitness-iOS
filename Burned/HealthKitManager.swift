@@ -181,7 +181,8 @@ class HealthKitManager: ObservableObject {
                 let roast = RoastGenerator.generateNoWorkoutRoast(
                     stepCount: self.stepCount,
                     heartRate: self.heartRate,
-                    sleepHours: self.sleepHours
+                    sleepHours: self.sleepHours,
+                    character: nil // Will use default roast when character is nil
                 )
                 NotificationManager.shared.scheduleWorkoutRoast(roast: roast)
             }
