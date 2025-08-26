@@ -7,6 +7,38 @@
 
 import SwiftUI
 
+enum ChallengeType {
+    case steps, calories, workouts, shameScore
+}
+
+struct Challenge: Identifiable {
+    let id: Int
+    let title: String
+    let description: String
+    let target: Int
+    let currentProgress: Int
+    let type: ChallengeType
+    let duration: Int // days
+    let completed: Bool
+    
+    var progressPercentage: Double {
+        return min(Double(currentProgress) / Double(target), 1.0)
+    }
+    
+    var progressText: String {
+        switch type {
+        case .steps:
+            return "\(currentProgress)/\(target) steps"
+        case .calories:
+            return "\(currentProgress)/\(target) cal"
+        case .workouts:
+            return "\(currentProgress)/\(target) workouts"
+        case .shameScore:
+            return "Score: \(100 - currentProgress)"
+        }
+    }
+}
+
 struct ContentView: View {
     @EnvironmentObject var healthKitManager: HealthKitManager
     @EnvironmentObject var characterViewModel: CharacterViewModel
@@ -89,13 +121,6 @@ struct ExploreTab: View {
     
     private let characters = Character.allCharacters
     
-    private let challenges = [
-        "Survive 30 days without excuses",
-        "Beat your laziest week record",
-        "Burn more calories than you make excuses",
-        "Take more steps than selfies"
-    ]
-    
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
@@ -131,9 +156,10 @@ struct ExploreTab: View {
                         
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 16) {
-                                ForEach(challenges, id: \.self) { challenge in
-                                    ChallengeCardView(challenge: challenge)
-                                }
+                                ChallengeCardView(challenge: "Survive 30 days without excuses")
+                                ChallengeCardView(challenge: "Beat your laziest week record")
+                                ChallengeCardView(challenge: "Burn more calories than you make excuses")
+                                ChallengeCardView(challenge: "Take more steps than selfies")
                             }
                             .padding(.horizontal, 20)
                         }
@@ -238,20 +264,28 @@ struct CharacterCardView: View {
             
             VStack(spacing: 0) {
                 // Character Image Placeholder
-                ZStack {
+                ZStack(alignment: .bottom) {
                     RoundedRectangle(cornerRadius: 15)
                         .fill(Color.black.opacity(0.3))
                         .frame(height: 250)
                     
-                    // Placeholder for character image
-                    VStack {
-                        Image(systemName: characterIcon(for: character.name))
-                            .font(.system(size: 80, weight: .light))
-                            .foregroundColor(.white.opacity(0.8))
-                        
-                        Text("Image Placeholder")
-                            .font(.caption)
-                            .foregroundColor(.white.opacity(0.6))
+                    if character.imageName == "drill" ||
+                        character.imageName == "narrator" ||
+                        character.imageName == "female-ex" ||
+                        character.imageName == "male-ex" {
+                        Image(character.imageName)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(maxHeight: 285)
+                            .clipped()
+                    } else {
+                        VStack {
+                            Image(systemName: characterIcon(for: character.name))
+                                .font(.system(size: 80, weight: .light))
+                                .foregroundColor(.white.opacity(0.8))
+                         
+                        }
+                        .offset(y: -15)
                     }
                 }
                 .padding(.horizontal, 20)
@@ -270,6 +304,8 @@ struct CharacterCardView: View {
                                 .font(.body)
                                 .foregroundColor(.white.opacity(0.9))
                                 .multilineTextAlignment(.leading)
+                                .lineLimit(2...3)
+                                .fixedSize(horizontal: false, vertical: true)
                         }
                         
                         Spacer()
@@ -317,7 +353,7 @@ struct CharacterCardView: View {
                             HStack(spacing: 8) {
                                 Image(systemName: "checkmark.circle.fill")
                                     .font(.body)
-                                Text("SET AS ROASTER")
+                                Text("SET")
                                     .font(.caption)
                                     .fontWeight(.bold)
                             }
@@ -345,15 +381,17 @@ struct CharacterCardView: View {
     private func gradientForCharacter(_ name: String) -> Gradient {
         switch name {
         case "Drill Sergeant":
-            return Gradient(colors: [Color.green.opacity(0.8), Color.black])
+            return Gradient(colors: [Color.green, Color.black])
         case "British Narrator":
-            return Gradient(colors: [Color.blue.opacity(0.8), Color.indigo])
-        case "Your Ex":
-            return Gradient(colors: [Color.purple.opacity(0.8), Color.pink.opacity(0.6)])
+            return Gradient(colors: [Color.blue, Color.indigo])
+        case "Your Ex (Female)":
+            return Gradient(colors: [Color.purple, Color.pink])
+        case "Your Ex (Male)":
+            return Gradient(colors: [Color.indigo, Color.purple])
         case "The Savage":
-            return Gradient(colors: [Color.red.opacity(0.8), Color.orange.opacity(0.7)])
+            return Gradient(colors: [Color.red, Color.orange])
         default:
-            return Gradient(colors: [Color.gray.opacity(0.8), Color.black])
+            return Gradient(colors: [Color.gray, Color.black])
         }
     }
     
@@ -363,8 +401,10 @@ struct CharacterCardView: View {
             return "shield.fill"
         case "British Narrator":
             return "mic.fill"
-        case "Your Ex":
+        case "Your Ex (Female)":
             return "heart.slash.fill"
+        case "Your Ex (Male)":
+            return "heart.slash.circle.fill"
         case "The Savage":
             return "flame.fill"
         default:
@@ -495,6 +535,153 @@ struct ChallengeCardView: View {
                         .stroke(Color.orange.opacity(0.2), lineWidth: 1)
                 )
         )
+    }
+}
+
+struct EnhancedChallengeCardView: View {
+    let challenge: Challenge
+    @EnvironmentObject var speechManager: ElevenLabsManager
+    @EnvironmentObject var characterViewModel: CharacterViewModel
+    
+    var body: some View {
+        Button(action: {
+            triggerChallengeRoast()
+        }) {
+            VStack(alignment: .leading, spacing: 12) {
+                // Header with status
+                HStack {
+                    Image(systemName: challenge.completed ? "checkmark.circle.fill" : "flame.fill")
+                        .foregroundColor(challenge.completed ? .green : .orange)
+                        .font(.title3)
+                    
+                    Spacer()
+                    
+                    if speechManager.isSpeaking {
+                        Image(systemName: "speaker.wave.2.fill")
+                            .foregroundColor(.orange)
+                            .font(.caption)
+                    }
+                }
+                
+                // Challenge title and description
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(challenge.title)
+                        .font(.headline)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                        .lineLimit(1)
+                    
+                    Text(challenge.description)
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                        .lineLimit(2)
+                        .multilineTextAlignment(.leading)
+                }
+                
+                // Progress bar and text
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(challenge.progressText)
+                        .font(.caption2)
+                        .foregroundColor(.white)
+                        .fontWeight(.medium)
+                    
+                    // Progress bar
+                    ZStack(alignment: .leading) {
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(Color.gray.opacity(0.3))
+                            .frame(height: 6)
+                        
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(challenge.completed ? .green : .orange)
+                            .frame(width: CGFloat(challenge.progressPercentage) * 180, height: 6)
+                    }
+                    .frame(width: 180)
+                }
+                
+                // Completion status or encouragement
+                if challenge.completed {
+                    HStack {
+                        Image(systemName: "trophy.fill")
+                            .foregroundColor(.yellow)
+                            .font(.caption2)
+                        Text("COMPLETED!")
+                            .font(.caption2)
+                            .fontWeight(.bold)
+                            .foregroundColor(.green)
+                    }
+                } else {
+                    HStack {
+                        Image(systemName: "arrow.up.right")
+                            .foregroundColor(.orange)
+                            .font(.caption2)
+                        Text("TAP FOR ROAST")
+                            .font(.caption2)
+                            .fontWeight(.medium)
+                            .foregroundColor(.orange)
+                    }
+                }
+            }
+            .frame(width: 220)
+            .padding(16)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(challenge.completed ? 
+                          Color.green.opacity(0.1) : 
+                          Color(.systemGray6).opacity(0.1))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke((challenge.completed ? Color.green : Color.orange).opacity(0.3), lineWidth: 1.5)
+                    )
+            )
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+    
+    private func triggerChallengeRoast() {
+        let roasts = getChallengeSpecificRoasts()
+        let selectedRoast = roasts.randomElement() ?? "Stop making excuses and start making progress!"
+        
+        if let character = characterViewModel.selectedCharacter {
+            speechManager.speakRoast(selectedRoast)
+        }
+    }
+    
+    private func getChallengeSpecificRoasts() -> [String] {
+        if challenge.completed {
+            return [
+                "Finally! You completed \(challenge.title). Don't let it go to your head.",
+                "Congrats on \(challenge.title) - now try not to immediately undo all that progress.",
+                "Look who managed to finish \(challenge.title)! Shocked, honestly.",
+                "\(challenge.title) complete. Your ancestors are slightly less disappointed."
+            ]
+        } else {
+            switch challenge.type {
+            case .steps:
+                return [
+                    "You're at \(challenge.currentProgress) steps out of \(challenge.target). Even sloths are judging you.",
+                    "\(challenge.currentProgress) steps? My grandmother's Fitbit gets more action than yours.",
+                    "Step challenge progress: \(challenge.currentProgress)/\(challenge.target). Pathetic doesn't begin to cover it."
+                ]
+            case .calories:
+                return [
+                    "You've burned \(challenge.currentProgress) calories. That's barely enough to power a nightlight.",
+                    "\(challenge.currentProgress) calories burned? You could've achieved more energy by thinking really hard.",
+                    "Calorie goal: \(challenge.target). Your progress: \(challenge.currentProgress). Mathematics has never been more depressing."
+                ]
+            case .workouts:
+                return [
+                    "\(challenge.currentProgress) workouts out of \(challenge.target)? Even Netflix asks if you're still watching because you move so little.",
+                    "Workout progress: \(challenge.currentProgress)/\(challenge.target). Your gym membership is filing for abandonment.",
+                    "\(challenge.currentProgress) workouts completed. Your fitness tracker thinks it's broken."
+                ]
+            case .shameScore:
+                return [
+                    "Your shame score is still embarrassing. Try moving more than your thumbs on social media.",
+                    "Shame score challenge failing spectacularly. Even your shadow is more active than you.",
+                    "Your shame score remains shameful. Shocking absolutely no one who knows you."
+                ]
+            }
+        }
     }
 }
 
@@ -752,41 +939,225 @@ struct HomeTab: View {
         ("🤡", "Sarcastic", "Witty roasts")
     ]
     
+    private var challenges: [Challenge] {
+        return [
+            Challenge(
+                id: 1,
+                title: "Step Master",
+                description: "Hit 10,000 steps for 7 days straight",
+                target: 10000,
+                currentProgress: healthKitManager.stepCount,
+                type: .steps,
+                duration: 7,
+                completed: false
+            ),
+            Challenge(
+                id: 2,
+                title: "Calorie Crusher",
+                description: "Burn 300+ calories in a single workout",
+                target: 300,
+                currentProgress: Int(healthKitManager.latestWorkout?.calories ?? 0),
+                type: .calories,
+                duration: 1,
+                completed: (healthKitManager.latestWorkout?.calories ?? 0) >= 300
+            ),
+            Challenge(
+                id: 3,
+                title: "Consistency King",
+                description: "Complete 5 workouts this week",
+                target: 5,
+                currentProgress: healthKitManager.workoutHistory.count,
+                type: .workouts,
+                duration: 7,
+                completed: healthKitManager.workoutHistory.count >= 5
+            ),
+            Challenge(
+                id: 4,
+                title: "Shame Score Slayer",
+                description: "Get your shame score below 30",
+                target: 30,
+                currentProgress: Int(100 - calculateShameScore()),
+                type: .shameScore,
+                duration: 1,
+                completed: calculateShameScore() < 30
+            )
+        ]
+    }
+    
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
             
             ScrollView {
-                VStack(spacing: 40) {
-                    // Hero Roast Banner
-                    VStack(spacing: 20) {
-                        // Animated persona avatar
-                        ZStack {
-                            Circle()
-                                .fill(LinearGradient(
-                                    gradient: Gradient(colors: [.orange, .red]),
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                ))
-                                .frame(width: 120, height: 120)
+                VStack(spacing: 30) {
+                    // Hero Section: Fitness Shame Score + Character Status
+                    VStack(spacing: 25) {
+                        // Character Status Display
+                        if let character = characterViewModel.selectedCharacter {
+                            HStack(spacing: 15) {
+                                // Character Avatar with Image
+                                ZStack {
+                                    Circle()
+                                        .fill(Color.clear)
+                                        .frame(width: 80, height: 80)
+                                        .overlay(
+                                            Circle()
+                                                .stroke(getCharacterMoodStroke(), lineWidth: 3)
+                                        )
+                                    
+                                    // Character Image or Fallback
+                                    if character.imageName == "drill" ||
+                                        character.imageName == "narrator" ||
+                                        character.imageName == "female-ex" ||
+                                        character.imageName == "male-ex" {
+                                        GeometryReader { geometry in
+                                            Image(character.imageName)
+                                                .resizable()
+                                                .aspectRatio(contentMode: .fit)
+                                                .frame(width: geometry.size.width * 2, height: geometry.size.height * 2)
+                                                .clipped()
+                                                .offset(x: -geometry.size.width*0.6, y: geometry.size.height * 0.2)
+                                               // .offset(y: -geometry.size.height * 0.6) // Show top 40%
+                                        }
+                                        .frame(width: 70, height: 70)
+                                        .clipShape(Circle())
+                                    } else {
+                                        // Fallback to emoji for characters without images
+                                        Text(getCharacterMoodEmoji())
+                                            .font(.system(size: 35))
+                                    }
+                                }
                                 .scaleEffect(speechManager.isSpeaking ? 1.1 : 1.0)
-                                .animation(.easeInOut(duration: 0.5).repeatForever(autoreverses: true), value: speechManager.isSpeaking)
-                            
-                            Text(selectedPersona)
-                                .font(.system(size: 60))
-                                .scaleEffect(speechManager.isSpeaking ? 1.2 : 1.0)
                                 .animation(.easeInOut(duration: 0.3), value: speechManager.isSpeaking)
+                                
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(character.name.uppercased())
+                                        .font(.headline)
+                                        .fontWeight(.bold)
+                                        .foregroundColor(.white)
+                                    
+                                    Text(getCharacterMoodText())
+                                        .font(.subheadline)
+                                        .foregroundColor(.gray)
+                                        .multilineTextAlignment(.leading)
+                                }
+                                
+                                Spacer()
+                            }
+                            .padding(.horizontal, 20)
+                            .padding(.top, 20)
                         }
                         
-                        // Dynamic roast text
-                        Text(speechManager.isSpeaking ? "Roasting you..." : "Ready to get burned?")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                            .multilineTextAlignment(.center)
-                            .opacity(speechManager.isLoading ? 0.5 : 1.0)
+                        // Fitness Shame Score Meter
+                        VStack(spacing: 15) {
+                            Text("FITNESS SHAME SCORE")
+                                .font(.caption)
+                                .fontWeight(.bold)
+                                .foregroundColor(.gray)
+                                .tracking(1)
+                            
+                            ZStack {
+                                // Background Circle
+                                Circle()
+                                    .stroke(Color.gray.opacity(0.2), lineWidth: 15)
+                                    .frame(width: 200, height: 200)
+                                
+                                // Progress Circle
+                                Circle()
+                                    .trim(from: 0, to: CGFloat(calculateShameScore()) / 100)
+                                    .stroke(
+                                        LinearGradient(
+                                            gradient: Gradient(colors: getShameScoreGradient()),
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        ),
+                                        style: StrokeStyle(lineWidth: 15, lineCap: .round)
+                                    )
+                                    .frame(width: 200, height: 200)
+                                    .rotationEffect(.degrees(-90))
+                                    .animation(.easeInOut(duration: 1.0), value: calculateShameScore())
+                                
+                                // Score Display
+                                VStack(spacing: 5) {
+                                    Text("\(Int(calculateShameScore()))")
+                                        .font(.system(size: 48, weight: .bold, design: .rounded))
+                                        .foregroundColor(.white)
+                                    
+                                    Text(getShameScoreLabel())
+                                        .font(.caption)
+                                        .fontWeight(.medium)
+                                        .foregroundColor(.gray)
+                                }
+                            }
+                        }
+                        
+                        // Quick Action Buttons
+                        HStack(spacing: 12) {
+                            // Get Roasted Button
+                            Button(action: {
+                                let roast = RoastGenerator.generateRoast(
+                                    stepCount: healthKitManager.stepCount,
+                                    heartRate: healthKitManager.heartRate,
+                                    sleepHours: healthKitManager.sleepHours,
+                                    workoutData: healthKitManager.latestWorkout,
+                                    character: characterViewModel.selectedCharacter
+                                )
+                                speechManager.speakRoast(roast)
+                            }) {
+                                HStack(spacing: 8) {
+                                    if speechManager.isLoading {
+                                        ProgressView()
+                                            .progressViewStyle(CircularProgressViewStyle(tint: .black))
+                                            .scaleEffect(0.8)
+                                    } else {
+                                        Image(systemName: speechManager.isSpeaking ? "speaker.wave.3.fill" : "flame.fill")
+                                            .font(.title3)
+                                    }
+                                    
+                                    Text("GET ROASTED")
+                                        .font(.caption)
+                                        .fontWeight(.bold)
+                                }
+                                .foregroundColor(.black)
+                                .padding(.horizontal, 20)
+                                .padding(.vertical, 12)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 25)
+                                        .fill(LinearGradient(
+                                            gradient: Gradient(colors: [.orange, .red]),
+                                            startPoint: .leading,
+                                            endPoint: .trailing
+                                        ))
+                                )
+                            }
+                            .disabled(speechManager.isSpeaking || speechManager.isLoading)
+                            
+                            // Improve Score Button
+                            Button(action: {
+                                triggerQuickImprovement()
+                            }) {
+                                HStack(spacing: 8) {
+                                    Image(systemName: "arrow.up.circle.fill")
+                                        .font(.title3)
+                                    Text("IMPROVE")
+                                        .font(.caption)
+                                        .fontWeight(.bold)
+                                }
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 20)
+                                .padding(.vertical, 12)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 25)
+                                        .fill(Color.white.opacity(0.1))
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 25)
+                                                .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                                        )
+                                )
+                            }
+                        }
                     }
-                    .padding(.top, 20)
+                    .padding(.top, 10)
                     
                     // Three Big Stat Blocks
                     VStack(spacing: 20) {
@@ -911,7 +1282,7 @@ struct HomeTab: View {
                         } else {
                             ScrollView(.horizontal, showsIndicators: false) {
                                 HStack(spacing: 16) {
-                                    ForEach(Array(healthKitManager.workoutHistory.prefix(5).enumerated()), id: \.offset) { index, workout in
+                                    ForEach(Array(healthKitManager.workoutHistory.prefix(15).enumerated()), id: \.offset) { index, workout in
                                         RecentWorkoutCardView(
                                             workout: workout,
                                             speechManager: speechManager
@@ -938,6 +1309,135 @@ struct HomeTab: View {
             return "0m"
         }
         return "\(minutes)m"
+    }
+    
+    // MARK: - Fitness Shame Score Functions
+    private func calculateShameScore() -> Double {
+        let stepScore = min(Double(healthKitManager.stepCount) / 10000.0, 1.0) * 30 // 30% weight
+        let workoutScore = (healthKitManager.latestWorkout?.duration ?? 0) > 0 ? 25.0 : 0 // 25% weight
+        let calorieScore = min((healthKitManager.latestWorkout?.calories ?? 0) / 300.0, 1.0) * 20 // 20% weight
+        let consistencyScore = healthKitManager.workoutHistory.count > 0 ? 25.0 : 0 // 25% weight
+        
+        let totalScore = stepScore + workoutScore + calorieScore + consistencyScore
+        return 100 - totalScore // Invert to make it a "shame" score
+    }
+    
+    private func getShameScoreGradient() -> [Color] {
+        let score = calculateShameScore()
+        switch score {
+        case 0...30: return [.green, .mint] // Great performance
+        case 31...50: return [.yellow, .orange] // Average performance  
+        case 51...75: return [.orange, .red] // Poor performance
+        default: return [.red, .purple] // Shameful performance
+        }
+    }
+    
+    private func getShameScoreLabel() -> String {
+        let score = calculateShameScore()
+        switch score {
+        case 0...20: return "FITNESS HERO"
+        case 21...40: return "DECENT HUMAN"
+        case 41...60: return "COULD DO BETTER"
+        case 61...80: return "DISAPPOINTING"
+        default: return "PATHETIC"
+        }
+    }
+    
+    // MARK: - Character Mood Functions
+    private func getCharacterMoodColor() -> LinearGradient {
+        guard let character = characterViewModel.selectedCharacter else {
+            return LinearGradient(colors: [.gray], startPoint: .top, endPoint: .bottom)
+        }
+        
+        let score = calculateShameScore()
+        switch character.name {
+        case "Drill Sergeant":
+            return score > 60 ? 
+                LinearGradient(colors: [.red, .orange], startPoint: .top, endPoint: .bottom) :
+                LinearGradient(colors: [.green, .mint], startPoint: .top, endPoint: .bottom)
+        case "British Narrator":
+            return score > 60 ?
+                LinearGradient(colors: [.indigo, .purple], startPoint: .top, endPoint: .bottom) :
+                LinearGradient(colors: [.blue, .cyan], startPoint: .top, endPoint: .bottom)
+        case "Your Ex (Female)":
+            return score > 60 ?
+                LinearGradient(colors: [.pink, .red], startPoint: .top, endPoint: .bottom) :
+                LinearGradient(colors: [.purple, .pink], startPoint: .top, endPoint: .bottom)
+        case "Your Ex (Male)":
+            return score > 60 ?
+                LinearGradient(colors: [.red, .orange], startPoint: .top, endPoint: .bottom) :
+                LinearGradient(colors: [.indigo, .blue], startPoint: .top, endPoint: .bottom)
+        default:
+            return LinearGradient(colors: [.gray], startPoint: .top, endPoint: .bottom)
+        }
+    }
+    
+    private func getCharacterMoodEmoji() -> String {
+        guard let character = characterViewModel.selectedCharacter else { return "😐" }
+        
+        let score = calculateShameScore()
+        switch character.name {
+        case "Drill Sergeant":
+            return score > 60 ? "😡" : (score > 30 ? "😤" : "💪")
+        case "British Narrator":
+            return score > 60 ? "🤨" : (score > 30 ? "🧐" : "😌")
+        case "Your Ex (Female)":
+            return score > 60 ? "🙄" : (score > 30 ? "😏" : "😘")
+        case "Your Ex (Male)":
+            return score > 60 ? "😤" : (score > 30 ? "🤔" : "😎")
+        default:
+            return "😐"
+        }
+    }
+    
+    private func getCharacterMoodText() -> String {
+        guard let character = characterViewModel.selectedCharacter else { return "Select a character" }
+        
+        let score = calculateShameScore()
+        switch character.name {
+        case "Drill Sergeant":
+            return score > 60 ? "Extremely disappointed" : (score > 30 ? "Not impressed" : "Proud of your effort")
+        case "British Narrator":
+            return score > 60 ? "Observing poor habits" : (score > 30 ? "Documenting mediocrity" : "Witnessing excellence")
+        case "Your Ex (Female)":
+            return score > 60 ? "I told you so..." : (score > 30 ? "Could be better" : "Actually impressed")
+        case "Your Ex (Male)":
+            return score > 60 ? "This is why we broke up" : (score > 30 ? "Needs improvement bro" : "Not bad, not bad")
+        default:
+            return "Ready to roast"
+        }
+    }
+    
+    // MARK: - Character Stroke Functions
+    private func getCharacterMoodStroke() -> Color {
+        let score = calculateShameScore()
+        switch score {
+        case 0...30: return .green
+        case 31...50: return .yellow  
+        case 51...75: return .orange
+        default: return .red
+        }
+    }
+    
+    // MARK: - Quick Improvement Function
+    private func triggerQuickImprovement() {
+        let score = calculateShameScore()
+        let quickImprovementSuggestions = [
+            "Take 100 steps right now - your score will thank you later.",
+            "Do 10 burpees. Yes, right now. Stop making excuses.",
+            "Walk to your kitchen and back 5 times. It's pathetic but it's a start.",
+            "Stand up and do jumping jacks for 30 seconds. Your shame score is watching.",
+            "Drop and give me 10 push-ups. Your character is judging your commitment.",
+            "Walk around your room for 2 minutes. Even glacial movement is better than none.",
+            "Do wall sits for 30 seconds. Your fitness score needs immediate intervention.",
+            "Take the stairs instead of the elevator. Baby steps toward being less shameful."
+        ]
+        
+        let motivationalRoast = quickImprovementSuggestions.randomElement() ?? "Move your body. Any movement is better than this pathetic score."
+        
+        if let character = characterViewModel.selectedCharacter {
+            speechManager.speakRoast(motivationalRoast)
+        }
     }
 }
 
@@ -974,10 +1474,11 @@ struct RecentWorkoutCardView: View {
                         .foregroundColor(workoutTypeColor(workout.workoutType))
                     
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(workout.workoutType)
+                        Text(formatWorkoutName(workout.workoutType))
                             .font(.headline)
                             .fontWeight(.semibold)
                             .foregroundColor(.white)
+                            .lineLimit(1)
                         
                         Text(formatWorkoutDate(workout.date))
                             .font(.caption)
@@ -1046,15 +1547,16 @@ struct RecentWorkoutCardView: View {
                     Spacer()
                 }
             }
-            .padding(16)
-            .frame(width: 220)
+            .padding(20)
+            .frame(width: 300)
             .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color(.systemGray6).opacity(0.1))
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(Color(.systemGray6).opacity(0.08))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 16)
-                            .stroke(workoutTypeColor(workout.workoutType).opacity(0.3), lineWidth: 1)
+                        RoundedRectangle(cornerRadius: 20)
+                            .stroke(workoutTypeColor(workout.workoutType).opacity(0.4), lineWidth: 2)
                     )
+                    .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
             )
         }
         .buttonStyle(PlainButtonStyle())
@@ -1101,28 +1603,384 @@ struct RecentWorkoutCardView: View {
         return formatter.string(from: date)
     }
     
+    private func formatWorkoutName(_ type: String) -> String {
+        let cleanType = type.replacingOccurrences(of: "HKWorkoutActivityType", with: "")
+        
+        switch cleanType.lowercased() {
+        // Cardio Activities
+        case "running": return "Running"
+        case "walking": return "Walking"
+        case "cycling": return "Cycling"
+        case "swimming": return "Swimming"
+        case "hiking": return "Hiking"
+        case "rowing": return "Rowing"
+        case "stairclimbing": return "Stair Climbing"
+        case "elliptical": return "Elliptical"
+        case "crosstraining": return "Cross Training"
+        case "steptraining": return "Step Training"
+        case "fitnessgaming": return "Fitness Gaming"
+        
+        // Strength & Functional Training
+        case "strengthtraining": return "Strength Training"
+        case "functionalstrengthtraining": return "Functional Strength"
+        case "coretraining": return "Core Training"
+        case "flexibility": return "Flexibility"
+        case "yoga": return "Yoga"
+        case "pilates": return "Pilates"
+        case "gymnastics": return "Gymnastics"
+        case "barre": return "Barre"
+        case "traditionalstrengthtraining": return "Traditional Strength"
+        
+        // Team Sports
+        case "basketball": return "Basketball"
+        case "soccer": return "Soccer"
+        case "baseball": return "Baseball"
+        case "americanfootball": return "Football"
+        case "volleyball": return "Volleyball"
+        case "hockey": return "Hockey"
+        case "lacrosse": return "Lacrosse"
+        case "rugby": return "Rugby"
+        case "softball": return "Softball"
+        case "cricket": return "Cricket"
+        case "handball": return "Handball"
+        case "waterpolo": return "Water Polo"
+        case "australianfootball": return "Australian Football"
+        
+        // Racquet Sports
+        case "tennis": return "Tennis"
+        case "badminton": return "Badminton"
+        case "tabletennis": return "Table Tennis"
+        case "squash": return "Squash"
+        case "racquetball": return "Racquetball"
+        case "pickleball": return "Pickleball"
+        
+        // Combat Sports & Martial Arts
+        case "martialarts": return "Martial Arts"
+        case "boxing": return "Boxing"
+        case "kickboxing": return "Kickboxing"
+        case "taichi": return "Tai Chi"
+        case "wrestling": return "Wrestling"
+        case "fencing": return "Fencing"
+        case "mixedmetaboliccardiotraining": return "Mixed Cardio"
+        
+        // Water Sports
+        case "surfing": return "Surfing"
+        case "paddling": return "Paddling"
+        case "sailing": return "Sailing"
+        case "canoeing": return "Canoeing"
+        case "kayaking": return "Kayaking"
+        case "fishing": return "Fishing"
+        case "kitesurfing": return "Kitesurfing"
+        case "standuppaddling": return "Stand Up Paddling"
+        
+        // Winter Sports
+        case "skiing": return "Skiing"
+        case "snowboarding": return "Snowboarding"
+        case "skating": return "Skating"
+        case "crosscountryskiing": return "Cross Country Skiing"
+        case "snowshoeing": return "Snowshoeing"
+        case "curling": return "Curling"
+        case "sledding": return "Sledding"
+        
+        // High Intensity & Circuit Training
+        case "highintensityintervaltraining": return "HIIT"
+        case "jumpingjacks": return "Jumping Jacks"
+        case "burpees": return "Burpees"
+        case "jumprope": return "Jump Rope"
+        
+        // Dance & Movement
+        case "dance": return "Dance"
+        case "socialdance": return "Social Dance"
+        case "cardiodance": return "Cardio Dance"
+        
+        // Outdoor Activities
+        case "golf": return "Golf"
+        case "climbing": return "Climbing"
+        case "rockclimbing": return "Rock Climbing"
+        case "hunting": return "Hunting"
+        case "play": return "Play"
+        case "track": return "Track & Field"
+        case "mixedcardio": return "Mixed Cardio"
+        
+        // Mind & Body
+        case "mindandbody": return "Mind & Body"
+        case "meditation": return "Meditation"
+        case "breathwork": return "Breathwork"
+        
+        // Low Impact & Recovery
+        case "cooldown": return "Cool Down"
+        case "preparation": return "Warm Up"
+        case "wheelchairwalkpace": return "Wheelchair Walk"
+        case "wheelchairrunpace": return "Wheelchair Run"
+        
+        // Individual Sports
+        case "bowling": return "Bowling"
+        case "archery": return "Archery"
+        case "darts": return "Darts"
+        case "equestrian": return "Equestrian"
+        case "discsports": return "Disc Sports"
+        
+        // Motor Sports
+        case "motorcycling": return "Motorcycling"
+        
+        // General Activities
+        case "other": return "Other Workout"
+        
+        default:
+            // Convert camelCase to readable format
+            let result = cleanType.replacingOccurrences(of: "([a-z])([A-Z])", with: "$1 $2", options: .regularExpression)
+            return result.capitalized
+        }
+    }
+    
     private func workoutTypeIcon(_ type: String) -> String {
-        switch type.lowercased() {
+        let cleanType = type.lowercased().replacingOccurrences(of: "hkworkoutactivitytype", with: "")
+        
+        switch cleanType {
+        // Cardio
         case "running": return "figure.run"
         case "walking": return "figure.walk"
         case "cycling": return "bicycle"
         case "swimming": return "figure.pool.swim"
-        case "yoga": return "figure.mind.and.body"
-        case "strength training", "functional training": return "dumbbell"
-        case "core training": return "figure.core.training"
+        case "hiking": return "figure.hiking"
+        case "rowing": return "figure.rower"
+        case "stairclimbing": return "figure.stairs"
+        case "elliptical": return "figure.elliptical"
+        case "crosstraining": return "figure.mixed.cardio"
+        case "steptraining": return "figure.step.training"
+        case "fitnessgaming": return "gamecontroller.fill"
+        
+        // Strength & Functional
+        case "strengthtraining", "functionalstrengthtraining", "traditionalstrengthtraining": return "dumbbell"
+        case "coretraining": return "figure.core.training"
+        case "flexibility": return "figure.flexibility"
+        case "yoga": return "figure.yoga"
+        case "pilates": return "figure.pilates"
+        case "gymnastics": return "figure.gymnastics"
+        case "barre": return "figure.barre"
+        
+        // Team Sports
+        case "tennis": return "figure.tennis"
+        case "golf": return "figure.golf"
+        case "basketball": return "basketball.fill"
+        case "soccer": return "soccerball"
+        case "baseball": return "baseball.fill"
+        case "americanfootball": return "football.fill"
+        case "volleyball": return "volleyball.fill"
+        case "hockey": return "hockey.puck.fill"
+        case "lacrosse": return "figure.lacrosse"
+        case "rugby": return "figure.rugby"
+        case "softball": return "baseball.fill"
+        case "cricket": return "cricket.ball.fill"
+        case "handball": return "handball.fill"
+        case "waterpolo": return "figure.water.polo"
+        case "australianfootball": return "football.fill"
+        
+        // Racquet Sports
+        case "badminton": return "figure.badminton"
+        case "tabletennis": return "figure.table.tennis"
+        case "squash": return "figure.racquetball"
+        case "racquetball": return "figure.racquetball"
+        case "pickleball": return "figure.pickleball"
+        
+        // Combat Sports & Martial Arts
+        case "martialarts": return "figure.martial.arts"
+        case "boxing": return "figure.boxing"
+        case "kickboxing": return "figure.kickboxing"
+        case "taichi": return "figure.taichi"
+        case "wrestling": return "figure.wrestling"
+        case "fencing": return "figure.fencing"
+        case "mixedmetaboliccardiotraining": return "figure.mixed.cardio"
+        
+        // Water Sports
+        case "surfing": return "figure.surfing"
+        case "paddling": return "figure.outdoor.cycle"
+        case "sailing": return "figure.sailing"
+        case "canoeing": return "figure.open.water.swim"
+        case "kayaking": return "figure.kayaking"
+        case "fishing": return "figure.fishing"
+        case "kitesurfing": return "figure.surfing"
+        case "standuppaddling": return "figure.stand.and.talk"
+        
+        // Winter Sports
+        case "skiing": return "figure.skiing.downhill"
+        case "snowboarding": return "figure.snowboarding"
+        case "skating": return "figure.skating"
+        case "crosscountryskiing": return "figure.skiing.crosscountry"
+        case "snowshoeing": return "figure.hiking"
+        case "curling": return "sportscourt.fill"
+        case "sledding": return "figure.skiing.downhill"
+        
+        // High Intensity & Circuit Training
+        case "highintensityintervaltraining": return "figure.highintensity.intervaltraining"
+        case "jumpingjacks": return "figure.jumprope"
+        case "burpees": return "figure.burpee"
+        case "jumprope": return "figure.jumprope"
+        
+        // Dance & Movement
+        case "dance": return "figure.dance"
+        case "socialdance": return "figure.socialdance"
+        case "cardiodance": return "figure.dance"
+        
+        // Outdoor Activities
+        case "golf": return "figure.golf"
+        case "climbing": return "figure.climbing"
+        case "rockclimbing": return "figure.climbing"
+        case "hunting": return "figure.hunting"
+        case "play": return "figure.play"
+        case "track": return "figure.track.and.field"
+        case "mixedcardio": return "figure.mixed.cardio"
+        
+        // Mind & Body
+        case "mindandbody": return "figure.mind.and.body"
+        case "meditation": return "figure.meditation"
+        case "breathwork": return "lungs.fill"
+        
+        // Low Impact & Recovery
+        case "cooldown": return "figure.cooldown"
+        case "preparation": return "figure.preparation"
+        case "wheelchairwalkpace": return "figure.roll"
+        case "wheelchairrunpace": return "figure.roll.runningpace"
+        
+        // Individual Sports
+        case "bowling": return "figure.bowling"
+        case "archery": return "figure.archery"
+        case "darts": return "target"
+        case "equestrian": return "figure.equestrian.sports"
+        case "discsports": return "figure.disc.sports"
+        
+        // Motor Sports
+        case "motorcycling": return "car.fill"
+        
+        // Other
+        case "other": return "figure.mixed.cardio"
+        
         default: return "figure.mixed.cardio"
         }
     }
     
     private func workoutTypeColor(_ type: String) -> Color {
-        switch type.lowercased() {
+        let cleanType = type.lowercased().replacingOccurrences(of: "hkworkoutactivitytype", with: "")
+        
+        switch cleanType {
+        // Cardio - Green family
         case "running": return .green
-        case "walking": return .blue
-        case "cycling": return .orange
+        case "walking": return .mint
+        case "cycling": return .teal
         case "swimming": return .cyan
+        case "hiking": return Color(.systemGreen)
+        case "rowing": return .blue
+        case "stairclimbing": return Color(.systemBlue)
+        case "elliptical": return .indigo
+        case "crosstraining": return .purple
+        case "steptraining": return .green
+        case "fitnessgaming": return .purple
+        
+        // Strength & Functional - Red family
+        case "strengthtraining", "functionalstrengthtraining", "traditionalstrengthtraining": return .red
+        case "coretraining": return .pink
+        case "flexibility": return Color(.systemPink)
         case "yoga": return .purple
-        case "strength training", "functional training": return .red
-        case "core training": return .pink
+        case "pilates": return Color(.systemPurple)
+        case "gymnastics": return .indigo
+        case "barre": return .pink
+        
+        // Team Sports - Orange family
+        case "tennis": return .orange
+        case "golf": return Color(.systemGreen)
+        case "basketball": return .orange
+        case "soccer": return Color(.systemGreen)
+        case "baseball": return .brown
+        case "americanfootball": return .brown
+        case "volleyball": return .yellow
+        case "hockey": return .blue
+        case "lacrosse": return .green
+        case "rugby": return Color(.systemGreen)
+        case "softball": return .brown
+        case "cricket": return .green
+        case "handball": return .orange
+        case "waterpolo": return .cyan
+        case "australianfootball": return .orange
+        
+        // Racquet Sports - Orange family
+        case "badminton": return .green
+        case "tabletennis": return .red
+        case "squash": return .yellow
+        case "racquetball": return .orange
+        case "pickleball": return .green
+        
+        // Combat Sports & Martial Arts - Red family
+        case "martialarts": return .red
+        case "boxing": return Color(.systemRed)
+        case "kickboxing": return .orange
+        case "taichi": return .mint
+        case "wrestling": return .red
+        case "fencing": return Color(.systemGray)
+        case "mixedmetaboliccardiotraining": return .red
+        
+        // Water Sports - Blue family
+        case "surfing": return .cyan
+        case "paddling": return .blue
+        case "sailing": return Color(.systemBlue)
+        case "canoeing": return .teal
+        case "kayaking": return .cyan
+        case "fishing": return .blue
+        case "kitesurfing": return .cyan
+        case "standuppaddling": return .teal
+        
+        // Winter Sports - Blue/White family
+        case "skiing": return .cyan
+        case "snowboarding": return .blue
+        case "skating": return Color(.systemBlue)
+        case "crosscountryskiing": return .mint
+        case "snowshoeing": return Color(.systemBlue)
+        case "curling": return .blue
+        case "sledding": return .cyan
+        
+        // High Intensity - Red family
+        case "highintensityintervaltraining": return .red
+        case "jumpingjacks": return .orange
+        case "burpees": return Color(.systemRed)
+        case "jumprope": return .orange
+        
+        // Dance & Movement - Pink family
+        case "dance": return .pink
+        case "socialdance": return Color(.systemPink)
+        case "cardiodance": return .pink
+        
+        // Outdoor Activities - Green family
+        case "golf": return Color(.systemGreen)
+        case "climbing": return .brown
+        case "rockclimbing": return Color(.systemBrown)
+        case "hunting": return .brown
+        case "play": return .yellow
+        case "track": return .orange
+        case "mixedcardio": return .purple
+        
+        // Mind & Body - Purple family
+        case "mindandbody": return .purple
+        case "meditation": return .indigo
+        case "breathwork": return .mint
+        
+        // Low Impact & Recovery - Mint family
+        case "cooldown": return .mint
+        case "preparation": return .yellow
+        case "wheelchairwalkpace": return .mint
+        case "wheelchairrunpace": return .green
+        
+        // Individual Sports - Various
+        case "bowling": return .orange
+        case "archery": return .green
+        case "darts": return .red
+        case "equestrian": return .brown
+        case "discsports": return .orange
+        
+        // Motor Sports
+        case "motorcycling": return .gray
+        
+        // Other
+        case "other": return .gray
+        
         default: return .gray
         }
     }
@@ -1247,7 +2105,7 @@ struct WorkoutRowView: View {
                 
                 VStack(alignment: .leading, spacing: 4) {
                     HStack {
-                        Text(workout.workoutType)
+                        Text(formatWorkoutName(workout.workoutType))
                             .font(.headline)
                             .foregroundColor(.primary)
                         Spacer()
@@ -1321,28 +2179,310 @@ struct WorkoutRowView: View {
     }
     
     private func workoutTypeIcon(_ type: String) -> String {
-        switch type.lowercased() {
+        let cleanType = type.lowercased().replacingOccurrences(of: "hkworkoutactivitytype", with: "")
+        
+        switch cleanType {
+        // Cardio
         case "running": return "figure.run"
         case "walking": return "figure.walk"
         case "cycling": return "bicycle"
         case "swimming": return "figure.pool.swim"
-        case "yoga": return "figure.mind.and.body"
-        case "strength training", "functional training": return "dumbbell"
-        case "core training": return "figure.core.training"
+        case "hiking": return "figure.hiking"
+        case "rowing": return "figure.rower"
+        case "stairclimbing": return "figure.stairs"
+        case "elliptical": return "figure.elliptical"
+        case "crosstraining": return "figure.mixed.cardio"
+        case "steptraining": return "figure.step.training"
+        case "fitnessgaming": return "gamecontroller.fill"
+        
+        // Strength & Functional
+        case "strengthtraining", "functionalstrengthtraining", "traditionalstrengthtraining": return "dumbbell"
+        case "coretraining": return "figure.core.training"
+        case "flexibility": return "figure.flexibility"
+        case "yoga": return "figure.yoga"
+        case "pilates": return "figure.pilates"
+        case "gymnastics": return "figure.gymnastics"
+        case "barre": return "figure.barre"
+        
+        // Team Sports
+        case "tennis": return "figure.tennis"
+        case "golf": return "figure.golf"
+        case "basketball": return "basketball.fill"
+        case "soccer": return "soccerball"
+        case "baseball": return "baseball.fill"
+        case "americanfootball": return "football.fill"
+        case "volleyball": return "volleyball.fill"
+        case "hockey": return "hockey.puck.fill"
+        case "lacrosse": return "figure.lacrosse"
+        case "rugby": return "figure.rugby"
+        case "softball": return "baseball.fill"
+        case "cricket": return "cricket.ball.fill"
+        case "handball": return "handball.fill"
+        case "waterpolo": return "figure.water.polo"
+        case "australianfootball": return "football.fill"
+        
+        // Racquet Sports
+        case "badminton": return "figure.badminton"
+        case "tabletennis": return "figure.table.tennis"
+        case "squash": return "figure.racquetball"
+        case "racquetball": return "figure.racquetball"
+        case "pickleball": return "figure.pickleball"
+        
+        // Combat Sports & Martial Arts
+        case "martialarts": return "figure.martial.arts"
+        case "boxing": return "figure.boxing"
+        case "kickboxing": return "figure.kickboxing"
+        case "taichi": return "figure.taichi"
+        case "wrestling": return "figure.wrestling"
+        case "fencing": return "figure.fencing"
+        case "mixedmetaboliccardiotraining": return "figure.mixed.cardio"
+        
+        // Water Sports
+        case "surfing": return "figure.surfing"
+        case "paddling": return "figure.outdoor.cycle"
+        case "sailing": return "figure.sailing"
+        case "canoeing": return "figure.open.water.swim"
+        case "kayaking": return "figure.kayaking"
+        case "fishing": return "figure.fishing"
+        case "kitesurfing": return "figure.surfing"
+        case "standuppaddling": return "figure.stand.and.talk"
+        
+        // Winter Sports
+        case "skiing": return "figure.skiing.downhill"
+        case "snowboarding": return "figure.snowboarding"
+        case "skating": return "figure.skating"
+        case "crosscountryskiing": return "figure.skiing.crosscountry"
+        case "snowshoeing": return "figure.hiking"
+        case "curling": return "sportscourt.fill"
+        case "sledding": return "figure.skiing.downhill"
+        
+        // High Intensity & Circuit Training
+        case "highintensityintervaltraining": return "figure.highintensity.intervaltraining"
+        case "jumpingjacks": return "figure.jumprope"
+        case "burpees": return "figure.burpee"
+        case "jumprope": return "figure.jumprope"
+        
+        // Dance & Movement
+        case "dance": return "figure.dance"
+        case "socialdance": return "figure.socialdance"
+        case "cardiodance": return "figure.dance"
+        
+        // Outdoor Activities
+        case "golf": return "figure.golf"
+        case "climbing": return "figure.climbing"
+        case "rockclimbing": return "figure.climbing"
+        case "hunting": return "figure.hunting"
+        case "play": return "figure.play"
+        case "track": return "figure.track.and.field"
+        case "mixedcardio": return "figure.mixed.cardio"
+        
+        // Mind & Body
+        case "mindandbody": return "figure.mind.and.body"
+        case "meditation": return "figure.meditation"
+        case "breathwork": return "lungs.fill"
+        
+        // Low Impact & Recovery
+        case "cooldown": return "figure.cooldown"
+        case "preparation": return "figure.preparation"
+        case "wheelchairwalkpace": return "figure.roll"
+        case "wheelchairrunpace": return "figure.roll.runningpace"
+        
+        // Individual Sports
+        case "bowling": return "figure.bowling"
+        case "archery": return "figure.archery"
+        case "darts": return "target"
+        case "equestrian": return "figure.equestrian.sports"
+        case "discsports": return "figure.disc.sports"
+        
+        // Motor Sports
+        case "motorcycling": return "car.fill"
+        
+        // Other
+        case "other": return "figure.mixed.cardio"
+        
         default: return "figure.mixed.cardio"
         }
     }
     
     private func workoutTypeColor(_ type: String) -> Color {
-        switch type.lowercased() {
+        let cleanType = type.lowercased().replacingOccurrences(of: "hkworkoutactivitytype", with: "")
+        
+        switch cleanType {
+        // Cardio - Green family
         case "running": return .green
-        case "walking": return .blue
-        case "cycling": return .orange
+        case "walking": return .mint
+        case "cycling": return .teal
         case "swimming": return .cyan
+        case "hiking": return Color(.systemGreen)
+        case "rowing": return .blue
+        case "stairclimbing": return Color(.systemBlue)
+        case "elliptical": return .indigo
+        case "crosstraining": return .purple
+        case "steptraining": return .green
+        case "fitnessgaming": return .purple
+        
+        // Strength & Functional - Red family
+        case "strengthtraining", "functionalstrengthtraining", "traditionalstrengthtraining": return .red
+        case "coretraining": return .pink
+        case "flexibility": return Color(.systemPink)
         case "yoga": return .purple
-        case "strength training", "functional training": return .red
-        case "core training": return .pink
+        case "pilates": return Color(.systemPurple)
+        case "gymnastics": return .indigo
+        case "barre": return .pink
+        
+        // Team Sports - Orange family
+        case "tennis": return .orange
+        case "golf": return Color(.systemGreen)
+        case "basketball": return .orange
+        case "soccer": return Color(.systemGreen)
+        case "baseball": return .brown
+        case "americanfootball": return .brown
+        case "volleyball": return .yellow
+        case "hockey": return .blue
+        case "lacrosse": return .green
+        case "rugby": return Color(.systemGreen)
+        case "softball": return .brown
+        case "cricket": return .green
+        case "handball": return .orange
+        case "waterpolo": return .cyan
+        case "australianfootball": return .orange
+        
+        // Racquet Sports - Orange family
+        case "badminton": return .green
+        case "tabletennis": return .red
+        case "squash": return .yellow
+        case "racquetball": return .orange
+        case "pickleball": return .green
+        
+        // Combat Sports & Martial Arts - Red family
+        case "martialarts": return .red
+        case "boxing": return Color(.systemRed)
+        case "kickboxing": return .orange
+        case "taichi": return .mint
+        case "wrestling": return .red
+        case "fencing": return Color(.systemGray)
+        case "mixedmetaboliccardiotraining": return .red
+        
+        // Water Sports - Blue family
+        case "surfing": return .cyan
+        case "paddling": return .blue
+        case "sailing": return Color(.systemBlue)
+        case "canoeing": return .teal
+        case "kayaking": return .cyan
+        case "fishing": return .blue
+        case "kitesurfing": return .cyan
+        case "standuppaddling": return .teal
+        
+        // Winter Sports - Blue/White family
+        case "skiing": return .cyan
+        case "snowboarding": return .blue
+        case "skating": return Color(.systemBlue)
+        case "crosscountryskiing": return .mint
+        case "snowshoeing": return Color(.systemBlue)
+        case "curling": return .blue
+        case "sledding": return .cyan
+        
+        // High Intensity - Red family
+        case "highintensityintervaltraining": return .red
+        case "jumpingjacks": return .orange
+        case "burpees": return Color(.systemRed)
+        case "jumprope": return .orange
+        
+        // Dance & Movement - Pink family
+        case "dance": return .pink
+        case "socialdance": return Color(.systemPink)
+        case "cardiodance": return .pink
+        
+        // Outdoor Activities - Green family
+        case "golf": return Color(.systemGreen)
+        case "climbing": return .brown
+        case "rockclimbing": return Color(.systemBrown)
+        case "hunting": return .brown
+        case "play": return .yellow
+        case "track": return .orange
+        case "mixedcardio": return .purple
+        
+        // Mind & Body - Purple family
+        case "mindandbody": return .purple
+        case "meditation": return .indigo
+        case "breathwork": return .mint
+        
+        // Low Impact & Recovery - Mint family
+        case "cooldown": return .mint
+        case "preparation": return .yellow
+        case "wheelchairwalkpace": return .mint
+        case "wheelchairrunpace": return .green
+        
+        // Individual Sports - Various
+        case "bowling": return .orange
+        case "archery": return .green
+        case "darts": return .red
+        case "equestrian": return .brown
+        case "discsports": return .orange
+        
+        // Motor Sports
+        case "motorcycling": return .gray
+        
+        // Other
+        case "other": return .gray
+        
         default: return .gray
+        }
+    }
+    
+    private func formatWorkoutName(_ type: String) -> String {
+        let cleanType = type.replacingOccurrences(of: "HKWorkoutActivityType", with: "")
+        
+        switch cleanType.lowercased() {
+        case "running": return "Running"
+        case "walking": return "Walking"
+        case "cycling": return "Cycling"
+        case "swimming": return "Swimming"
+        case "hiking": return "Hiking"
+        case "rowing": return "Rowing"
+        case "stairclimbing": return "Stair Climbing"
+        case "elliptical": return "Elliptical"
+        case "crosstraining": return "Cross Training"
+        case "strengthtraining": return "Strength Training"
+        case "functionalstrengthtraining": return "Functional Strength"
+        case "coretraining": return "Core Training"
+        case "flexibility": return "Flexibility"
+        case "yoga": return "Yoga"
+        case "pilates": return "Pilates"
+        case "gymnastics": return "Gymnastics"
+        case "tennis": return "Tennis"
+        case "golf": return "Golf"
+        case "basketball": return "Basketball"
+        case "soccer": return "Soccer"
+        case "baseball": return "Baseball"
+        case "americanfootball": return "Football"
+        case "volleyball": return "Volleyball"
+        case "badminton": return "Badminton"
+        case "tabletennis": return "Table Tennis"
+        case "dance": return "Dance"
+        case "martialarts": return "Martial Arts"
+        case "boxing": return "Boxing"
+        case "kickboxing": return "Kickboxing"
+        case "taichi": return "Tai Chi"
+        case "surfing": return "Surfing"
+        case "paddling": return "Paddling"
+        case "sailing": return "Sailing"
+        case "skiing": return "Skiing"
+        case "snowboarding": return "Snowboarding"
+        case "skating": return "Skating"
+        case "highintensityintervaltraining": return "HIIT"
+        case "jumpingjacks": return "Jumping Jacks"
+        case "burpees": return "Burpees"
+        case "mindandbody": return "Mind & Body"
+        case "meditation": return "Meditation"
+        case "breathwork": return "Breathwork"
+        case "other": return "Other Workout"
+        case "cooldown": return "Cool Down"
+        case "preparation": return "Warm Up"
+        default:
+            // Convert camelCase to readable format
+            let result = cleanType.replacingOccurrences(of: "([a-z])([A-Z])", with: "$1 $2", options: .regularExpression)
+            return result.capitalized
         }
     }
 }

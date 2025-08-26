@@ -19,8 +19,8 @@ struct Character: Identifiable, Equatable {
         Character(
             name: "Drill Sergeant",
             voiceId: "DGzg6RaUqxGRTHSBjfgF",
-            description: "Tough love fitness coach",
-            imageName: "drill_sergeant",
+            description: "Military-grade motivation with zero tolerance for excuses",
+            imageName: "drill",
             voiceSettings: VoiceSettings(
                 stability: 0.5,
                 similarityBoost: 0.75,
@@ -31,8 +31,8 @@ struct Character: Identifiable, Equatable {
         Character(
             name: "British Narrator",
             voiceId: "WdZjiN0nNcik2LBjOHiv",
-            description: "British nature narrator",
-            imageName: "british_narrator",
+            description: "Documentary-style commentary on your pathetic fitness journey",
+            imageName: "narrator",
             voiceSettings: VoiceSettings(
                 stability: 0.7,
                 similarityBoost: 0.8,
@@ -41,10 +41,10 @@ struct Character: Identifiable, Equatable {
             )
         ),
         Character(
-            name: "Your Ex",
+            name: "Your Ex (Female)",
             voiceId: "T7eLpgAAhoXHlrNajG8v",
-            description: "That toxic ex who 'just wants to help'",
-            imageName: "your_ex",
+            description: "Sweet-talking saboteur who remembers every workout you skipped",
+            imageName: "female-ex",
             voiceSettings: VoiceSettings(
                 stability: 0.6,
                 similarityBoost: 0.85,
@@ -53,13 +53,13 @@ struct Character: Identifiable, Equatable {
             )
         ),
         Character(
-            name: "The Savage",
-            voiceId: "DGzg6RaUqxGRTHSBjfgF", // Using drill sergeant voice for now
-            description: "No mercy, no excuses, pure brutality",
-            imageName: "savage",
+            name: "Your Ex (Male)",
+            voiceId: "cgLpYGyXZhkyalKZ0xeZ",
+            description: "Mansplaining fitness bro who still thinks he's your personal trainer",
+            imageName: "male-ex",
             voiceSettings: VoiceSettings(
-                stability: 0.4,
-                similarityBoost: 0.9,
+                stability: 0.5,
+                similarityBoost: 0.8,
                 style: 0.6,
                 speakerBoost: true
             )

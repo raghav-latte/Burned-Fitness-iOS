@@ -77,9 +77,9 @@ struct RoastLibrary {
         "Remarkably, this creature has managed to compress an entire workout into the time it takes to sneeze."
     ]
     
-    // MARK: - Your Ex Roasts
+    // MARK: - Your Ex (Female) Roasts
     
-    static let yourExNoWorkoutRoasts = [
+    static let yourExFemaleNoWorkoutRoasts = [
         "No workout today? Just like old times - all talk, no action.",
         "Skipping the gym again? Your consistency is as reliable as your 'I'll change' promises.",
         "No exercise? Still choosing the couch over self-improvement. Classic you.",
@@ -94,7 +94,7 @@ struct RoastLibrary {
         "Couch potato mode activated? Just like when we'd make plans and you'd cancel last minute."
     ]
     
-    static let yourExStepRoasts = [
+    static let yourExFemaleStepRoasts = [
         "Step count so low, just like your standards after me.",
         "You've taken more steps backwards in life than forward today.",
         "Wow. Still stuck in the same place, physically and emotionally.",
@@ -105,7 +105,7 @@ struct RoastLibrary {
         "Even less mobile than your emotional availability."
     ]
     
-    static let yourExCalorieRoasts = [
+    static let yourExFemaleCalorieRoasts = [
         "Those calories? That's less energy than I spent pretending to care about your stories.",
         "You burned fewer calories than you burned our bridge.",
         "Even your metabolism is giving you the bare minimum.",
@@ -115,7 +115,7 @@ struct RoastLibrary {
         "Wow, actually showing effort. New person must be special."
     ]
     
-    static let yourExDurationRoasts = [
+    static let yourExFemaleDurationRoasts = [
         "That duration? Just like the amount of effort you put into us.",
         "Lasted longer than your attention span in our conversations.",
         "Still can't commit to anything, I see.",
@@ -123,6 +123,54 @@ struct RoastLibrary {
         "Your rebound relationships last longer than this.",
         "Getting warmer, unlike your cold heart.",
         "Look at you actually committing to something. There's a first time for everything."
+    ]
+    
+    // MARK: - Your Ex (Male) Roasts
+    
+    static let yourExMaleNoWorkoutRoasts = [
+        "No workout today? Bro, I told you fitness was important. Guess you didn't listen then either.",
+        "Skipping the gym again? This is exactly why things didn't work out between us.",
+        "No exercise? Still making the same weak excuses you made when we were together.",
+        "Zero effort today? At least you're consistent with disappointing people.",
+        "No workout? Your commitment issues are showing again, just like before.",
+        "Rest day number what, 47? Your dedication to mediocrity is actually impressive.",
+        "No gym session? Still prioritizing Netflix over self-improvement, I see.",
+        "Avoiding exercise like you avoided difficult conversations. Some habits never change.",
+        "No workout again? This is why I had to upgrade to someone who actually tries.",
+        "Skipping fitness like you skipped our anniversary. Classic move.",
+        "No exercise today? Your follow-through is still as weak as your workout game.",
+        "Another lazy day? No wonder I had to find someone who actually cares about their health."
+    ]
+    
+    static let yourExMaleStepRoasts = [
+        "That step count? Even less than the effort you put into our relationship.",
+        "You've moved less than you did when I asked you to help with chores.",
+        "Still stationary, just like your career when we were dating.",
+        "Your daily movement is as minimal as your emotional growth since we broke up.",
+        "Even your Fitbit has given up, just like I did.",
+        "Those steps wouldn't get you to the gym, let alone to a better version of yourself.",
+        "Moving less than when you'd 'help' me move apartments. Remember that?",
+        "Your step count matches your motivation level - basically nonexistent."
+    ]
+    
+    static let yourExMaleCalorieRoasts = [
+        "Those calories? That's less energy than you spent arguing about whose turn it was to cook.",
+        "You burned fewer calories than I burned trying to change you.",
+        "Even your metabolism is putting in minimal effort, just like you always did.",
+        "You're burning calories like you burned our relationship - slowly and ineffectively.",
+        "That calorie count is as low as your standards for personal growth.",
+        "Congratulations, you've burned off exactly one beer. Progress, I guess?",
+        "Almost as pathetic as the energy you put into remembering important dates."
+    ]
+    
+    static let yourExMaleDurationRoasts = [
+        "That workout duration? Reminds me of your attention span during serious conversations.",
+        "Lasted longer than your commitment to 'changing' for the better.",
+        "Still can't stick with anything, can you? Some things never change.",
+        "That's about as long as you'd last helping with household responsibilities.",
+        "Your workout endurance matches your relationship endurance - pretty weak.",
+        "Getting better, unlike your communication skills back then.",
+        "Look at you actually finishing something. Character development at its finest."
     ]
     
     // MARK: - The Savage Roasts
@@ -193,7 +241,7 @@ struct RoastLibrary {
                 return "Fascinating! \(stepCount) steps suggests this human has discovered the concept of movement."
             }
             
-        case "Your Ex":
+        case "Your Ex (Female)":
             if stepCount < 500 {
                 return "\(stepCount) steps? Even less mobile than your emotional availability."
             } else if stepCount < 2000 {
@@ -202,6 +250,17 @@ struct RoastLibrary {
                 return "\(stepCount) steps today. Moving more than you did in our entire relationship."
             } else {
                 return "\(stepCount) steps? Finally learning to walk away from things. Too bad you learned too late."
+            }
+            
+        case "Your Ex (Male)":
+            if stepCount < 500 {
+                return "\(stepCount) steps? That's even less movement than when I asked you to help around the house."
+            } else if stepCount < 2000 {
+                return "\(stepCount) steps? Bro, that's barely enough to walk to the fridge and back."
+            } else if stepCount < 5000 {
+                return "\(stepCount) steps today. Finally moving more than you did during our entire relationship."
+            } else {
+                return "\(stepCount) steps? Look at you actually putting in effort. Too bad it's too late."
             }
             
         case "The Savage":
@@ -244,7 +303,7 @@ struct RoastLibrary {
                 return "Remarkable! \(calories) calories suggests this creature has discovered purposeful movement."
             }
             
-        case "Your Ex":
+        case "Your Ex (Female)":
             if calories < 50 {
                 return "\(calories) calories? That's less energy than I spent pretending to care about your stories."
             } else if calories < 150 {
@@ -253,6 +312,17 @@ struct RoastLibrary {
                 return "\(calories) calories burned. Almost as many as I burned deleting your photos."
             } else {
                 return "\(calories) calories? Wow, actually showing effort. New person must be special."
+            }
+            
+        case "Your Ex (Male)":
+            if calories < 50 {
+                return "\(calories) calories? That's less energy than you spent arguing about whose turn it was to do dishes."
+            } else if calories < 150 {
+                return "\(calories) calories? You've burned off exactly one beer. Congrats, I guess?"
+            } else if calories < 300 {
+                return "\(calories) calories burned. Almost as much effort as you put into remembering anniversaries."
+            } else {
+                return "\(calories) calories? Finally putting in work. Wish you'd done that for us."
             }
             
         case "The Savage":
@@ -295,7 +365,7 @@ struct RoastLibrary {
                 return "Fascinating! \(minutes) minutes suggests this species has discovered sustained movement."
             }
             
-        case "Your Ex":
+        case "Your Ex (Female)":
             if minutes == 0 {
                 return "0 minutes? Just like the amount of effort you put into us."
             } else if minutes < 15 {
@@ -304,6 +374,17 @@ struct RoastLibrary {
                 return "\(minutes) minutes? Getting warmer, unlike your cold heart."
             } else {
                 return "\(minutes) minutes? Look at you actually committing to something. There's a first time for everything."
+            }
+            
+        case "Your Ex (Male)":
+            if minutes == 0 {
+                return "0 minutes? Just like your commitment to personal growth when we were together."
+            } else if minutes < 15 {
+                return "\(minutes) minutes? That's about how long you'd help with chores before finding an excuse."
+            } else if minutes < 30 {
+                return "\(minutes) minutes? Finally sticking with something longer than your workout promises."
+            } else {
+                return "\(minutes) minutes? Impressive endurance. Too bad you couldn't apply that to relationships."
             }
             
         case "The Savage":
@@ -332,8 +413,11 @@ struct RoastLibrary {
         case "British Narrator":
             return "Observe: \(minutes) minutes of movement yielding \(calories) calories at \(heartRate) BPM - a masterclass in biological efficiency."
             
-        case "Your Ex":
+        case "Your Ex (Female)":
             return "\(minutes) minutes, \(calories) calories, \(heartRate) BPM? Still putting in minimal effort, I see. Some things never change."
+            
+        case "Your Ex (Male)":
+            return "\(minutes) minutes, \(calories) calories, \(heartRate) BPM? Bro, that's the same half-hearted effort you brought to everything else."
             
         case "The Savage":
             return "Let me get this straight: \(minutes) minutes for \(calories) calories at \(heartRate) BPM? My phone's battery worked harder than you did."
@@ -369,14 +453,23 @@ struct RoastLibrary {
         case ("British Narrator", .duration):
             return britishNarratorDurationRoasts
             
-        case ("Your Ex", .noWorkout):
-            return yourExNoWorkoutRoasts
-        case ("Your Ex", .steps):
-            return yourExStepRoasts
-        case ("Your Ex", .calories):
-            return yourExCalorieRoasts
-        case ("Your Ex", .duration):
-            return yourExDurationRoasts
+        case ("Your Ex (Female)", .noWorkout):
+            return yourExFemaleNoWorkoutRoasts
+        case ("Your Ex (Female)", .steps):
+            return yourExFemaleStepRoasts
+        case ("Your Ex (Female)", .calories):
+            return yourExFemaleCalorieRoasts
+        case ("Your Ex (Female)", .duration):
+            return yourExFemaleDurationRoasts
+            
+        case ("Your Ex (Male)", .noWorkout):
+            return yourExMaleNoWorkoutRoasts
+        case ("Your Ex (Male)", .steps):
+            return yourExMaleStepRoasts
+        case ("Your Ex (Male)", .calories):
+            return yourExMaleCalorieRoasts
+        case ("Your Ex (Male)", .duration):
+            return yourExMaleDurationRoasts
             
         case ("The Savage", .noWorkout):
             return theSavageNoWorkoutRoasts
