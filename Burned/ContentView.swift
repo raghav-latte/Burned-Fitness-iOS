@@ -168,6 +168,7 @@ struct CharacterCardDeckView: View {
                     }
                     .frame(width: cardWidth, height: cardHeight)
                     .scaleEffect(selectedIndex == index ? 1.0 : 0.9)
+                    .opacity(1.0)  // Force full opacity for all cards
                     .offset(x: offsetForCard(at: index, cardWidth: cardWidth))
                     .zIndex(selectedIndex == index ? 1000 : Double(characters.count - index))
                     .animation(.spring(response: 0.6, dampingFraction: 0.8), value: selectedIndex)
@@ -225,7 +226,6 @@ struct CharacterCardView: View {
     
     var body: some View {
         ZStack {
-            // Background gradient based on character
             RoundedRectangle(cornerRadius: 20)
                 .fill(
                     LinearGradient(
@@ -345,15 +345,15 @@ struct CharacterCardView: View {
     private func gradientForCharacter(_ name: String) -> Gradient {
         switch name {
         case "Drill Sergeant":
-            return Gradient(colors: [Color.green.opacity(0.8), Color.black])
+            return Gradient(colors: [Color.green, Color.black])
         case "British Narrator":
-            return Gradient(colors: [Color.blue.opacity(0.8), Color.indigo])
+            return Gradient(colors: [Color.blue, Color.indigo])
         case "Your Ex":
-            return Gradient(colors: [Color.purple.opacity(0.8), Color.pink.opacity(0.6)])
+            return Gradient(colors: [Color.purple, Color.pink])
         case "The Savage":
-            return Gradient(colors: [Color.red.opacity(0.8), Color.orange.opacity(0.7)])
+            return Gradient(colors: [Color.red, Color.orange])
         default:
-            return Gradient(colors: [Color.gray.opacity(0.8), Color.black])
+            return Gradient(colors: [Color.gray, Color.black])
         }
     }
     
