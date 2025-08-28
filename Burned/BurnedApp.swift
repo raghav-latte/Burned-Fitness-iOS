@@ -22,14 +22,14 @@ struct BurnedApp: App {
                 .environmentObject(healthKitManager)
                 .environmentObject(characterViewModel)
                 .presentPaywallIfNeeded { customerInfo in
-                                // Returning `true` will present the paywall
-                                return customerInfo.entitlements.active.keys.contains("pro")
-                            } purchaseCompleted: { customerInfo in
-                                print("Purchase completed: \(customerInfo.entitlements)")
-                            } restoreCompleted: { customerInfo in
-                                // Paywall will be dismissed automatically if "pro" is now active.
-                                print("Purchases restored: \(customerInfo.entitlements)")
-                            }
+                    // Returning `true` will present the paywall - show if NOT subscribed
+                    return !customerInfo.entitlements.active.keys.contains("premium")
+                } purchaseCompleted: { customerInfo in
+                    print("Purchase completed: \(customerInfo.entitlements)")
+                } restoreCompleted: { customerInfo in
+                    // Paywall will be dismissed automatically if "pro" is now active.
+                    print("Purchases restored: \(customerInfo.entitlements)")
+                }
                  .onAppear {
                     // Initialize RevenueCat first
   

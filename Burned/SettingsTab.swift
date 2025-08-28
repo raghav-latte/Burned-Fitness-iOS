@@ -5,6 +5,7 @@
 //  Created by Raghav Sethi on 28/08/25.
 //
 import SwiftUI
+import RevenueCatUI
 
 struct SettingsTab: View {
     @EnvironmentObject var characterViewModel: CharacterViewModel
@@ -12,6 +13,7 @@ struct SettingsTab: View {
     @State private var notificationStyle: Int = 0
     @State private var autoPostToX: Bool = false
     @State private var reminderFrequency: Double = 4.0
+    @State private var isPaywallPresented = false
     
     private let notificationStyles = ["Ping me when I'm lazy", "Humiliate me publicly"]
     private let intensityEmojis = ["🙂", "😐", "😬", "🔥", "💀"]
@@ -160,6 +162,12 @@ struct SettingsTab: View {
                             .foregroundColor(.gray)
                             .multilineTextAlignment(.center)
                         
+                        Button("Show Paywall (Test)") {
+                            isPaywallPresented = true
+                        }
+                        .font(.caption)
+                        .foregroundColor(.orange)
+                        
                         Button("Reset All Settings") {
                             withAnimation {
                                 roastIntensity = 3.0
@@ -176,6 +184,9 @@ struct SettingsTab: View {
                     Spacer(minLength: 40)
                 }
             }
+        }
+        .sheet(isPresented: $isPaywallPresented) {
+            PaywallView(displayCloseButton: true)
         }
     }
 }
