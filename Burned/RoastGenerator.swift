@@ -41,13 +41,37 @@ class RoastGenerator {
         character: Character? = nil
     ) -> String {
         
-        // Check for "Your Ex" character-specific roasts
-        if let char = character, char.name == "Your Ex" {
-            return generateExRoast(stepCount: stepCount, heartRate: heartRate, sleepHours: sleepHours, workoutData: workoutData)
+        guard let character = character else {
+            return "Time to get roasted!"
         }
         
+        // Try cached roast first for workout scenarios
         if let workout = workoutData {
+            if let cachedRoast = RoastCache.getCachedRoast(
+                for: character,
+                stepCount: stepCount,
+                calories: workout.calories,
+                duration: workout.duration
+            ) {
+                return cachedRoast
+            }
+            
+            // Check for "Your Ex" character-specific roasts
+            if character.name == "Your Ex" {
+                return generateExRoast(stepCount: stepCount, heartRate: heartRate, sleepHours: sleepHours, workoutData: workoutData)
+            }
+            
             return generateWorkoutRoast(workout: workout, stepCount: stepCount, heartRate: heartRate)
+        }
+        
+        // Try cached roast for no-workout scenarios
+        if let cachedRoast = RoastCache.getCachedRoast(
+            for: character,
+            stepCount: stepCount,
+            calories: 0,
+            duration: 0
+        ) {
+            return cachedRoast
         }
         
         return generateNoWorkoutRoast(stepCount: stepCount, heartRate: heartRate, sleepHours: sleepHours, character: character)
@@ -232,7 +256,12 @@ class RoastGenerator {
             return "Time to get moving!"
         }
         
-        // Use specific number-based roasts for more personalized feedback
+        // Try cached roast first
+        if let cachedRoast = RoastCache.getCachedRoast(for: character, stepCount: stepCount, calories: 0, duration: 0) {
+            return cachedRoast
+        }
+        
+        // Fall back to library-generated roasts
         return RoastLibrary.getSpecificStepRoast(stepCount: stepCount, character: character)
     }
     
@@ -243,7 +272,12 @@ class RoastGenerator {
             return "Time to burn some calories!"
         }
         
-        // Use specific number-based roasts for more personalized feedback
+        // Try cached roast first
+        if let cachedRoast = RoastCache.getCachedRoast(for: character, stepCount: 0, calories: calories, duration: 0) {
+            return cachedRoast
+        }
+        
+        // Fall back to library-generated roasts
         return RoastLibrary.getSpecificCalorieRoast(calories: cal, character: character)
     }
     
@@ -254,7 +288,12 @@ class RoastGenerator {
             return "Time for a longer workout!"
         }
         
-        // Use specific number-based roasts for more personalized feedback
+        // Try cached roast first
+        if let cachedRoast = RoastCache.getCachedRoast(for: character, stepCount: 0, calories: 0, duration: duration) {
+            return cachedRoast
+        }
+        
+        // Fall back to library-generated roasts
         return RoastLibrary.getSpecificDurationRoast(minutes: minutes, character: character)
     }
     

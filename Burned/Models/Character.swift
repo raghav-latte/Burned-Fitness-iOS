@@ -17,10 +17,11 @@ struct Character: Identifiable, Equatable {
     
     static let allCharacters = [
         Character(
+            
             name: "Drill Sergeant",
             voiceId: "DGzg6RaUqxGRTHSBjfgF",
-            description: "Military-grade motivation with zero tolerance for excuses",
-            imageName: "drill",
+             description: "Military-grade motivation with zero tolerance for excuses",
+             imageName: "drill",
             voiceSettings: VoiceSettings(
                 stability: 0.5,
                 similarityBoost: 0.75,
@@ -31,7 +32,7 @@ struct Character: Identifiable, Equatable {
         Character(
             name: "British Narrator",
             voiceId: "WdZjiN0nNcik2LBjOHiv",
-            description: "Documentary-style commentary on your pathetic fitness journey",
+             description: "Documentary-style commentary on your pathetic fitness journey",
             imageName: "narrator",
             voiceSettings: VoiceSettings(
                 stability: 0.7,

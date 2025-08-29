@@ -12,6 +12,11 @@ class ElevenLabsManager: NSObject, ObservableObject {
     @Published var isSpeaking = false
     @Published var isLoading = false
     
+    private let audioCache = AudioCacheManager()
+    @Published var cacheHitRate: Double = 0.0
+    private var totalRequests = 0
+    private var cacheHits = 0
+    
     private override init() {
         super.init()
         setupAudioSession()
@@ -29,6 +34,8 @@ class ElevenLabsManager: NSObject, ObservableObject {
     func speakRoast(_ text: String) {
         guard !text.isEmpty else { return }
         
+        totalRequests += 1
+        
         // Stop any current playback
         audioPlayer?.stop()
         
@@ -37,6 +44,23 @@ class ElevenLabsManager: NSObject, ObservableObject {
             self.isSpeaking = true
         }
         
+        // Check cache first
+        if let cachedAudio = audioCache.getCachedAudio(for: text, character: currentCharacter) {
+            cacheHits += 1
+            updateCacheHitRate()
+            print("Using cached audio for roast")
+            DispatchQueue.main.async {
+                self.isLoading = false
+            }
+            playAudio(data: cachedAudio)
+            return
+        }
+        
+        // Generate via API if not cached
+        generateAndCacheAudio(for: text)
+    }
+    
+    private func generateAndCacheAudio(for text: String) {
         // Create the request
         let url = URL(string: "https://api.elevenlabs.io/v1/text-to-speech/\(currentCharacter.voiceId)")!
         var request = URLRequest(url: url)
@@ -81,7 +105,7 @@ class ElevenLabsManager: NSObject, ObservableObject {
                 return
             }
             
-            guard let data = data else {
+            guard let data = data, let strongSelf = self else {
                 print("No audio data received")
                 DispatchQueue.main.async {
                     self?.isSpeaking = false
@@ -89,9 +113,17 @@ class ElevenLabsManager: NSObject, ObservableObject {
                 return
             }
             
+            // Cache the audio for future use
+            strongSelf.audioCache.cacheAudio(data, for: text, character: strongSelf.currentCharacter)
+            print("Generated and cached new audio for roast")
+            
             // Play the audio
-            self?.playAudio(data: data)
+            strongSelf.playAudio(data: data)
         }.resume()
+    }
+    
+    private func updateCacheHitRate() {
+        cacheHitRate = totalRequests > 0 ? Double(cacheHits) / Double(totalRequests) : 0.0
     }
     
     private func playAudio(data: Data) {
@@ -115,6 +147,53 @@ class ElevenLabsManager: NSObject, ObservableObject {
     func stopSpeaking() {
         audioPlayer?.stop()
         isSpeaking = false
+    }
+    
+    // MARK: - Cache Management
+    
+    func getCacheStats() -> (size: String, hitRate: String, totalRequests: Int) {
+        let hitRatePercent = String(format: "%.1f%%", cacheHitRate * 100)
+        return (audioCache.getCacheSize(), hitRatePercent, totalRequests)
+    }
+    
+    func clearCache() {
+        audioCache.clearCache()
+        cacheHits = 0
+        totalRequests = 0
+        cacheHitRate = 0.0
+    }
+    
+    // MARK: - Pre-generation for Common Scenarios
+    
+    func preGenerateCommonRoasts(for character: Character, completion: @escaping (Int, Int) -> Void) {
+        let scenarios = RoastCache.suggestedPreGeneration
+        var completed = 0
+        let total = scenarios.count
+        
+        for scenario in scenarios {
+            if let cachedRoast = RoastCache.getCachedRoast(
+                for: character,
+                stepCount: scenario.stepCount,
+                calories: scenario.calories,
+                duration: scenario.duration
+            ) {
+                // Check if we already have this audio cached
+                if audioCache.getCachedAudio(for: cachedRoast, character: character) == nil {
+                    // Generate and cache this roast
+                    DispatchQueue.main.asyncAfter(deadline: .now() + Double(completed) * 0.5) {
+                        self.generateAndCacheAudio(for: cachedRoast)
+                        completed += 1
+                        completion(completed, total)
+                    }
+                } else {
+                    completed += 1
+                    completion(completed, total)
+                }
+            } else {
+                completed += 1
+                completion(completed, total)
+            }
+        }
     }
 }
 

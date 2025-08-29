@@ -55,6 +55,7 @@ struct CharacterSelectionView: View {
                             .font(.system(size: 18, weight: .medium))
                             .foregroundColor(.gray)
                             .multilineTextAlignment(.center)
+                            .lineLimit(nil)
                             .animation(.spring(), value: currentIndex)
                         
                         // Select button
@@ -111,30 +112,12 @@ struct CharacterCard: View {
     
     var body: some View {
         VStack {
-            // Character image placeholder
-            RoundedRectangle(cornerRadius: 20)
-                .fill(
-                    LinearGradient(
-                        gradient: Gradient(colors: [
-                            Color.blue.opacity(0.3),
-                            Color.purple.opacity(0.3)
-                        ]),
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .overlay(
-                    VStack {
-                        Image(systemName: character.name == "Drill Sergeant" ? "figure.strengthtraining.traditional" : "mic.circle.fill")
-                            .font(.system(size: 100))
-                            .foregroundColor(.white.opacity(0.8))
-                        
-                        Text("Character Image")
-                            .font(.caption)
-                            .foregroundColor(.white.opacity(0.5))
-                    }
-                )
+            // Character image
+            Image(character.imageName)
+                .resizable()
+                .aspectRatio(contentMode: .fill)
                 .frame(width: geometry.size.width * 0.7, height: geometry.size.width * 0.7)
+                .clipShape(RoundedRectangle(cornerRadius: 20))
                 .scaleEffect(isSelected ? 1.0 : 0.8)
                 .opacity(isSelected ? 1.0 : 0.6)
                 .shadow(color: isSelected ? .blue : .clear, radius: 20)
