@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import AIProxy
 
 enum ChallengeType {
     case steps, calories, workouts, shameScore
@@ -45,6 +46,9 @@ struct ContentView: View {
     
     var body: some View {
         ZStack {
+            // Background that extends into status bar
+            Color.black.ignoresSafeArea(.all)
+            
             TabView {
             HomeTab()
                 .tabItem {
@@ -70,6 +74,7 @@ struct ContentView: View {
                     Text("Summary")
                 }
         }
+        .ignoresSafeArea(.container, edges: .top)
         .accentColor(.orange)
         .onAppear {
             healthKitManager.requestAuthorization()
@@ -90,6 +95,8 @@ struct ContentView: View {
                 .zIndex(1)
             }
         }
+        .ignoresSafeArea(.all)
+
     }
     
     private func configureTabBarAppearance() {

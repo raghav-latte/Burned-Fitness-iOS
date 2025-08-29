@@ -149,13 +149,22 @@ class RoastGenerator {
     }
     
     static func generateNoWorkoutRoast(stepCount: Int, heartRate: Double, sleepHours: Double, character: Character? = nil) -> String {
+        print("🎯 generateNoWorkoutRoast called")
+        print("📊 Parameters: steps=\(stepCount), character=\(character?.name ?? "nil")")
+        
         guard let character = character else {
+            print("❌ No character provided")
             return "Time to get moving!"
         }
         
+        print("🔍 Getting roast array for character: \(character.name)")
         // Use character-specific no workout roasts
         let roastArray = RoastLibrary.getRoastArray(for: character, type: .noWorkout)
-        return RoastLibrary.getRandomRoast(from: roastArray)
+        print("📝 Got \(roastArray.count) roasts from library")
+        
+        let roast = RoastLibrary.getRandomRoast(from: roastArray)
+        print("✅ Selected roast: \(roast)")
+        return roast
     }
     
     private static func generateWorkoutRoast(workout: WorkoutData, stepCount: Int, heartRate: Double) -> String {

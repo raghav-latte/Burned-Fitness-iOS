@@ -1,0 +1,6 @@
+import AIProxy
+
+let elevenLabsService = AIProxy.elevenLabsService(
+    partialKey: "v2|d60c9395|0WN6S4AYSm-uMmAu",
+    serviceURL: "https://api.aiproxy.com/840c1a83/357601f0"
+)

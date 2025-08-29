@@ -7,13 +7,15 @@
 import SwiftUI
 import HealthKit
 import RevenueCat
+import RevenueCatUI
 
 struct HomeTab: View {
     @EnvironmentObject var healthKitManager: HealthKitManager
     @EnvironmentObject var characterViewModel: CharacterViewModel
-    @StateObject private var speechManager = ElevenLabsManager.shared
+    @ObservedObject private var speechManager = ElevenLabsManager.shared
     @State private var selectedPersona = "🔥"
     @State private var showFullHistory = false
+    @State private var showPaywall = false
     
     private let personas = [
         ("🔥", "Savage", "No mercy mode"),
@@ -74,7 +76,6 @@ struct HomeTab: View {
                             .padding(.top, 20)
                         }
                         
-                        // Fitness Shame Score Meter
                         VStack(spacing: 15) {
                             Text("FITNESS SHAME SCORE")
                                 .font(.caption)
@@ -121,14 +122,38 @@ struct HomeTab: View {
                         HStack(spacing: 12) {
                             // Get Roasted Button
                             Button(action: {
-                                let roast = RoastGenerator.generateRoast(
-                                    stepCount: healthKitManager.stepCount,
-                                    heartRate: healthKitManager.heartRate,
-                                    sleepHours: healthKitManager.sleepHours,
-                                    workoutData: healthKitManager.latestWorkout,
-                                    character: characterViewModel.selectedCharacter
-                                )
-                                speechManager.speakRoast(roast)
+                                print("🔥 GET ROASTED button pressed")
+                                print("📊 Step count: \(healthKitManager.stepCount)")
+                                print("❤️ Heart rate: \(healthKitManager.heartRate)")
+                                print("😴 Sleep hours: \(healthKitManager.sleepHours)")
+                                print("💪 Latest workout: \(String(describing: healthKitManager.latestWorkout))")
+                                print("🎭 Selected character: \(String(describing: characterViewModel.selectedCharacter?.name))")
+                                
+                                // Check if user can generate roast asynchronously
+                                print("🔍 Checking if user can generate roast...")
+                                speechManager.canGenerateRoast { canGenerate in
+                                    print("✅ Can generate roast: \(canGenerate)")
+                                    print("📈 Daily roast count: \(speechManager.dailyRoastCount)")
+                                    
+                                    if !canGenerate {
+                                        print("🚫 Daily limit exceeded - showing paywall")
+                                        showPaywall = true
+                                        return
+                                    }
+                                    
+                                    print("🎯 Generating roast...")
+                                    let roast = RoastGenerator.generateRoast(
+                                        stepCount: healthKitManager.stepCount,
+                                        heartRate: healthKitManager.heartRate,
+                                        sleepHours: healthKitManager.sleepHours,
+                                        workoutData: healthKitManager.latestWorkout,
+                                        character: characterViewModel.selectedCharacter
+                                    )
+                                    print("📝 Generated roast: \(roast)")
+                                    
+                                    print("🗣️ Speaking roast...")
+                                    speechManager.speakRoast(roast)
+                                }
                             }) {
                                 VStack(spacing: 8) {
                                     if speechManager.isLoading {
@@ -217,8 +242,14 @@ struct HomeTab: View {
                             color: .blue,
                             icon: "figure.walk"
                         ) {
-                            let roast = RoastGenerator.generateStepRoast(stepCount: healthKitManager.stepCount, character: characterViewModel.selectedCharacter)
-                            speechManager.speakRoast(roast)
+                            speechManager.canGenerateRoast { canGenerate in
+                                if !canGenerate {
+                                    showPaywall = true
+                                    return
+                                }
+                                let roast = RoastGenerator.generateStepRoast(stepCount: healthKitManager.stepCount, character: characterViewModel.selectedCharacter)
+                                speechManager.speakRoast(roast)
+                            }
                         }
                         
                         // Calories Block
@@ -228,8 +259,14 @@ struct HomeTab: View {
                             color: .orange,
                             icon: "flame.fill"
                         ) {
-                            let roast = RoastGenerator.generateCalorieRoast(calories: healthKitManager.latestWorkout?.calories ?? 0, character: characterViewModel.selectedCharacter)
-                            speechManager.speakRoast(roast)
+                            speechManager.canGenerateRoast { canGenerate in
+                                if !canGenerate {
+                                    showPaywall = true
+                                    return
+                                }
+                                let roast = RoastGenerator.generateCalorieRoast(calories: healthKitManager.latestWorkout?.calories ?? 0, character: characterViewModel.selectedCharacter)
+                                speechManager.speakRoast(roast)
+                            }
                         }
                         
                         // Workout Time Block
@@ -239,22 +276,34 @@ struct HomeTab: View {
                             color: .green,
                             icon: "timer"
                         ) {
-                            let roast = RoastGenerator.generateDurationRoast(duration: healthKitManager.latestWorkout?.duration ?? 0, character: characterViewModel.selectedCharacter)
-                            speechManager.speakRoast(roast)
+                            speechManager.canGenerateRoast { canGenerate in
+                                if !canGenerate {
+                                    showPaywall = true
+                                    return
+                                }
+                                let roast = RoastGenerator.generateDurationRoast(duration: healthKitManager.latestWorkout?.duration ?? 0, character: characterViewModel.selectedCharacter)
+                                speechManager.speakRoast(roast)
+                            }
                         }
                     }
                     .padding(.horizontal, 20)
                     
                     // Burn Me Again Button
                     Button(action: {
-                        let roast = RoastGenerator.generateRoast(
-                            stepCount: healthKitManager.stepCount,
-                            heartRate: healthKitManager.heartRate,
-                            sleepHours: healthKitManager.sleepHours,
-                            workoutData: healthKitManager.latestWorkout,
-                            character: characterViewModel.selectedCharacter
-                        )
-                        speechManager.speakRoast(roast)
+                        speechManager.canGenerateRoast { canGenerate in
+                            if !canGenerate {
+                                showPaywall = true
+                                return
+                            }
+                            let roast = RoastGenerator.generateRoast(
+                                stepCount: healthKitManager.stepCount,
+                                heartRate: healthKitManager.heartRate,
+                                sleepHours: healthKitManager.sleepHours,
+                                workoutData: healthKitManager.latestWorkout,
+                                character: characterViewModel.selectedCharacter
+                            )
+                            speechManager.speakRoast(roast)
+                        }
                     }) {
                         HStack(spacing: 12) {
                             if speechManager.isLoading {
@@ -354,6 +403,9 @@ struct HomeTab: View {
             WorkoutHistoryView()
                 .environmentObject(healthKitManager)
                 .environmentObject(characterViewModel)
+        }
+        .sheet(isPresented: $showPaywall) {
+            PaywallView()
         }
     }
     
@@ -625,7 +677,7 @@ struct RecentWorkoutCardView: View {
     private func displayWorkoutType(_ type: String) -> String {
         // Handle "Unknown" workouts that are likely sprint screening
         if type.lowercased().contains("unknown") || type == "Unknown" {
-            return "Sprint Training"
+            return "Strength Training"
         }
         return type
     }
@@ -686,7 +738,7 @@ struct RecentWorkoutCardView: View {
 struct WorkoutHistoryView: View {
     @EnvironmentObject var healthKitManager: HealthKitManager
     @EnvironmentObject var characterViewModel: CharacterViewModel
-    @StateObject private var speechManager = ElevenLabsManager.shared
+    @ObservedObject private var speechManager = ElevenLabsManager.shared
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
@@ -893,7 +945,7 @@ struct WorkoutHistoryRow: View {
     private func displayWorkoutType(_ type: String) -> String {
         // Handle "Unknown" workouts that are likely sprint screening
         if type.lowercased().contains("unknown") || type == "Unknown" {
-            return "Sprint Training"
+            return "Strength Training"
         }
         return type
     }

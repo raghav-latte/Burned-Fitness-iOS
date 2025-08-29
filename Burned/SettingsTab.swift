@@ -37,35 +37,6 @@ struct SettingsTab: View {
                     .padding(.top, 20)
                     
                     VStack(spacing: 24) {
-                        // Character Selection Card
-                        NewSettingCardView {
-                            HStack {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text("Voice Character")
-                                        .font(.headline)
-                                        .foregroundColor(.white)
-                                    Text(characterViewModel.selectedCharacter?.name ?? "None Selected")
-                                        .font(.caption)
-                                        .foregroundColor(.gray)
-                                }
-                                
-                                Spacer()
-                                
-                                Button(action: {
-                                    characterViewModel.showCharacterSelection = true
-                                }) {
-                                    HStack(spacing: 4) {
-                                        Text("Change")
-                                            .font(.caption)
-                                            .fontWeight(.medium)
-                                        Image(systemName: "chevron.right")
-                                            .font(.caption)
-                                    }
-                                    .foregroundColor(.orange)
-                                }
-                            }
-                        }
-                        
                         NewSettingCardView {
                             VStack(alignment: .leading, spacing: 16) {
                                 HStack {
@@ -161,13 +132,7 @@ struct SettingsTab: View {
                             .font(.caption)
                             .foregroundColor(.gray)
                             .multilineTextAlignment(.center)
-                        
-                        Button("Show Paywall (Test)") {
-                            isPaywallPresented = true
-                        }
-                        .font(.caption)
-                        .foregroundColor(.orange)
-                        
+                         
                         Button("Reset All Settings") {
                             withAnimation {
                                 roastIntensity = 3.0

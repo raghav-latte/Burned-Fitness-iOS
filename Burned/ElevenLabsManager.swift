@@ -1,11 +1,15 @@
 import Foundation
+import RevenueCat
 import AVFoundation
+import AIProxy
 
 class ElevenLabsManager: NSObject, ObservableObject {
     static let shared = ElevenLabsManager()
     
-    // IMPORTANT: Move this to a secure location in production
-    private let apiKey = "sk_718429774ae8d84a76e209e237172d4682f2be00995b05e0"
+    private let elevenLabsService = AIProxy.elevenLabsService(
+        partialKey: "v2|d60c9395|0WN6S4AYSm-uMmAu",
+        serviceURL: "https://api.aiproxy.com/840c1a83/357601f0"
+    )
     @Published var currentCharacter: Character = Character.allCharacters[0]
     
     private var audioPlayer: AVAudioPlayer?
@@ -16,10 +20,13 @@ class ElevenLabsManager: NSObject, ObservableObject {
     @Published var cacheHitRate: Double = 0.0
     private var totalRequests = 0
     private var cacheHits = 0
+    @Published var dailyRoastCount = 0
+    private var lastResetDate = Date()
     
     private override init() {
         super.init()
         setupAudioSession()
+        loadDailyUsage()
     }
     
     private func setupAudioSession() {
@@ -31,9 +38,26 @@ class ElevenLabsManager: NSObject, ObservableObject {
         }
     }
     
-    func speakRoast(_ text: String) {
-        guard !text.isEmpty else { return }
+    func speakRoast(_ text: String, isPreview: Bool = false) {
+        print("🎤 speakRoast called - isPreview: \(isPreview)")
+        print("📝 Text: \(text)")
+        print("🎭 Current character: \(currentCharacter.name)")
         
+        guard !text.isEmpty else { 
+            print("❌ Empty text provided")
+            return 
+        }
+        
+        // Skip daily limit check here since it's done in HomeTab asynchronously
+        print("📊 Current daily count: \(dailyRoastCount)/5")
+        
+        // Increment usage for non-preview, non-premium roasts
+        if !isPreview {
+            print("📈 Incrementing daily usage")
+            incrementDailyUsage()
+        }
+        
+        print("🔢 Total requests: \(totalRequests + 1)")
         totalRequests += 1
         
         // Stop any current playback
@@ -45,7 +69,9 @@ class ElevenLabsManager: NSObject, ObservableObject {
         }
         
         // Check cache first
+        print("🔍 Checking cache for text and character...")
         if let cachedAudio = audioCache.getCachedAudio(for: text, character: currentCharacter) {
+            print("✅ Cache HIT - playing cached audio")
             cacheHits += 1
             updateCacheHitRate()
             print("Using cached audio for roast")
@@ -56,70 +82,56 @@ class ElevenLabsManager: NSObject, ObservableObject {
             return
         }
         
+        print("❌ Cache MISS - generating new audio via API")
         // Generate via API if not cached
         generateAndCacheAudio(for: text)
     }
     
     private func generateAndCacheAudio(for text: String) {
-        // Create the request
-        let url = URL(string: "https://api.elevenlabs.io/v1/text-to-speech/\(currentCharacter.voiceId)")!
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.addValue(apiKey, forHTTPHeaderField: "xi-api-key")
+        print("🌐 Making API call to ElevenLabs via AIProxy...")
+        print("🎭 Using voice ID: \(currentCharacter.voiceId)")
         
-        // Configure voice settings based on character
-        let body: [String: Any] = [
-            "text": text,
-            "model_id": "eleven_monolingual_v1",
-            "voice_settings": [
-                "stability": currentCharacter.voiceSettings.stability,
-                "similarity_boost": currentCharacter.voiceSettings.similarityBoost,
-                "style": currentCharacter.voiceSettings.style,
-                "use_speaker_boost": currentCharacter.voiceSettings.speakerBoost
-            ]
-        ]
-        
-        do {
-            request.httpBody = try JSONSerialization.data(withJSONObject: body)
-        } catch {
-            print("Failed to encode request body: \(error)")
-            DispatchQueue.main.async {
-                self.isLoading = false
-                self.isSpeaking = false
+        Task {
+            do {
+                let body = ElevenLabsTTSRequestBody(
+                    text: text,
+                    voiceSettings: .init(
+                        similarityBoost: currentCharacter.voiceSettings.similarityBoost, stability: currentCharacter.voiceSettings.stability,
+                        speakerBoost: currentCharacter.voiceSettings.speakerBoost, style: currentCharacter.voiceSettings.style
+                    )
+                )
+                
+                let mpegData = try await elevenLabsService.ttsRequest(
+                    voiceID: currentCharacter.voiceId,
+                    body: body, secondsToWait: UInt(5)
+                )
+                
+                print("✅ Successfully generated audio via AIProxy")
+                
+                // Cache the audio for future use
+                audioCache.cacheAudio(mpegData, for: text, character: currentCharacter)
+                print("💾 Generated and cached new audio for roast")
+                
+                // Play the audio on main thread
+                await MainActor.run {
+                    isLoading = false
+                    playAudio(data: mpegData)
+                }
+                
+            } catch AIProxyError.unsuccessfulRequest(let statusCode, let responseBody) {
+                print("❌ ElevenLabs API error: \(statusCode) - \(responseBody)")
+                await MainActor.run {
+                    isLoading = false
+                    isSpeaking = false
+                }
+            } catch {
+                print("❌ Could not create ElevenLabs TTS audio: \(error.localizedDescription)")
+                await MainActor.run {
+                    isLoading = false
+                    isSpeaking = false
+                }
             }
-            return
         }
-        
-        // Make the request
-        URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
-            DispatchQueue.main.async {
-                self?.isLoading = false
-            }
-            
-            if let error = error {
-                print("ElevenLabs API error: \(error)")
-                DispatchQueue.main.async {
-                    self?.isSpeaking = false
-                }
-                return
-            }
-            
-            guard let data = data, let strongSelf = self else {
-                print("No audio data received")
-                DispatchQueue.main.async {
-                    self?.isSpeaking = false
-                }
-                return
-            }
-            
-            // Cache the audio for future use
-            strongSelf.audioCache.cacheAudio(data, for: text, character: strongSelf.currentCharacter)
-            print("Generated and cached new audio for roast")
-            
-            // Play the audio
-            strongSelf.playAudio(data: data)
-        }.resume()
     }
     
     private func updateCacheHitRate() {
@@ -127,6 +139,9 @@ class ElevenLabsManager: NSObject, ObservableObject {
     }
     
     private func playAudio(data: Data) {
+        print("📊 Memory before audio playback:")
+        logMemoryAndCacheStatus()
+        
         do {
             audioPlayer = try AVAudioPlayer(data: data)
             audioPlayer?.delegate = self
@@ -136,6 +151,9 @@ class ElevenLabsManager: NSObject, ObservableObject {
             DispatchQueue.main.async {
                 self.isSpeaking = true
             }
+            
+            print("📊 Memory after audio setup:")
+            logMemoryAndCacheStatus()
         } catch {
             print("Failed to play audio: \(error)")
             DispatchQueue.main.async {
@@ -210,5 +228,92 @@ extension ElevenLabsManager: AVAudioPlayerDelegate {
         DispatchQueue.main.async {
             self.isSpeaking = false
         }
+    }
+    
+    // MARK: - Daily Usage Tracking
+    
+    private func loadDailyUsage() {
+        dailyRoastCount = UserDefaults.standard.integer(forKey: "dailyRoastCount")
+        if let savedDate = UserDefaults.standard.object(forKey: "lastResetDate") as? Date {
+            lastResetDate = savedDate
+        }
+        checkAndResetDailyLimit()
+    }
+    
+    private func checkAndResetDailyLimit() {
+        let calendar = Calendar.current
+        if !calendar.isDate(lastResetDate, inSameDayAs: Date()) {
+            // New day - reset count
+            dailyRoastCount = 0
+            lastResetDate = Date()
+            saveDailyUsage()
+        }
+    }
+    
+    private func saveDailyUsage() {
+        UserDefaults.standard.set(dailyRoastCount, forKey: "dailyRoastCount")
+        UserDefaults.standard.set(lastResetDate, forKey: "lastResetDate")
+    }
+    
+    func canGenerateRoast(completion: @escaping (Bool) -> Void) {
+        checkAndResetDailyLimit()
+        
+        print("🔍 Checking premium status...")
+        // Check premium status asynchronously to avoid blocking main thread
+        Purchases.shared.getCustomerInfo { [weak self] customerInfo, error in
+            let hasPremium = customerInfo?.entitlements.active.keys.contains("premium") ?? false
+            let canGenerate = hasPremium || (self?.dailyRoastCount ?? 0) < 5
+            
+            print("💎 Premium status: \(hasPremium)")
+            print("📊 Daily count: \(self?.dailyRoastCount ?? 0)/5")
+            print("✅ Can generate: \(canGenerate)")
+            
+            DispatchQueue.main.async {
+                completion(canGenerate)
+            }
+        }
+    }
+    
+    func incrementDailyUsage() {
+        checkAndResetDailyLimit()
+        
+        Purchases.shared.getCustomerInfo { [weak self] customerInfo, error in
+            let hasPremium = customerInfo?.entitlements.active.keys.contains("premium") ?? false
+            
+            if !hasPremium {
+                self?.dailyRoastCount += 1
+                self?.saveDailyUsage()
+            }
+        }
+    }
+    
+    // MARK: - Memory Management
+    
+    private func getMemoryUsage() -> Double {
+        var info = mach_task_basic_info()
+        var count = mach_msg_type_number_t(MemoryLayout<mach_task_basic_info>.size)/4
+        
+        let kerr: kern_return_t = withUnsafeMutablePointer(to: &info) {
+            $0.withMemoryRebound(to: integer_t.self, capacity: 1) {
+                task_info(mach_task_self_,
+                         task_flavor_t(MACH_TASK_BASIC_INFO),
+                         $0,
+                         &count)
+            }
+        }
+        
+        if kerr == KERN_SUCCESS {
+            return Double(info.resident_size) / 1024.0 / 1024.0
+        }
+        return 0
+    }
+    
+    func logMemoryAndCacheStatus() {
+        let memoryUsage = getMemoryUsage()
+        let cacheSize = audioCache.getCacheSize()
+        print("💾 Memory usage: \(String(format: "%.1f", memoryUsage))MB")
+        print("🗄️ Audio cache size: \(cacheSize)")
+        print("📈 Cache hit rate: \(String(format: "%.1f", cacheHitRate))%")
+        print("🔢 Total requests: \(totalRequests), Cache hits: \(cacheHits)")
     }
 }

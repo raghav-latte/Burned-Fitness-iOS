@@ -8,7 +8,7 @@ import SwiftUI
 
 struct SummaryTab: View {
     @EnvironmentObject var healthKitManager: HealthKitManager
-    @StateObject private var speechManager = ElevenLabsManager.shared
+    @ObservedObject private var speechManager = ElevenLabsManager.shared
     
     var body: some View {
         ZStack {

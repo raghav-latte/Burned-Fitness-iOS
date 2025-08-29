@@ -41,6 +41,10 @@ struct BurnedApp: App {
                     NotificationManager.shared.scheduleDailyNoWorkoutRoast()
                     NotificationManager.shared.scheduleBackgroundWorkoutCheck()
                     registerBackgroundTasks()
+                    
+                    // Log initial memory usage
+                    print("📊 App startup memory logging:")
+                    ElevenLabsManager.shared.logMemoryAndCacheStatus()
                 }
         }
     }

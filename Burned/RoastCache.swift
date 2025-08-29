@@ -70,7 +70,7 @@ struct RoastCache {
         
         "Your Ex": [
             "low_performance": [
-                "Just like old times - all talk, no action.",
+                "Bro, your form is still terrible and you're still not listening to my advice. Typical.",
                 "Still choosing the couch over self-improvement. Classic you.",
                 "Your dedication to fitness matches your dedication to relationships."
             ],
@@ -198,7 +198,7 @@ struct RoastCache {
 
 class AudioCacheManager: ObservableObject {
     private let cacheDirectory: URL
-    private let maxCacheSize: Int = 50 * 1024 * 1024 // 50MB
+    private let maxCacheSize: Int = 10 * 1024 * 1024 // 10MB (reduced from 50MB)
     
     init() {
         let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
@@ -249,8 +249,8 @@ class AudioCacheManager: ObservableObject {
                     return (url, date)
                 }.sorted { $0.1 < $1.1 }
                 
-                // Remove oldest 25% of files
-                let filesToRemove = sortedFiles.prefix(sortedFiles.count / 4)
+                // Remove oldest 50% of files (more aggressive cleanup)
+                let filesToRemove = sortedFiles.prefix(sortedFiles.count / 2)
                 for (fileURL, _) in filesToRemove {
                     try? FileManager.default.removeItem(at: fileURL)
                 }
