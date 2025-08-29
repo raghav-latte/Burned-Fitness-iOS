@@ -127,6 +127,21 @@ struct SettingsTab: View {
                     }
                     .padding(.horizontal, 20)
                     
+                    // Legal Section
+                    VStack(spacing: 12) {
+                        Text("Legal")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        
+                        VStack(spacing: 8) {
+                            LegalLinkButton(title: "Terms of Service", url: "https://raghav-latte.github.io/Burned-Fitness-iOS/terms-of-service.html")
+                            LegalLinkButton(title: "Privacy Policy", url: "https://raghav-latte.github.io/Burned-Fitness-iOS/privacy-policy.html")
+                            LegalLinkButton(title: "End User License Agreement", url: "https://raghav-latte.github.io/Burned-Fitness-iOS/eula.html")
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                    
                     VStack(spacing: 16) {
                         Text("Burned is not responsible for hurt feelings.")
                             .font(.caption)
@@ -174,5 +189,40 @@ struct NewSettingCardView<Content: View>: View {
                             .stroke(Color.orange.opacity(0.2), lineWidth: 1)
                     )
             )
+    }
+}
+
+struct LegalLinkButton: View {
+    let title: String
+    let url: String
+    
+    var body: some View {
+        Button(action: {
+            if let url = URL(string: url) {
+                UIApplication.shared.open(url)
+            }
+        }) {
+            HStack {
+                Text(title)
+                    .font(.body)
+                    .foregroundColor(.white)
+                
+                Spacer()
+                
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .foregroundColor(.gray)
+            }
+            .padding(.vertical, 12)
+            .padding(.horizontal, 16)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color(.systemGray6).opacity(0.1))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.orange.opacity(0.15), lineWidth: 1)
+                    )
+            )
+        }
     }
 }
