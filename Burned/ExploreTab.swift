@@ -161,12 +161,31 @@ struct CharacterCardView: View {
                 .shadow(color: .black.opacity(0.3), radius: 10, x: 0, y: 5)
             
             VStack(spacing: 0) {
-                // Character Image
-                Image(character.imageName)
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(height: 250)
-                    .clipShape(RoundedRectangle(cornerRadius: 15))
+                // Character Image Placeholder
+                ZStack(alignment: .bottom) {
+                    RoundedRectangle(cornerRadius: 15)
+                        .fill(Color.black.opacity(0.3))
+                        .frame(height: 250)
+                    
+                    if character.imageName == "drill" ||
+                        character.imageName == "narrator" ||
+                        character.imageName == "female-ex" ||
+                        character.imageName == "male-ex" {
+                        Image(character.imageName)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(maxHeight: 285)
+                            .clipped()
+                    } else {
+                        VStack {
+                            Image(systemName: characterIcon(for: character.name))
+                                .font(.system(size: 80, weight: .light))
+                                .foregroundColor(.white.opacity(0.8))
+                         
+                        }
+                        .offset(y: -15)
+                    }
+                }
                 .padding(.horizontal, 20)
                 .padding(.top, 20)
                 

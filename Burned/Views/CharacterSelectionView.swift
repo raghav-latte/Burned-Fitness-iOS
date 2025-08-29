@@ -3,6 +3,7 @@ import SwiftUI
 struct CharacterSelectionView: View {
     @Binding var selectedCharacter: Character?
     @State private var currentIndex = 0
+    @State private var cardAnimationComplete = false
     @Namespace private var animation
     
     let characters = Character.allCharacters
@@ -36,6 +37,7 @@ struct CharacterSelectionView: View {
                             CharacterCard(
                                 character: characters[index],
                                 isSelected: currentIndex == index,
+                                cardAnimationComplete: cardAnimationComplete,
                                 geometry: geometry
                             )
                             .tag(index)
@@ -43,6 +45,21 @@ struct CharacterSelectionView: View {
                     }
                     .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
                     .frame(height: geometry.size.height * 0.6)
+                    .onChange(of: currentIndex) { _ in
+                        cardAnimationComplete = false
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            withAnimation(.spring(response: 0.8, dampingFraction: 0.7)) {
+                                cardAnimationComplete = true
+                            }
+                        }
+                    }
+                    .onAppear {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            withAnimation(.spring(response: 0.8, dampingFraction: 0.7)) {
+                                cardAnimationComplete = true
+                            }
+                        }
+                    }
                     
                     // Character info
                     VStack(spacing: 20) {
@@ -108,21 +125,36 @@ struct CharacterSelectionView: View {
 struct CharacterCard: View {
     let character: Character
     let isSelected: Bool
+    let cardAnimationComplete: Bool
     let geometry: GeometryProxy
     
     var body: some View {
         VStack {
             // Character image
-            Image(character.imageName)
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(width: geometry.size.width * 0.7, height: geometry.size.width * 0.7)
-                .clipShape(RoundedRectangle(cornerRadius: 20))
-                .scaleEffect(isSelected ? 1.0 : 0.8)
-                .opacity(isSelected ? 1.0 : 0.6)
-                .shadow(color: isSelected ? .blue : .clear, radius: 20)
-                .shadow(color: isSelected ? .purple : .clear, radius: 10)
-                .animation(.spring(response: 0.5, dampingFraction: 0.8), value: isSelected)
+            ZStack(alignment: .bottom) {
+                // Background for image
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(Color.gray.opacity(0.3))
+                    .frame(
+                        width: geometry.size.width * 0.7, 
+                        height: geometry.size.width * 0.7
+                    )
+                
+                // Actual character image
+                Image(character.imageName)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(
+                        width: geometry.size.width * 0.7, 
+                        height: geometry.size.width * (isSelected && cardAnimationComplete ? 0.85 : 0.7)
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 20))
+            }
+            .scaleEffect(isSelected ? 1.0 : 0.8)
+            .opacity(isSelected ? 1.0 : 0.6)
+            .shadow(color: isSelected ? .blue : .clear, radius: 20)
+            .shadow(color: isSelected ? .purple : .clear, radius: 10)
+            .animation(.spring(response: 0.5, dampingFraction: 0.8), value: isSelected)
         }
     }
 }
