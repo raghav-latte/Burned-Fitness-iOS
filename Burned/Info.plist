@@ -11,5 +11,9 @@
 		<string>fetch</string>
 		<string>processing</string>
 	</array>
+	<key>UIAppFonts</key>
+	<array>
+		<string>PilatWide.ttf</string>
+	</array>
 </dict>
 </plist>

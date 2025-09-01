@@ -6,6 +6,7 @@ struct Character: Identifiable, Equatable {
     let voiceId: String
     let description: String
     let imageName: String
+    let emoji: String
     let voiceSettings: VoiceSettings
     
     struct VoiceSettings: Equatable {
@@ -17,11 +18,11 @@ struct Character: Identifiable, Equatable {
     
     static let allCharacters = [
         Character(
-            
             name: "Drill Sergeant",
             voiceId: "DGzg6RaUqxGRTHSBjfgF",
-             description: "Military-grade motivation with zero tolerance for excuses",
-             imageName: "drill",
+            description: "Military-grade motivation with zero tolerance for excuses",
+            imageName: "drill",
+            emoji: "🪖",
             voiceSettings: VoiceSettings(
                 stability: 0.5,
                 similarityBoost: 0.75,
@@ -32,8 +33,9 @@ struct Character: Identifiable, Equatable {
         Character(
             name: "British Narrator",
             voiceId: "WdZjiN0nNcik2LBjOHiv",
-             description: "Documentary-style commentary on your pathetic fitness journey",
+            description: "Documentary-style commentary on your pathetic fitness journey",
             imageName: "narrator",
+            emoji: "🎙️",
             voiceSettings: VoiceSettings(
                 stability: 0.7,
                 similarityBoost: 0.8,
@@ -46,6 +48,7 @@ struct Character: Identifiable, Equatable {
             voiceId: "T7eLpgAAhoXHlrNajG8v",
             description: "Sweet-talking saboteur who remembers every workout you skipped",
             imageName: "female-ex",
+            emoji: "💔",
             voiceSettings: VoiceSettings(
                 stability: 0.6,
                 similarityBoost: 0.85,
@@ -58,6 +61,7 @@ struct Character: Identifiable, Equatable {
             voiceId: "cgLpYGyXZhkyalKZ0xeZ",
             description: "Mansplaining fitness bro who still thinks he's your personal trainer",
             imageName: "male-ex",
+            emoji: "💪",
             voiceSettings: VoiceSettings(
                 stability: 0.5,
                 similarityBoost: 0.8,

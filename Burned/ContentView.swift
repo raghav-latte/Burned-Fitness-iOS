@@ -43,6 +43,8 @@ struct Challenge: Identifiable {
 struct ContentView: View {
     @EnvironmentObject var healthKitManager: HealthKitManager
     @EnvironmentObject var characterViewModel: CharacterViewModel
+    @State private var showSplash = true
+    @State private var showOnboarding = !UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
     
     var body: some View {
         ZStack {
@@ -77,23 +79,34 @@ struct ContentView: View {
         .ignoresSafeArea(.container, edges: .top)
         .accentColor(.orange)
         .onAppear {
-            healthKitManager.requestAuthorization()
             configureTabBarAppearance()
         }
-            
-            // Character selection overlay
-            if characterViewModel.selectedCharacter == nil || characterViewModel.showCharacterSelection {
-                CharacterSelectionView(selectedCharacter: Binding(
-                    get: { characterViewModel.selectedCharacter },
-                    set: { character in
-                        if let character = character {
-                            characterViewModel.selectCharacter(character)
-                        }
-                    }
-                ))
+        
+        // Splash Screen (highest priority)
+        if showSplash {
+            SplashScreenView(showSplash: $showSplash)
+                .transition(.opacity)
+                .zIndex(3)
+        }
+        // Onboarding overlay
+        else if showOnboarding {
+            OnboardingView(showOnboarding: $showOnboarding)
                 .transition(.move(edge: .bottom))
-                .zIndex(1)
-            }
+                .zIndex(2)
+        }
+        // Character selection overlay (only show if onboarding is complete)
+        else if characterViewModel.selectedCharacter == nil || characterViewModel.showCharacterSelection {
+            CharacterSelectionView(selectedCharacter: Binding(
+                get: { characterViewModel.selectedCharacter },
+                set: { character in
+                    if let character = character {
+                        characterViewModel.selectCharacter(character)
+                    }
+                }
+            ))
+            .transition(.move(edge: .bottom))
+            .zIndex(1)
+        }
         }
         .ignoresSafeArea(.all)
 

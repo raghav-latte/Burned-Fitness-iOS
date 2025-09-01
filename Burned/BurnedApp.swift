@@ -21,25 +21,20 @@ struct BurnedApp: App {
             ContentView()
                 .environmentObject(healthKitManager)
                 .environmentObject(characterViewModel)
-                .presentPaywallIfNeeded { customerInfo in
-                    // Returning `true` will present the paywall - show if NOT subscribed
-                    return !customerInfo.entitlements.active.keys.contains("premium")
-                } purchaseCompleted: { customerInfo in
-                    print("Purchase completed: \(customerInfo.entitlements)")
-                } restoreCompleted: { customerInfo in
-                    // Paywall will be dismissed automatically if "pro" is now active.
-                    print("Purchases restored: \(customerInfo.entitlements)")
-                }
+               
                  .onAppear {
                     // Initialize RevenueCat first
   
                     // Initialize OneSignal
                     OneSignalManager.shared.initialize()
                     
-                    // Keep local notifications as backup
-                    NotificationManager.shared.requestPermission()
-                    NotificationManager.shared.scheduleDailyNoWorkoutRoast()
-                    NotificationManager.shared.scheduleBackgroundWorkoutCheck()
+                    // Only request permissions if onboarding is complete
+                    if UserDefaults.standard.bool(forKey: "hasCompletedOnboarding") {
+                        NotificationManager.shared.requestPermission()
+                        NotificationManager.shared.scheduleDailyNoWorkoutRoast()
+                        NotificationManager.shared.scheduleBackgroundWorkoutCheck()
+                    }
+                    
                     registerBackgroundTasks()
                     
                     // Log initial memory usage

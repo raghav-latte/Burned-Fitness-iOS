@@ -11,7 +11,6 @@ struct SettingsTab: View {
     @EnvironmentObject var characterViewModel: CharacterViewModel
     @State private var roastIntensity: Double = 3.0
     @State private var notificationStyle: Int = 0
-    @State private var autoPostToX: Bool = false
     @State private var reminderFrequency: Double = 4.0
     @State private var isPaywallPresented = false
     
@@ -107,23 +106,6 @@ struct SettingsTab: View {
                             }
                         }
                         
-                        NewSettingCardView {
-                            HStack {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text("Auto-Post to X")
-                                        .font(.headline)
-                                        .foregroundColor(.white)
-                                    Text("Share your shame automatically")
-                                        .font(.caption)
-                                        .foregroundColor(.gray)
-                                }
-                                
-                                Spacer()
-                                
-                                Toggle("", isOn: $autoPostToX)
-                                    .toggleStyle(SwitchToggleStyle(tint: .orange))
-                            }
-                        }
                     }
                     .padding(.horizontal, 20)
                     
@@ -152,7 +134,6 @@ struct SettingsTab: View {
                             withAnimation {
                                 roastIntensity = 3.0
                                 notificationStyle = 0
-                                autoPostToX = false
                                 reminderFrequency = 4.0
                             }
                         }
