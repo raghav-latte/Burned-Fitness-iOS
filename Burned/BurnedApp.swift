@@ -18,29 +18,30 @@ struct BurnedApp: App {
  
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .environmentObject(healthKitManager)
-                .environmentObject(characterViewModel)
-               
-                 .onAppear {
-                    // Initialize RevenueCat first
-  
-                    // Initialize OneSignal
-                    OneSignalManager.shared.initialize()
-                    
-                    // Only request permissions if onboarding is complete
-                    if UserDefaults.standard.bool(forKey: "hasCompletedOnboarding") {
-                        NotificationManager.shared.requestPermission()
-                        NotificationManager.shared.scheduleDailyNoWorkoutRoast()
-                        NotificationManager.shared.scheduleBackgroundWorkoutCheck()
-                    }
-                    
-                    registerBackgroundTasks()
-                    
-                    // Log initial memory usage
-                    print("📊 App startup memory logging:")
-                    ElevenLabsManager.shared.logMemoryAndCacheStatus()
-                }
+            FlyingSparkView()
+//            ContentView()
+//                .environmentObject(healthKitManager)
+//                .environmentObject(characterViewModel)
+//               
+//                 .onAppear {
+//                    // Initialize RevenueCat first
+//  
+//                    // Initialize OneSignal
+//                    OneSignalManager.shared.initialize()
+//                    
+//                    // Only request permissions if onboarding is complete
+//                    if UserDefaults.standard.bool(forKey: "hasCompletedOnboarding") {
+//                        NotificationManager.shared.requestPermission()
+//                        NotificationManager.shared.scheduleDailyNoWorkoutRoast()
+//                        NotificationManager.shared.scheduleBackgroundWorkoutCheck()
+//                    }
+//                    
+//                    registerBackgroundTasks()
+//                    
+//                    // Log initial memory usage
+//                    print("📊 App startup memory logging:")
+//                    ElevenLabsManager.shared.logMemoryAndCacheStatus()
+//                }
         }
     }
     
