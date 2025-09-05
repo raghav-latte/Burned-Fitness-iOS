@@ -395,15 +395,7 @@ struct HomeTab: View {
                 }
             }
         }
-        .presentPaywallIfNeeded { customerInfo in
-            // Returning `true` will present the paywall - show if NOT subscribed
-            return !customerInfo.entitlements.active.keys.contains("premium")
-        } purchaseCompleted: { customerInfo in
-            print("Purchase completed: \(customerInfo.entitlements)")
-        } restoreCompleted: { customerInfo in
-            // Paywall will be dismissed automatically if "pro" is now active.
-            print("Purchases restored: \(customerInfo.entitlements)")
-        }
+        // Remove auto-presenting paywall - only show when user triggers actions
         .onAppear {
             healthKitManager.fetchWorkoutHistory()
             

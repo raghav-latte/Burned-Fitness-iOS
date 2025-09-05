@@ -3,6 +3,7 @@ import SwiftUI
 struct FlyingSparkView: View {
     @State private var sparks: [SparkParticle] = []
     @State private var animationTimer: Timer?
+    @State private var textScale: CGFloat = 1.0
     
     let maxSparks = 5000
     let sparkLifetime: TimeInterval = 6.0
@@ -20,15 +21,23 @@ struct FlyingSparkView: View {
                     .font(.custom("PilatWide-Heavy", size: 48))
                     .foregroundColor(.white)
                     .shadow(color: .black.opacity(0.5), radius: 2, x: 0, y: 2)
+                    .scaleEffect(textScale)
                     .position(x: geometry.size.width / 2, y: geometry.size.height / 2)
                 
             }
             .onAppear {
                 startSparkAnimation(in: geometry.size)
+                animateText()
             }
             .onDisappear {
                 stopSparkAnimation()
             }
+        }
+    }
+    
+    private func animateText() {
+        withAnimation(.easeInOut(duration: 2.0)) {
+            textScale = 1.25
         }
     }
     
@@ -60,15 +69,20 @@ struct FlyingSparkView: View {
             }
             let (startPos, endPos) = generateSimpleRandomPath(in: size, fromEdge: edge)
             
+            let sparkType: SparkType = Double.random(in: 0...1) < 0.7 ? .circle : .line
+            let hasGlow = sparkType == .circle && Double.random(in: 0...1) < 0.2
+            
             let newSpark = SparkParticle(
                 id: UUID(),
                 startPosition: startPos,
                 endPosition: endPos,
-                size: CGFloat.random(in: 3...20),
+                size: sparkType == .line ? CGFloat.random(in: 2...4) : CGFloat.random(in: 3...20),
                 opacity: Double.random(in: 0.6...1.0),
                 creationTime: Date(),
                 color: generateRandomOrange(),
-                hasGlow: Double.random(in: 0...1) < 0.2
+                hasGlow: hasGlow,
+                type: sparkType,
+                lineLength: sparkType == .line ? CGFloat.random(in: 2...6) : nil
             )
             sparks.append(newSpark)
         }
@@ -82,6 +96,11 @@ struct FlyingSparkView: View {
     }
 }
 
+enum SparkType {
+    case circle
+    case line
+}
+
 struct SparkParticle {
     let id: UUID
     let startPosition: CGPoint
@@ -91,6 +110,8 @@ struct SparkParticle {
     let creationTime: Date
     let color: Color
     let hasGlow: Bool
+    let type: SparkType
+    let lineLength: CGFloat?
 }
 
 struct SparkView: View {
@@ -99,6 +120,7 @@ struct SparkView: View {
     @State private var currentOpacity: Double
     @State private var scale: CGFloat = 0
     @State private var glowIntensity: Double = 1.0
+    @State private var rotation: Double = 0
     
     init(spark: SparkParticle) {
         self.spark = spark
@@ -108,33 +130,43 @@ struct SparkView: View {
     
     var body: some View {
         ZStack {
-            // Main spark
-            Circle()
-                .fill(
-                    RadialGradient(
-                        colors: [spark.color, spark.color.opacity(0.3), Color.clear],
-                        center: .center,
-                        startRadius: 0,
-                        endRadius: spark.size / 2
-                    )
-                )
-                .frame(width: spark.size, height: spark.size)
-                .blur(radius: spark.size > 10 ? spark.size * 0.1 : 0)
-            
-            // Variable glow effect (only for 20% of sparks)
-            if spark.hasGlow {
+            switch spark.type {
+            case .circle:
+                // Main spark
                 Circle()
                     .fill(
                         RadialGradient(
-                            colors: [spark.color.opacity(0.4 * glowIntensity), Color.clear],
+                            colors: [spark.color, spark.color.opacity(0.3), Color.clear],
                             center: .center,
                             startRadius: 0,
-                            endRadius: spark.size * 1.5
+                            endRadius: spark.size / 2
                         )
                     )
-                    .frame(width: spark.size * 3, height: spark.size * 3)
-                    .blur(radius: spark.size * 0.15)
-                    .opacity(glowIntensity)
+                    .frame(width: spark.size, height: spark.size)
+                    .blur(radius: spark.size > 10 ? spark.size * 0.1 : 0)
+                
+                // Variable glow effect (only for circle sparks with glow)
+                if spark.hasGlow {
+                    Circle()
+                        .fill(
+                            RadialGradient(
+                                colors: [spark.color.opacity(0.4 * glowIntensity), Color.clear],
+                                center: .center,
+                                startRadius: 0,
+                                endRadius: spark.size * 1.5
+                            )
+                        )
+                        .frame(width: spark.size * 3, height: spark.size * 3)
+                        .blur(radius: spark.size * 0.15)
+                        .opacity(glowIntensity)
+                }
+                
+            case .line:
+                // Simple line/capsule spark - no blur or glow
+                Capsule()
+                    .fill(spark.color)
+                    .frame(width: 0.3, height: spark.lineLength ?? 4)
+                    .rotationEffect(.degrees(rotation))
             }
         }
         .opacity(currentOpacity)
@@ -160,6 +192,13 @@ struct SparkView: View {
                     glowIntensity = 0.0
                     currentOpacity = 0
                     scale = 0.2
+                }
+                
+                // Slight rotation for line sparks only
+                if spark.type == .line {
+                    withAnimation(.linear(duration: 6.0)) {
+                        rotation = Double.random(in: -15...15)
+                    }
                 }
             }
     }
