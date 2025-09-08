@@ -82,14 +82,7 @@ struct ContentView: View {
             configureTabBarAppearance()
         }
         
-        // Splash Screen (highest priority)
-        if showSplash {
-            SplashScreenView(showSplash: $showSplash)
-                .transition(.opacity)
-                .zIndex(3)
-        }
-        // Onboarding overlay
-        else if showOnboarding {
+        if showOnboarding {
             OnboardingView(showOnboarding: $showOnboarding)
                 .transition(.move(edge: .bottom))
                 .zIndex(2)

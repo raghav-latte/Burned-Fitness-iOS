@@ -91,16 +91,9 @@ struct SplashScreenView: View {
                 textOpacity = 1.0
             }
             
-            // Scale animation with bounce effect
-            withAnimation(.spring(response: 0.8, dampingFraction: 0.6, blendDuration: 0)) {
-                textScale = 1.2
-            }
-            
-            // Additional grow effect
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                withAnimation(.easeInOut(duration: 0.5)) {
-                    textScale = 1.5
-                }
+            // Scale animation - grow 25% over 2 seconds and keep it
+            withAnimation(.easeInOut(duration: 2.0)) {
+                textScale = 1.25
             }
         }
     }

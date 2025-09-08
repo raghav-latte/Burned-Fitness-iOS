@@ -33,7 +33,13 @@ class HealthKitManager: ObservableObject {
             caloriesType
         ]
         
-        healthStore.requestAuthorization(toShare: [], read: typesToRead) { [weak self] success, error in
+        let typesToWrite: Set<HKSampleType> = [
+            stepCountType,
+            caloriesType,
+            workoutType
+        ]
+        
+        healthStore.requestAuthorization(toShare: typesToWrite, read: typesToRead) { [weak self] success, error in
             DispatchQueue.main.async {
                 self?.isAuthorized = success
                 if success {
@@ -223,6 +229,58 @@ class HealthKitManager: ObservableObject {
         }
         
         healthStore.execute(query)
+    }
+    
+    func writeTestData() {
+        writeStepCount(7542)
+        writeWorkout(duration: 42 * 60, calories: 1257)
+    }
+    
+    private func writeStepCount(_ steps: Int) {
+        let now = Date()
+        let startOfDay = Calendar.current.startOfDay(for: now)
+        let endTime = now
+        
+        let stepSample = HKQuantitySample(
+            type: stepCountType,
+            quantity: HKQuantity(unit: HKUnit.count(), doubleValue: Double(steps)),
+            start: startOfDay,
+            end: endTime
+        )
+        
+        healthStore.save(stepSample) { success, error in
+            DispatchQueue.main.async {
+                if success {
+                    print("Successfully wrote \(steps) steps to HealthKit")
+                    self.fetchStepCount()
+                } else if let error = error {
+                    print("Failed to write steps: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+    
+    private func writeWorkout(duration: TimeInterval, calories: Double) {
+        let startDate = Date().addingTimeInterval(-duration)
+        let endDate = Date()
+        
+        let workout = HKWorkout(
+            activityType: .running,
+            start: startDate,
+            end: endDate,
+            duration: duration,
+            totalEnergyBurned: HKQuantity(unit: HKUnit.kilocalorie(), doubleValue: calories),
+            totalDistance: nil,
+            metadata: nil
+        )
+        
+        healthStore.save(workout) { success, error in
+            if success {
+                print("Successfully wrote workout: \(duration/60) mins, \(calories) calories")
+            } else if let error = error {
+                print("Failed to write workout: \(error.localizedDescription)")
+            }
+        }
     }
 }
 

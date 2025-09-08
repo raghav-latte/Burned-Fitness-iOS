@@ -41,7 +41,7 @@ struct CharacterSelectionView: View {
                                 geometry: geometry
                             )
                             .tag(index)
-                        }
+                        } 
                     }
                     .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
                     .frame(height: geometry.size.height * 0.6)
