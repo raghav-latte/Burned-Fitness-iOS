@@ -6,7 +6,8 @@
       "Bash(git remote add:*)",
       "Bash(git push:*)",
       "Bash(pandoc:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(git add:*)"
     ],
     "deny": []
   }

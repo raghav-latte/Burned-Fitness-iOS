@@ -15,5 +15,22 @@
 	<array>
 		<string>PilatWide.ttf</string>
 	</array>
+	<key>NSAlarmKitUsageDescription</key>
+	<string>Burned uses alarms to motivate you with character-based wake up calls, workout reminders, and sleep time alerts.</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.niyat.Burned.alarm</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>burned</string>
+			</array>
+		</dict>
+	</array>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Burned needs microphone access to verify you're actually awake during alarm challenges.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Burned uses speech recognition to make sure you say the wake-up phrase during alarm challenges.</string>
 </dict>
 </plist>

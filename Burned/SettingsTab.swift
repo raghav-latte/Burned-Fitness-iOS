@@ -14,6 +14,12 @@ struct SettingsTab: View {
     @State private var notificationStyle: Int = 0
     @State private var reminderFrequency: Double = 4.0
     @State private var isPaywallPresented = false
+    @State private var showingAlarmSetup = false
+    
+    @available(iOS 26.0, *)
+    private var alarmManager: BurnedAlarmManager {
+        BurnedAlarmManager.shared
+    }
     
     private let notificationStyles = ["Ping me when I'm lazy", "Humiliate me publicly"]
     private let intensityEmojis = ["🙂", "😐", "😬", "🔥", "💀"]
@@ -37,6 +43,53 @@ struct SettingsTab: View {
                     .padding(.top, 20)
                     
                     VStack(spacing: 24) {
+                        // Alarms Section (iOS 26.0+)
+                        if #available(iOS 26.0, *) {
+                            NewSettingCardView {
+                                VStack(alignment: .leading, spacing: 16) {
+                                    HStack {
+                                        Text("Character Alarms")
+                                            .font(.headline)
+                                            .foregroundColor(.white)
+                                        Spacer()
+                                        Image(systemName: "alarm.fill")
+                                            .foregroundColor(.orange)
+                                    }
+                                    
+                                    Text("Let your selected character wake you up, remind you to workout, or tell you to sleep")
+                                        .font(.body)
+                                        .foregroundColor(.gray)
+                                        .multilineTextAlignment(.leading)
+                                    
+                                    Button(action: {
+                                        showingAlarmSetup = true
+                                    }) {
+                                        HStack {
+                                            Image(systemName: "plus.circle.fill")
+                                            Text("Setup Alarms")
+                                                .fontWeight(.semibold)
+                                        }
+                                        .foregroundColor(.black)
+                                        .frame(maxWidth: .infinity)
+                                        .padding(.vertical, 12)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 12)
+                                                .fill(Color.orange)
+                                        )
+                                    }
+                                    
+                                    if alarmManager.hasAlarms {
+                                        HStack {
+                                            Text("\(alarmManager.alarmsMap.count) alarms active")
+                                                .font(.caption)
+                                                .foregroundColor(.green)
+                                            Spacer()
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        
                         NewSettingCardView {
                             VStack(alignment: .leading, spacing: 16) {
                                 HStack {
@@ -192,6 +245,16 @@ struct SettingsTab: View {
         }
         .sheet(isPresented: $isPaywallPresented) {
             PaywallView(displayCloseButton: true)
+        }
+        .sheet(isPresented: $showingAlarmSetup) {
+            if #available(iOS 26.0, *) {
+                AlarmSetupView()
+            }
+        }
+        .onAppear {
+            if #available(iOS 26.0, *) {
+                alarmManager.fetchAlarms()
+            }
         }
     }
 }
