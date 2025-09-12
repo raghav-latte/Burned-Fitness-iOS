@@ -8,6 +8,8 @@ class HealthKitManager: ObservableObject {
     @Published var stepCount: Int = 0
     @Published var heartRate: Double = 0
     @Published var sleepHours: Double = 0
+    @Published var dailyCalories: Double = 0
+    @Published var exerciseMinutes: Double = 0
     @Published var latestWorkout: WorkoutData?
     @Published var workoutHistory: [WorkoutHistoryItem] = []
     
@@ -17,6 +19,7 @@ class HealthKitManager: ObservableObject {
     private let workoutType = HKObjectType.workoutType()
     private let distanceType = HKQuantityType.quantityType(forIdentifier: .distanceWalkingRunning)!
     private let caloriesType = HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned)!
+    private let exerciseTimeType = HKQuantityType.quantityType(forIdentifier: .appleExerciseTime)!
     
     func requestAuthorization() {
         guard HKHealthStore.isHealthDataAvailable() else {
@@ -30,7 +33,8 @@ class HealthKitManager: ObservableObject {
             sleepType,
             workoutType,
             distanceType,
-            caloriesType
+            caloriesType,
+            exerciseTimeType
         ]
         
         let typesToWrite: Set<HKSampleType> = [
@@ -53,6 +57,8 @@ class HealthKitManager: ObservableObject {
         fetchStepCount()
         fetchHeartRate()
         fetchSleepData()
+        fetchDailyCalories()
+        fetchExerciseTime()
         fetchLatestWorkout()
         fetchWorkoutHistory()
     }
@@ -110,6 +116,40 @@ class HealthKitManager: ObservableObject {
             
             DispatchQueue.main.async {
                 self?.sleepHours = totalSleepTime / 3600
+            }
+        }
+        
+        healthStore.execute(query)
+    }
+    
+    private func fetchDailyCalories() {
+        let calendar = Calendar.current
+        let now = Date()
+        let startOfDay = calendar.startOfDay(for: now)
+        let predicate = HKQuery.predicateForSamples(withStart: startOfDay, end: now, options: .strictStartDate)
+        
+        let query = HKStatisticsQuery(quantityType: caloriesType, quantitySamplePredicate: predicate, options: .cumulativeSum) { [weak self] _, result, _ in
+            guard let result = result, let sum = result.sumQuantity() else { return }
+            
+            DispatchQueue.main.async {
+                self?.dailyCalories = sum.doubleValue(for: HKUnit.kilocalorie())
+            }
+        }
+        
+        healthStore.execute(query)
+    }
+    
+    private func fetchExerciseTime() {
+        let calendar = Calendar.current
+        let now = Date()
+        let startOfDay = calendar.startOfDay(for: now)
+        let predicate = HKQuery.predicateForSamples(withStart: startOfDay, end: now, options: .strictStartDate)
+        
+        let query = HKStatisticsQuery(quantityType: exerciseTimeType, quantitySamplePredicate: predicate, options: .cumulativeSum) { [weak self] _, result, _ in
+            guard let result = result, let sum = result.sumQuantity() else { return }
+            
+            DispatchQueue.main.async {
+                self?.exerciseMinutes = sum.doubleValue(for: HKUnit.minute())
             }
         }
         
