@@ -16,6 +16,7 @@ struct HomeTab: View {
     @State private var selectedPersona = "🔥"
     @State private var showFullHistory = false
     @State private var showPaywall = false
+    @State private var emberTimer: Timer?
     
     private let personas = [
         ("🔥", "Savage", "No mercy mode"),
@@ -28,6 +29,8 @@ struct HomeTab: View {
         ZStack {
             Color.black.ignoresSafeArea()
               
+            // Ember/spark animation overlay - positioned above all content, covering full screen
+            EmberOverlayView()
 
             ScrollView {
                 VStack(spacing: 0) {
@@ -665,4 +668,118 @@ struct RecentWorkoutCardView: View {
         default: return .gray
         }
     }
+}
+
+// MARK: - Ember Overlay View
+struct EmberOverlayView: View {
+    @State private var embers: [Ember] = []
+    private let emberCount = 15
+    
+    init() {
+        _embers = State(initialValue: Self.generateInitialEmbers())
+    }
+    
+    var body: some View {
+        GeometryReader { geometry in
+            ZStack {
+                ForEach(embers.indices, id: \.self) { index in
+                    Circle()
+                        .fill(
+                            RadialGradient(
+                                gradient: Gradient(colors: [
+                                    Color.orange.opacity(0.9),
+                                    Color.red.opacity(0.7),
+                                    Color.clear
+                                ]),
+                                center: .center,
+                                startRadius: 0,
+                                endRadius: 3
+                            )
+                        )
+                        .frame(width: embers[index].size, height: embers[index].size)
+                        .position(
+                            x: embers[index].x,
+                            y: embers[index].y
+                        )
+                        .opacity(embers[index].opacity)
+                        .animation(
+                            .linear(duration: embers[index].duration),
+                            value: embers[index].progress
+                        )
+                        .onAppear {
+                            startEmberAnimation(index: index, in: geometry)
+                        }
+                }
+            }
+        }
+        .ignoresSafeArea()
+        .allowsHitTesting(false) // Allow touches to pass through to underlying content
+    }
+    
+    private static func generateInitialEmbers() -> [Ember] {
+        return (0..<15).map { _ in
+            Ember(
+                x: CGFloat.random(in: 0...UIScreen.main.bounds.width),
+                y: UIScreen.main.bounds.height + CGFloat.random(in: 0...100),
+                size: CGFloat.random(in: 2...5),
+                opacity: Double.random(in: 0.4...0.8),
+                duration: Double.random(in: 4...8),
+                progress: 0,
+                horizontalDrift: CGFloat.random(in: -30...30)
+            )
+        }
+    }
+    
+    private func startEmberAnimation(index: Int, in geometry: GeometryProxy) {
+        guard index < embers.count else { return }
+        
+        // Reset ember position
+        embers[index].y = geometry.size.height + CGFloat.random(in: 0...100)
+        embers[index].x = CGFloat.random(in: 0...geometry.size.width)
+        embers[index].progress = 0
+        
+        // Animate upward movement
+        withAnimation(
+            .linear(duration: embers[index].duration)
+        ) {
+            embers[index].progress = 1.0
+            embers[index].y = -50 // Move to top of screen
+            embers[index].x += embers[index].horizontalDrift // Add horizontal drift
+            embers[index].opacity = 0 // Fade out at top
+        }
+        
+        // Reset ember after animation completes
+        DispatchQueue.main.asyncAfter(deadline: .now() + embers[index].duration) {
+            resetEmber(index: index, in: geometry)
+        }
+    }
+    
+    private func resetEmber(index: Int, in geometry: GeometryProxy) {
+        guard index < embers.count else { return }
+        
+        // Create new ember at bottom
+        embers[index] = Ember(
+            x: CGFloat.random(in: 0...geometry.size.width),
+            y: geometry.size.height + CGFloat.random(in: 0...100),
+            size: CGFloat.random(in: 2...5),
+            opacity: Double.random(in: 0.4...0.8),
+            duration: Double.random(in: 4...8),
+            progress: 0,
+            horizontalDrift: CGFloat.random(in: -30...30)
+        )
+        
+        // Start new animation
+        startEmberAnimation(index: index, in: geometry)
+    }
+}
+
+// MARK: - Ember Data Model
+struct Ember {
+    var x: CGFloat
+    var y: CGFloat
+    var size: CGFloat
+    var opacity: Double
+    var duration: Double
+    var progress: Double
+    var horizontalDrift: CGFloat
 }

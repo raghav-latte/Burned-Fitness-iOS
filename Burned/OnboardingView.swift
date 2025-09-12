@@ -16,8 +16,7 @@ struct OnboardingView: View {
     @State private var triggeringWords: [String] = []
     @State private var motivationReasons: [String] = []
     @State private var wakeUpTime = Calendar.current.date(from: DateComponents(hour: 7, minute: 0)) ?? Date()
-    @State private var workoutTime = Calendar.current.date(from: DateComponents(hour: 18, minute: 0)) ?? Date()
-    @State private var bedTime = Calendar.current.date(from: DateComponents(hour: 22, minute: 0)) ?? Date()
+    @State private var sleepTime = Calendar.current.date(from: DateComponents(hour: 22, minute: 0)) ?? Date()
     @State private var hasCompletedOnboarding = false
     @Binding var showOnboarding: Bool
     @EnvironmentObject var characterViewModel: CharacterViewModel
@@ -69,10 +68,9 @@ struct OnboardingView: View {
                     )
                     .tag(5)
                     
-                    TimePreferencesPage(
+                    WakeupSleepTimesPage(
                         wakeUpTime: $wakeUpTime,
-                        workoutTime: $workoutTime,
-                        bedTime: $bedTime,
+                        sleepTime: $sleepTime,
                         onNext: nextPage
                     )
                     .tag(6)
@@ -114,8 +112,7 @@ struct OnboardingView: View {
         UserDefaults.standard.set(triggeringWords, forKey: "triggeringWords")
         UserDefaults.standard.set(motivationReasons, forKey: "motivationReasons")
         UserDefaults.standard.set(wakeUpTime, forKey: "wakeUpTime")
-        UserDefaults.standard.set(workoutTime, forKey: "workoutTime")
-        UserDefaults.standard.set(bedTime, forKey: "bedTime")
+        UserDefaults.standard.set(sleepTime, forKey: "sleepTime")
         UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
         
         // Now that onboarding is complete, set up notifications

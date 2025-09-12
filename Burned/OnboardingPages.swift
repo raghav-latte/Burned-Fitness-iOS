@@ -428,7 +428,57 @@ struct TimePreferencesPage: View {
     }
 }
 
-// MARK: - Page 7: Permissions
+// MARK: - Page 7: Wakeup and Sleep Times
+struct WakeupSleepTimesPage: View {
+    @Binding var wakeUpTime: Date
+    @Binding var sleepTime: Date
+    let onNext: () -> Void
+    
+    var body: some View {
+        VStack(spacing: 40) {
+            Spacer()
+            
+            VStack(spacing: 20) {
+                Text("Set Your Sleep Schedule")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
+                
+                Text("When do you usually wake up and go to sleep?")
+                    .font(.title3)
+                    .foregroundColor(.gray)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 30)
+            }
+            
+            VStack(spacing: 24) {
+                TimeSelectionCard(
+                    title: "Wake Up Time",
+                    icon: "sun.max.fill",
+                    time: $wakeUpTime,
+                    color: .yellow
+                )
+                
+                TimeSelectionCard(
+                    title: "Sleep Time",
+                    icon: "moon.fill",
+                    time: $sleepTime,
+                    color: .purple
+                )
+            }
+            .padding(.horizontal, 20)
+            
+            Spacer()
+            
+            OnboardingButton(title: "Continue", action: onNext)
+                .padding(.horizontal, 30)
+                .padding(.bottom, 50)
+        }
+    }
+}
+
+// MARK: - Page 8: Permissions
 struct PermissionsPage: View {
     let onComplete: () -> Void
     @State private var healthPermissionGranted = false
