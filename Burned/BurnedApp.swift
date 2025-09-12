@@ -15,32 +15,36 @@ struct BurnedApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject private var healthKitManager = HealthKitManager()
     @StateObject private var characterViewModel = CharacterViewModel()
+    @State private var showSplash = true
  
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .environmentObject(healthKitManager)
-                .environmentObject(characterViewModel)
-               
-                 .onAppear {
-                    // Initialize RevenueCat first
-  
-                    // Initialize OneSignal
-                    OneSignalManager.shared.initialize()
-                    
-                    // Only request permissions if onboarding is complete
-                    if UserDefaults.standard.bool(forKey: "hasCompletedOnboarding") {
-                        NotificationManager.shared.requestPermission()
-                        NotificationManager.shared.scheduleDailyNoWorkoutRoast()
-                        NotificationManager.shared.scheduleBackgroundWorkoutCheck()
+            if showSplash {
+                SplashScreenView(showSplash: $showSplash)
+            } else {
+                ContentView()
+                    .environmentObject(healthKitManager)
+                    .environmentObject(characterViewModel)
+                    .onAppear {
+                        // Initialize RevenueCat first
+      
+                        // Initialize OneSignal
+                        OneSignalManager.shared.initialize()
+                        
+                        // Only request permissions if onboarding is complete
+                        if UserDefaults.standard.bool(forKey: "hasCompletedOnboarding") {
+                            NotificationManager.shared.requestPermission()
+                            NotificationManager.shared.scheduleDailyNoWorkoutRoast()
+                            NotificationManager.shared.scheduleBackgroundWorkoutCheck()
+                        }
+                        
+                        registerBackgroundTasks()
+                        
+                        // Log initial memory usage
+                        print("📊 App startup memory logging:")
+                        ElevenLabsManager.shared.logMemoryAndCacheStatus()
                     }
-                    
-                    registerBackgroundTasks()
-                    
-                    // Log initial memory usage
-                    print("📊 App startup memory logging:")
-                    ElevenLabsManager.shared.logMemoryAndCacheStatus()
-                }
+            }
         }
     }
     
