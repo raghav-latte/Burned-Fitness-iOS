@@ -18,6 +18,15 @@ struct HomeTab: View {
     @State private var showPaywall = false
     @State private var emberTimer: Timer?
     
+    // Foundation model check - conditional on iOS 26.0+
+    private let foundationModelAvailable: Bool = {
+        if #available(iOS 26.0, *) {
+            return DeviceCapabilityManager.supportsFoundationModels()
+        } else {
+            return false
+        }
+    }()
+    
     private let personas = [
         ("🔥", "Savage", "No mercy mode"),
         ("😈", "Brutal", "Maximum damage"),
@@ -28,6 +37,19 @@ struct HomeTab: View {
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
+            
+            // Foundation model status overlay
+            VStack {
+                Text(foundationModelAvailable ? "🤖 Foundation Model: AVAILABLE" : "📱 Foundation Model: UNAVAILABLE")
+                    .font(.caption)
+                    .padding(8)
+                    .background(Color.black.opacity(0.7))
+                    .foregroundColor(foundationModelAvailable ? .green : .red)
+                    .cornerRadius(8)
+                    .padding(.top, 20)
+                
+                Spacer()
+            }
               
             // Ember/spark animation overlay - positioned above all content, covering full screen
             EmberOverlayView()
@@ -172,30 +194,66 @@ struct HomeTab: View {
                             print("💪 Latest workout: \(String(describing: healthKitManager.latestWorkout))")
                             print("🎭 Selected character: \(String(describing: characterViewModel.selectedCharacter?.name))")
                             
-                            // Check if user can generate roast asynchronously
-                            print("🔍 Checking if user can generate roast...")
-                            speechManager.canGenerateRoast { canGenerate in
-                                print("✅ Can generate roast: \(canGenerate)")
-                                print("📈 Daily roast count: \(speechManager.dailyRoastCount)")
-                                
-                                if !canGenerate {
+                            // Generate roast in a Task to handle async operations
+                            Task {
+                                do {
+                                    // Check if user can generate roast
+                                    print("🔍 Checking if user can generate roast...")
+                                    try await speechManager.canGenerateRoast { val in
+                                        print("✅ Can generate roast")
+                                        print("📈 Daily roast count: \(speechManager.dailyRoastCount)")
+                                        
+                                        print("🎯 Generating roast...")
+                                    }
+                                 
+                                    
+                                    // Build comprehensive fitness prompt for foundation model
+                                    var workoutSummary = ""
+                                    if let workout = healthKitManager.latestWorkout {
+                                        workoutSummary = "User did a \(workout.workoutType) workout for \(Int(workout.duration / 60)) minutes, burning \(Int(workout.calories)) calories"
+                                        if workout.distance > 0 {
+                                            workoutSummary += " over \(String(format: "%.1f", workout.distance * 1.60934)) km"
+                                        }
+                                    }
+                                    
+                                    let foundationPrompt = """
+                                    Steps today: \(healthKitManager.stepCount)
+                                    Heart rate: \(healthKitManager.heartRate > 0 ? "\(healthKitManager.heartRate) bpm" : "not measured")
+                                    Sleep hours: \(healthKitManager.sleepHours > 0 ? "\(healthKitManager.sleepHours) hours" : "not tracked")
+                                    \(workoutSummary.isEmpty ? "No major workout completed" : workoutSummary)
+                                    Character: \(characterViewModel.selectedCharacter)
+                                    """
+                                    
+                                    let roast: String
+                                    if foundationModelAvailable {
+                                        if #available(iOS 26.0, *) {
+                                            roast = try await UnifiedRoastGenerator.generateSavageRoast(prompt: foundationPrompt)
+                                        } else {
+                                            roast = RoastGenerator.generateRoast(
+                                                stepCount: healthKitManager.stepCount,
+                                                heartRate: healthKitManager.heartRate,
+                                                sleepHours: healthKitManager.sleepHours,
+                                                workoutData: healthKitManager.latestWorkout,
+                                                character: characterViewModel.selectedCharacter)
+                                        }
+                                    } else {
+                                      
+                                        roast = RoastGenerator.generateRoast(
+                                            stepCount: healthKitManager.stepCount,
+                                            heartRate: healthKitManager.heartRate,
+                                            sleepHours: healthKitManager.sleepHours,
+                                            workoutData: healthKitManager.latestWorkout,
+                                            character: characterViewModel.selectedCharacter)
+                                    }
+                                    print("📝 Generated roast: \(roast)")
+                                    
+                                    print("🗣️ Speaking roast...")
+                                    print(foundationModelAvailable ? "🤖 Using Foundation Model" : "📱 Using Library Roasts")
+                                    speechManager.speakRoast(roast)
+                                } catch {
                                     print("🚫 Daily limit exceeded - showing paywall")
                                     showPaywall = true
-                                    return
                                 }
-                                
-                                print("🎯 Generating roast...")
-                                let roast = RoastGenerator.generateRoast(
-                                    stepCount: healthKitManager.stepCount,
-                                    heartRate: healthKitManager.heartRate,
-                                    sleepHours: healthKitManager.sleepHours,
-                                    workoutData: healthKitManager.latestWorkout,
-                                    character: characterViewModel.selectedCharacter
-                                )
-                                print("📝 Generated roast: \(roast)")
-                                
-                                print("🗣️ Speaking roast...")
-                                speechManager.speakRoast(roast)
                             }
                         }) {
                             HStack(spacing: 12) {
@@ -209,7 +267,7 @@ struct HomeTab: View {
                                         .foregroundColor(.white)
                                 }
                                 
-                                Text("HEAR TODAY'S ROAST")
+                                Text(foundationModelAvailable ? "HEAR AI ROAST" : "HEAR TODAY'S ROAST")
                                     .font(.system(size: 18, weight: .bold))
                                     .foregroundColor(.white)
                             }

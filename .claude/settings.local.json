@@ -6,7 +6,15 @@
       "Bash(git remote add:*)",
       "Bash(git push:*)",
       "Bash(pandoc:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(npm run build:*)",
+      "Bash(vercel login:*)",
+      "Bash(git init:*)",
+      "Bash(git add:*)",
+      "Bash(gh repo create:*)",
+      "Bash(git clone:*)",
+      "Bash(git remote set-url:*)",
+      "Bash(git pull:*)"
     ],
     "deny": []
   }
