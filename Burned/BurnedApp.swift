@@ -16,6 +16,10 @@ struct BurnedApp: App {
     @StateObject private var healthKitManager = HealthKitManager()
     @StateObject private var characterViewModel = CharacterViewModel()
     @State private var showSplash = true
+    
+    init() {
+        registerBackgroundTasks()
+    }
  
     var body: some Scene {
         WindowGroup {
@@ -37,8 +41,6 @@ struct BurnedApp: App {
                             NotificationManager.shared.scheduleDailyNoWorkoutRoast()
                             NotificationManager.shared.scheduleBackgroundWorkoutCheck()
                         }
-                        
-                        registerBackgroundTasks()
                         
                         // Log initial memory usage
                         print("📊 App startup memory logging:")

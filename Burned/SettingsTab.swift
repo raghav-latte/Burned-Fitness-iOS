@@ -109,49 +109,7 @@ struct SettingsTab: View {
                         
                     }
                     .padding(.horizontal, 20)
-                    
-                    // Debug Section
-                    VStack(spacing: 12) {
-                        Text("Debug")
-                            .font(.headline)
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        
-                        VStack(spacing: 8) {
-                            Button("Request HealthKit Authorization") {
-                                healthKitManager.requestAuthorization()
-                            }
-                            .font(.body)
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
-                            .background(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(Color.blue.opacity(0.2))
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 12)
-                                            .stroke(Color.blue.opacity(0.5), lineWidth: 1)
-                                    )
-                            )
-                            
-                            Button("Write Test Data to HealthKit") {
-                                healthKitManager.writeTestData()
-                            }
-                            .font(.body)
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
-                            .background(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(Color.orange.opacity(0.2))
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 12)
-                                            .stroke(Color.orange.opacity(0.5), lineWidth: 1)
-                                    )
-                            )
-                        }
-                    }
-                    .padding(.horizontal, 20)
+                  
                     
                     // Legal Section
                     VStack(spacing: 12) {
