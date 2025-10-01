@@ -59,7 +59,7 @@ class HealthKitManager: ObservableObject {
         fetchSleepData()
         fetchDailyCalories()
         fetchExerciseTime()
-        fetchLatestWorkout()
+        fetchLatestWorkoutForToday()
         fetchWorkoutHistory()
     }
     
@@ -156,7 +156,7 @@ class HealthKitManager: ObservableObject {
         healthStore.execute(query)
     }
     
-    private func fetchLatestWorkout() {
+    private func fetchLatestWorkoutForToday() {
         let calendar = Calendar.current
         let now = Date()
         let startOfDay = calendar.startOfDay(for: now)
@@ -178,6 +178,7 @@ class HealthKitManager: ObservableObject {
             self?.fetchWorkoutHeartRate(for: workout) { avgHeartRate in
                 DispatchQueue.main.async {
                     self?.latestWorkout = WorkoutData(
+                        startDate: workout.startDate,
                         duration: duration,
                         distance: distance,
                         heartRate: avgHeartRate,
@@ -212,7 +213,7 @@ class HealthKitManager: ObservableObject {
     }
     
     func checkForNewWorkoutAndNotify() {
-        fetchLatestWorkout()
+        fetchLatestWorkoutForToday()
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             if let workout = self.latestWorkout {
@@ -233,6 +234,195 @@ class HealthKitManager: ObservableObject {
                 NotificationManager.shared.scheduleWorkoutRoast(roast: roast)
             }
         }
+    }
+    
+    // MARK: - Background Workout Monitoring
+    
+    private var lastKnownWorkoutDate: Date?
+    private var workoutObserverQuery: HKObserverQuery?
+    
+    func setupBackgroundWorkoutMonitoring() {
+        // Store the current latest workout date to track new ones
+        fetchLatestWorkout { [weak self] workout in
+            self?.lastKnownWorkoutDate = workout?.startDate
+        }
+        
+        // Create observer query for workout data
+        let query = HKObserverQuery(sampleType: workoutType, predicate: nil) { [weak self] _, completionHandler, error in
+            if let error = error {
+                print("Workout observer query error: \(error)")
+                completionHandler()
+                return
+            }
+            
+            print("🔥 Workout data changed - checking for new workout")
+            self?.checkForNewWorkoutInBackground(completion: { _ in
+                completionHandler()
+            })
+        }
+        
+        workoutObserverQuery = query
+        healthStore.execute(query)
+        
+        // Enable background delivery for workout data
+        enableBackgroundWorkoutDelivery()
+    }
+    
+    private func enableBackgroundWorkoutDelivery() {
+        healthStore.enableBackgroundDelivery(for: workoutType, frequency: .immediate) { [weak self] success, error in
+            if let error = error {
+                print("Failed to enable background workout delivery: \(error)")
+                return
+            }
+            
+            if success {
+                print("✅ Background workout delivery enabled")
+                // Also enable for steps and calories for comprehensive monitoring
+                self?.enableBackgroundStepDelivery()
+                self?.enableBackgroundCalorieDelivery()
+            }
+        }
+    }
+    
+    private func enableBackgroundStepDelivery() {
+        healthStore.enableBackgroundDelivery(for: stepCountType, frequency: .hourly) { success, error in
+            if let error = error {
+                print("Failed to enable background step delivery: \(error)")
+                return
+            }
+            if success {
+                print("✅ Background step delivery enabled")
+            }
+        }
+    }
+    
+    private func enableBackgroundCalorieDelivery() {
+        healthStore.enableBackgroundDelivery(for: caloriesType, frequency: .hourly) { success, error in
+            if let error = error {
+                print("Failed to enable background calorie delivery: \(error)")
+                return
+            }
+            if success {
+                print("✅ Background calorie delivery enabled")
+            }
+        }
+    }
+    
+    private func checkForNewWorkoutInBackground(completion: @escaping (Bool) -> Void) {
+        fetchLatestWorkout { [weak self] workout in
+            guard let self = self else {
+                completion(false)
+                return
+            }
+            
+            // Check if this is a new workout
+            if let workout = workout,
+               let lastKnownDate = self.lastKnownWorkoutDate {
+                
+                // If this workout is newer than our last known workout
+                if workout.startDate > lastKnownDate {
+                    print("🎉 New workout detected! \(workout.workoutType) - \(Int(workout.duration/60))min")
+                    
+                    // Update our last known workout date
+                    self.lastKnownWorkoutDate = workout.startDate
+                    
+                    // Fetch current character for personalized notification
+                    DispatchQueue.main.async {
+                        // Get current character from CharacterViewModel
+                        if let characterViewModel = self.getCharacterViewModel(),
+                           let selectedCharacter = characterViewModel.selectedCharacter {
+                            
+                            let roast = RoastGenerator.generateComprehensiveDailyRoast(
+                                stepCount: self.stepCount,
+                                heartRate: self.heartRate,
+                                sleepHours: self.sleepHours,
+                                workoutData: workout,
+                                character: selectedCharacter
+                            )
+                            
+                            // Send character-specific workout notification
+                            NotificationManager.shared.scheduleCharacterWorkoutRoast(
+                                roast: roast,
+                                characterName: selectedCharacter.name
+                            )
+                        } else {
+                            // Fallback to generic notification
+                            let roast = RoastGenerator.generateRoast(
+                                stepCount: self.stepCount,
+                                heartRate: self.heartRate,
+                                sleepHours: self.sleepHours,
+                                workoutData: workout
+                            )
+                            NotificationManager.shared.scheduleWorkoutRoast(roast: roast)
+                        }
+                        
+                        completion(true)
+                    }
+                } else {
+                    completion(false)
+                }
+            } else {
+                // First time setting up or no workout found
+                if let workout = workout {
+                    self.lastKnownWorkoutDate = workout.startDate
+                }
+                completion(false)
+            }
+        }
+    }
+    
+    private func getCharacterViewModel() -> CharacterViewModel? {
+        // Try to get the CharacterViewModel from the app's environment
+        // This is a workaround since we can't directly access @EnvironmentObject from here
+        return CharacterViewModel.shared
+    }
+    
+    func stopBackgroundWorkoutMonitoring() {
+        if let query = workoutObserverQuery {
+            healthStore.stop(query)
+            workoutObserverQuery = nil
+            print("🛑 Workout background monitoring stopped")
+        }
+        
+        // Disable background delivery
+        healthStore.disableBackgroundDelivery(for: workoutType) { success, error in
+            if let error = error {
+                print("Failed to disable background workout delivery: \(error)")
+            } else if success {
+                print("✅ Background workout delivery disabled")
+            }
+        }
+    }
+    
+    private func fetchLatestWorkout(completion: @escaping (WorkoutData?) -> Void) {
+        let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)
+        let query = HKSampleQuery(sampleType: workoutType, predicate: nil, limit: 1, sortDescriptors: [sortDescriptor]) { _, samples, _ in
+            
+            guard let workout = samples?.first as? HKWorkout else {
+                completion(nil)
+                return
+            }
+            
+            let duration = workout.duration
+            let distance = workout.totalDistance?.doubleValue(for: HKUnit.mile()) ?? 0
+            let calories = workout.totalEnergyBurned?.doubleValue(for: HKUnit.kilocalorie()) ?? 0
+            let workoutTypeString = workout.workoutActivityType.name
+            
+            // Fetch heart rate data for this workout
+            self.fetchWorkoutHeartRate(for: workout) { avgHeartRate in
+                let workoutData = WorkoutData(
+                    startDate: workout.startDate,
+                    duration: duration,
+                    distance: distance,
+                    heartRate: avgHeartRate,
+                    calories: calories,
+                    workoutType: workoutTypeString
+                )
+                completion(workoutData)
+            }
+        }
+        
+        healthStore.execute(query)
     }
     
     func fetchWorkoutHistory() {

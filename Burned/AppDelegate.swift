@@ -1,5 +1,6 @@
 import UIKit
 import RevenueCat
+import AppticsAnalytics
 
 class AppDelegate: UIResponder, UIApplicationDelegate {
     

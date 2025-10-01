@@ -17,12 +17,6 @@ struct ExploreTab: View {
     
     private let characters = Character.allCharacters
     
-    private let challenges = [
-        "Survive 30 days without excuses",
-        "Beat your laziest week record",
-        "Burn more calories than you make excuses",
-        "Take more steps than selfies"
-    ]
     
     var body: some View {
         return ZStack {
@@ -117,7 +111,7 @@ struct ExploreTab: View {
                             .multilineTextAlignment(.center)
                             .lineLimit(3)
                             .padding(.horizontal, 40)
-                            .frame(height: 40)
+                            .frame(height: 100)
                     }
                     
                     Button(action: {

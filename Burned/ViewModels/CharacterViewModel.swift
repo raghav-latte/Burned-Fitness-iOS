@@ -8,6 +8,9 @@ class CharacterViewModel: ObservableObject {
     private let userDefaults = UserDefaults.standard
     private let selectedCharacterKey = "selectedCharacterVoiceId"
     
+    // Shared instance for background access
+    static let shared = CharacterViewModel()
+    
     init() {
         loadSelectedCharacter()
     }

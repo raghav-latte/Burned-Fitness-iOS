@@ -40,6 +40,9 @@ struct BurnedApp: App {
                             NotificationManager.shared.requestPermission()
                             NotificationManager.shared.scheduleDailyNoWorkoutRoast()
                             NotificationManager.shared.scheduleBackgroundWorkoutCheck()
+                            
+                            // Setup background workout monitoring
+                            healthKitManager.setupBackgroundWorkoutMonitoring()
                         }
                         
                         // Log initial memory usage

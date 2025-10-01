@@ -70,11 +70,11 @@ struct ContentView: View {
                     Text("Settings")
                 }
             
-            SummaryTab()
-                .tabItem {
-                    Image(systemName: "chart.bar.fill")
-                    Text("Summary")
-                }
+//            SummaryTab()
+//                .tabItem {
+//                    Image(systemName: "chart.bar.fill")
+//                    Text("Summary")
+//                }
         }
         .ignoresSafeArea(.container, edges: .top)
         .accentColor(.orange)

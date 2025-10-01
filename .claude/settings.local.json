@@ -6,7 +6,10 @@
       "Bash(git remote add:*)",
       "Bash(git push:*)",
       "Bash(pandoc:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(python3:*)",
+      "Bash(xcodebuild:*)",
+      "Bash(swift:*)"
     ],
     "deny": []
   }

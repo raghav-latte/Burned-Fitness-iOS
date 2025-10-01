@@ -68,6 +68,32 @@ struct RoastCache {
             ]
         ],
         
+        "Your Ex (Female)": [
+            "low_performance": [
+                "Still choosing the couch over self-improvement. Classic you.",
+                "Your dedication to fitness matches your dedication to relationships.",
+                "Your effort's as dead as your promises to change."
+            ],
+            "medium_performance": [
+                "Getting warmer, unlike your cold heart.",
+                "Look at you actually committing to something for once.",
+                "Wow, actually showing effort. New person must be special."
+            ]
+        ],
+        
+        "Your Ex (Male)": [
+            "low_performance": [
+                "Bro, your form is still terrible and you're still not listening to my advice. Typical.",
+                "Your dedication to fitness matches your dedication to relationships.",
+                "Still failing at self-improvement, just like you failed me."
+            ],
+            "medium_performance": [
+                "Getting warmer, unlike your cold heart.",
+                "Look at you actually committing to something for once.",
+                "Finally putting in work. Wish you'd done that for us."
+            ]
+        ],
+        
         "Your Ex": [
             "low_performance": [
                 "Bro, your form is still terrible and you're still not listening to my advice. Typical.",

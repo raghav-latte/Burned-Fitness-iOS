@@ -1,6 +1,7 @@
 import Foundation
 
 struct WorkoutData {
+    let startDate: Date
     let duration: TimeInterval
     let distance: Double
     let heartRate: Double
@@ -45,36 +46,14 @@ class RoastGenerator {
             return "Time to get roasted!"
         }
         
-        // Try cached roast first for workout scenarios
-        if let workout = workoutData {
-            if let cachedRoast = RoastCache.getCachedRoast(
-                for: character,
-                stepCount: stepCount,
-                calories: workout.calories,
-                duration: workout.duration
-            ) {
-                return cachedRoast
-            }
-            
-            // Check for "Your Ex" character-specific roasts
-            if character.name == "Your Ex" {
-                return generateExRoast(stepCount: stepCount, heartRate: heartRate, sleepHours: sleepHours, workoutData: workoutData)
-            }
-            
-            return generateWorkoutRoast(workout: workout, stepCount: stepCount, heartRate: heartRate)
-        }
-        
-        // Try cached roast for no-workout scenarios
-        if let cachedRoast = RoastCache.getCachedRoast(
-            for: character,
+        // Generate comprehensive daily roast considering all activities
+        return generateComprehensiveDailyRoast(
             stepCount: stepCount,
-            calories: 0,
-            duration: 0
-        ) {
-            return cachedRoast
-        }
-        
-        return generateNoWorkoutRoast(stepCount: stepCount, heartRate: heartRate, sleepHours: sleepHours, character: character)
+            heartRate: heartRate,
+            sleepHours: sleepHours,
+            workoutData: workoutData,
+            character: character
+        )
     }
     
     static func generateExRoast(stepCount: Int, heartRate: Double, sleepHours: Double, workoutData: WorkoutData?) -> String {
@@ -304,6 +283,181 @@ class RoastGenerator {
         
         // Fall back to library-generated roasts
         return RoastLibrary.getSpecificDurationRoast(minutes: minutes, character: character)
+    }
+    
+    static func generateComprehensiveDailyRoast(
+        stepCount: Int,
+        heartRate: Double,
+        sleepHours: Double,
+        workoutData: WorkoutData?,
+        character: Character
+    ) -> String {
+        
+        let minutes = Int(workoutData?.duration ?? 0) / 60
+        let calories = Int(workoutData?.calories ?? 0)
+        let distance = workoutData?.distance ?? 0
+        
+        // Check if user has done literally nothing worth roasting
+        if stepCount < 500 && minutes == 0 && calories == 0 {
+            return generateTooLazyToRoast(character: character)
+        }
+        
+        // Generate comprehensive roast combining multiple metrics
+        var roastParts: [String] = []
+        
+        // Step-based commentary
+        if stepCount < 2000 {
+            roastParts.append(getStepCommentary(stepCount: stepCount, character: character))
+        }
+        
+        // Workout-based commentary  
+        if minutes > 0 {
+            if minutes < 15 {
+                roastParts.append(getDurationCommentary(minutes: minutes, character: character))
+            }
+            if calories < 200 && calories > 0 {
+                roastParts.append(getCalorieCommentary(calories: calories, character: character))
+            }
+        } else if stepCount >= 2000 {
+            // Has steps but no formal workout
+            roastParts.append(getNoWorkoutButStepsCommentary(stepCount: stepCount, character: character))
+        }
+        
+        // Sleep commentary if relevant
+        if sleepHours > 0 && sleepHours < 6 {
+            roastParts.append(getSleepCommentary(sleepHours: sleepHours, character: character))
+        }
+        
+        // Heart rate commentary if they worked out
+        if let workout = workoutData, workout.heartRate > 0 && workout.heartRate < 120 {
+            roastParts.append(getHeartRateCommentary(heartRate: workout.heartRate, character: character))
+        }
+        
+        // If somehow still empty, give default
+        if roastParts.isEmpty {
+            roastParts.append(RoastLibrary.getRandomRoast(from: RoastLibrary.getRoastArray(for: character, type: .noWorkout)))
+        }
+        
+        // Combine the parts into a cohesive roast
+        return combineRoastParts(roastParts, character: character)
+    }
+    
+    static func generateTooLazyToRoast(character: Character) -> String {
+        switch character.name {
+        case "Drill Sergeant":
+            return "MAGGOT! You haven't done anything worthy of a roast today! Even my disappointment needs more effort to properly form! COME BACK WHEN YOU'VE ACTUALLY MOVED!"
+            
+        case "British Narrator":
+            return "Observe this fascinating specimen who has achieved such profound inactivity that even roasting proves pointless. A truly remarkable dedication to doing absolutely nothing."
+            
+        case "Your Ex (Female)":
+            return "You know what? I'm not even wasting my energy roasting you today. You couldn't even manage to do something worth making fun of. That's a new level of pathetic."
+            
+        case "Your Ex (Male)":
+            return "Bro, seriously? Not even worth my breath today. At least when we were together you managed to disappoint me in interesting ways. This is just boring."
+            
+        case "Your Ex (Female)", "Your Ex (Male)":
+            return "You know what? I'm not even wasting my energy roasting you today. You couldn't even manage to do something worth making fun of. That's a new level of pathetic."
+            
+        default:
+            return "You haven't done enough today to even deserve a proper roast. That's impressive in its own way."
+        }
+    }
+    
+    static func getStepCommentary(stepCount: Int, character: Character) -> String {
+        return RoastLibrary.getSpecificStepRoast(stepCount: stepCount, character: character)
+    }
+    
+    static func getDurationCommentary(minutes: Int, character: Character) -> String {
+        return RoastLibrary.getSpecificDurationRoast(minutes: minutes, character: character)
+    }
+    
+    static func getCalorieCommentary(calories: Int, character: Character) -> String {
+        return RoastLibrary.getSpecificCalorieRoast(calories: calories, character: character)
+    }
+    
+    static func getSleepCommentary(sleepHours: Double, character: Character) -> String {
+        switch character.name {
+        case "Drill Sergeant":
+            return "SOLDIER! Only \(String(format: "%.1f", sleepHours)) hours of sleep? No wonder you're moving like a zombie!"
+            
+        case "British Narrator":
+            return "Remarkably, this creature functions on merely \(String(format: "%.1f", sleepHours)) hours of rest, explaining its rather sluggish locomotion."
+            
+        case "Your Ex (Female)":
+            return "Only \(String(format: "%.1f", sleepHours)) hours of sleep? Still can't manage basic self-care, I see. Some things never change."
+            
+        case "Your Ex (Male)":
+            return "Bro, \(String(format: "%.1f", sleepHours)) hours of sleep? No wonder you're performing at half capacity. Classic you."
+            
+        case "Your Ex (Female)":
+            return "\(String(format: "%.1f", sleepHours)) hours? Still can't manage basic self-care, I see. No wonder you're performing so poorly."
+            
+        default:
+            return "Only \(String(format: "%.1f", sleepHours)) hours of sleep?"
+        }
+    }
+    
+    static func getHeartRateCommentary(heartRate: Double, character: Character) -> String {
+        switch character.name {
+        case "Drill Sergeant":
+            return "Your heart rate barely reached \(Int(heartRate)) BPM! My grandmother walks faster than your 'workout'!"
+            
+        case "British Narrator":
+            return "Fascinating! A peak heart rate of merely \(Int(heartRate)) BPM during what supposedly qualifies as exercise."
+            
+        case "Your Ex (Female)":
+            return "Heart rate of \(Int(heartRate))? You're barely trying. Just like when we were together."
+            
+        case "Your Ex (Male)":
+            return "Bro, \(Int(heartRate)) BPM? I've seen more excitement watching paint dry. Put some effort in!"
+            
+        case "Your Ex (Female)":
+            return "\(Int(heartRate)) BPM? You're barely trying. Just like when we were together, putting in minimal effort."
+            
+        default:
+            return "Heart rate only reached \(Int(heartRate)) BPM?"
+        }
+    }
+    
+    static func getNoWorkoutButStepsCommentary(stepCount: Int, character: Character) -> String {
+        switch character.name {
+        case "Drill Sergeant":
+            return "\(stepCount) steps but no real workout? You think casual strolling counts as training, MAGGOT?"
+            
+        case "British Narrator":
+            return "While we observe \(stepCount) steps of ambulation, this creature lacks structured physical exertion. Peculiar behavior."
+            
+        case "Your Ex (Female)":
+            return "\(stepCount) steps but no actual workout? That's like having potential but no follow-through. Sound familiar?"
+            
+        case "Your Ex (Male)":
+            return "Bro, \(stepCount) steps but couldn't commit to a real workout? Classic commitment issues."
+            
+        case "Your Ex (Female)":
+            return "\(stepCount) steps but no actual workout? That's like having potential but no follow-through. Sound familiar?"
+            
+        default:
+            return "\(stepCount) steps but no formal workout?"
+        }
+    }
+    
+    static func combineRoastParts(_ parts: [String], character: Character) -> String {
+        if parts.count == 1 {
+            return parts[0]
+        } else if parts.count == 2 {
+            return "\(parts[0]) \(parts[1])"
+        } else {
+            let firstPart = parts[0]
+            let lastPart = parts.last!
+            let middleParts = parts.dropFirst().dropLast().joined(separator: ". ")
+            
+            if middleParts.isEmpty {
+                return "\(firstPart) \(lastPart)"
+            } else {
+                return "\(firstPart) \(middleParts). \(lastPart)"
+            }
+        }
     }
     
 }

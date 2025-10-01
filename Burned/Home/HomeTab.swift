@@ -466,6 +466,7 @@ struct RecentWorkoutCardView: View {
     var body: some View {
         Button(action: {
             let workoutData = WorkoutData(
+                startDate: workout.date,
                 duration: workout.duration,
                 distance: workout.distance,
                 heartRate: workout.heartRate,

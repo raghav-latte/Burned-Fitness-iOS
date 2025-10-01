@@ -5,214 +5,258 @@ struct RoastLibrary {
     // MARK: - Drill Sergeant Roasts
     
     static let drillSergeantNoWorkoutRoasts = [
-        "DROP AND GIVE ME ZERO! Oh wait, that's exactly what you did today!",
-        "SOLDIER! Your workout schedule is AWOL and so is your discipline!",
-        "I've seen more movement in a cemetery than in your fitness routine!",
-        "LISTEN UP! Your couch doesn't count as gym equipment, recruit!",
-        "ATTENTION! Your motivation went missing in action and never returned!",
-        "PRIVATE! Even my drill whistle gets more exercise than you do!",
-        "SIR YES SIR... said no one about your workout commitment today!",
-        "MAGGOT! Your fitness level is lower than a snake's belly!",
-        "MOVE IT MOVE IT! Oh wait, you didn't. That's the problem!"
+        "AT EASE? MORE LIKE AT LAZY! YOUR WORKOUT'S A PATHETIC DISGRACE TO EVERY GYM ON EARTH!",
+        "RECRUIT! YOUR SWEAT'S ON LEAVE, JUST LIKE YOUR SPINE'S GONE DESERTER ON DUTY!",
+        "MAGGOT! MY GRANDMA'S KNITTING MOVES MORE THAN YOUR SORRY EXCUSE FOR A BODY!",
+        "SOLDIER! YOUR GYM BAG'S COLLECTING DUST, LIKE YOUR WILLPOWER IN A COWARDLY RETREAT!",
+        "PATHETIC! EVEN A SLOTH MOCKS YOUR WORKOUT EFFORT, YOU LAZY DISGRACE TO FITNESS!",
+        "PRIVATE! YOUR EXERCISE PLAN'S BURIED DEEPER IN COWARDICE THAN A TRENCH IN WARTIME!",
+        "DISGRACEFUL! YOUR LAZINESS MAKES A ROCK LOOK LIKE AN OLYMPIC SPRINTER IN TRAINING!",
+        "ROOKIE! YOUR WORKOUT'S ABSENT, LIKE YOUR GUTS FLED THE BATTLEFIELD IN SHAME!",
+        "LISTEN UP! YOUR COUCH POTATO ACT DISHONORS EVERY GYM FROM HERE TO BOOT CAMP!",
+        "WEAKLING! YOUR INACTIVITY'S A WAR CRIME AGAINST FITNESS, YOU SPINELESS COUCH DWELLER!"
     ]
     
     static let drillSergeantStepRoasts = [
-        "PATHETIC! I've seen penguins waddle farther than your daily steps!",
-        "SOLDIER! Those steps wouldn't get you to the mess hall!",
-        "WEAK! My grandmother marches more steps in her sleep!",
-        "UNACCEPTABLE! Even statues show more movement!",
-        "DISGRACEFUL! Your step count is lower than your standards!"
+        "MAGGOT! YOUR STEP COUNT'S SO LOW, A SNAIL LAPS YOU TWICE DAILY!",
+        "RECRUIT! YOUR PATHETIC STEPS WOULDN'T REACH THE LATrine IN BOOT CAMP!",
+        "SOLDIER! MY DOG'S DAILY SCRATCH MOVES MORE THAN YOUR LAZY FEET!",
+        "WEAKLING! YOUR STEP TOTAL'S A JOKE, BARELY HITTING THE COUCH CUSHIONS!",
+        "DISGRACE! EVEN A RUSTY TANK ROLLS FARTHER THAN YOUR SORRY STRIDES!",
+        "PRIVATE! YOUR STEPS ARE SO FEW, YOU'RE PRACTICALLY GLUED TO THE GROUND!",
+        "ROOKIE! MY COFFEE MUG TRAVELS MORE THAN YOUR WORTHLESS STEP COUNT!",
+        "PATHETIC! YOUR STEPS WOULDN'T GET YOU PAST THE BARRACKS DOORSTEP!",
+        "LISTEN UP! YOUR STEP COUNT'S LOWER THAN A WORM'S CRAWL IN MUD!",
+        "COWARD! YOUR FEET MOVE LESS THAN A CORPSE IN FORMATION DRILL!"
     ]
     
     static let drillSergeantCalorieRoasts = [
-        "PITIFUL! You burned fewer calories than a birthday candle!",
-        "EMBARRASSING! That calorie burn couldn't power a flashlight!",
-        "SHAMEFUL! You've expended more energy making excuses!",
-        "WORTHLESS! Even thinking burns more calories than that workout!",
-        "ABYSMAL! Your metabolism is insulted by that effort!"
+        "MAGGOT! YOUR CALORIE BURN'S SO WEAK, A MATCHSTICK OUTSHINES YOU!",
+        "RECRUIT! THAT PATHETIC BURN COULDN'T TOAST A MARSHMALLOW IN HELL!",
+        "SOLDIER! YOUR EFFORT'S SO LOW, A SLOTH'S NAP BURNS MORE CALORIES!",
+        "WEAKLING! YOUR CALORIE COUNT'S A JOKE, BARELY WARMING A SEAT CUSHION!",
+        "DISGRACE! EVEN A HIBERNATING BEAR BURNS MORE THAN YOUR LAZY ASS!",
+        "PRIVATE! YOUR METABOLISM'S CRYING FROM THAT SORRY EXCUSE FOR A WORKOUT!",
+        "ROOKIE! YOUR CALORIE BURN'S SO TINY, A SPARK PLUG LAUGHS AT YOU!",
+        "PATHETIC! YOUR EFFORT COULDN'T POWER A LIGHTBULB IN A BLACKOUT!",
+        "LISTEN UP! YOUR CALORIE BURN'S LOWER THAN A CORPSE'S HEART RATE!",
+        "COWARD! YOUR WORKOUT'S SO WEAK, IT BARELY MELTS A SNOWFLAKE!"
     ]
     
     static let drillSergeantDurationRoasts = [
-        "QUIT! That wasn't a workout, that was a commercial break!",
-        "AMATEUR! My warm-up lasts longer than your entire session!",
-        "ROOKIE! Even bathroom breaks require more commitment!",
-        "SOFT! That duration wouldn't qualify as a power nap!",
-        "WEAK! I've seen longer blinks than that workout!"
+        "MAGGOT! YOUR WORKOUT'S SO SHORT, A SNEEZE LASTS LONGER!",
+        "RECRUIT! THAT PATHETIC SESSION COULDN'T OUTLAST A COMMERCIAL JINGLE!",
+        "SOLDIER! MY COFFEE BREAKS HAVE MORE ENDURANCE THAN YOU!",
+        "WEAKLING! YOUR WORKOUT'S SHORTER THAN A GOLDFISH'S ATTENTION SPAN!",
+        "DISGRACE! EVEN A YAWN TAKES MORE TIME THAN YOUR EFFORT!",
+        "PRIVATE! YOUR SESSION'S SO BRIEF, IT'S GONE BEFORE REVEILLE!",
+        "ROOKIE! THAT WORKOUT'S SHORTER THAN A PRIVATE'S COURAGE UNDER FIRE!",
+        "PATHETIC! YOUR EFFORT BARELY OUTLASTS A LIGHTNING STRIKE!",
+        "LISTEN UP! YOUR WORKOUT'S SO QUICK, IT'S OVER BEFORE FORMATION!",
+        "COWARD! THAT SESSION'S SHORTER THAN YOUR SPINE IN BATTLE!"
     ]
     
     // MARK: - British Narrator Roasts
     
     static let britishNarratorNoWorkoutRoasts = [
-        "And here we observe the human in their natural habitat, avoiding exercise with the dedication of a professional couch potato.",
-        "In the wild, we witness a fascinating creature that has evolved the remarkable ability to remain completely stationary for hours.",
-        "Observe this magnificent specimen, who has mastered the art of calorie conservation through absolute inactivity.",
-        "Here in their domestic environment, we see a human displaying the energy levels of a sloth on sedatives.",
-        "Notice how this particular species has developed an extraordinary relationship with horizontal surfaces.",
-        "In nature's grand design, this creature has chosen the evolutionary path of minimal movement.",
-        "Fascinating! This human has achieved what scientists call 'furniture-level mobility'.",
-        "We witness here a rare example of voluntary hibernation outside of winter months."
+        "Behold, the human in its prime, perfecting the art of inertia with the grace of a beached jellyfish.",
+        "In this serene habitat, our subject exhibits the stamina of a particularly idle barnacle.",
+        "Observe the creature's commitment to stillness, a masterpiece of evolutionary lethargy unmatched in nature.",
+        "Here lies the human, embracing a lifestyle that rivals the dynamism of a fossilised trilobite.",
+        "In the grand tapestry of life, this specimen weaves a legacy of unparalleled sedentary brilliance.",
+        "Note the human's adaptation: an exquisite ability to mimic a doormat in both form and function.",
+        "In this ecosystem, our subject thrives by expending less energy than a dormant volcano.",
+        "Fascinatingly, this creature has honed the skill of remaining as active as a wilted fern.",
+        "Witness the human, whose evolutionary niche involves bonding intimately with cushioned surfaces.",
+        "Here, we see a species that has refined the noble art of motionlessness to a tragic perfection."
     ]
     
     static let britishNarratorStepRoasts = [
-        "Remarkable! This specimen has achieved step counts that would embarrass a tree stump.",
-        "Observe the fascinating locomotion patterns - or rather, the complete absence thereof.",
-        "In the animal kingdom, even mollusks demonstrate superior mobility to this creature.",
-        "Here we see movement so minimal, geologists are taking notes for continental drift studies.",
-        "This extraordinary being has redefined what biologists consider 'stationary behavior'."
+        "Behold, a creature whose daily steps rival the mobility of a particularly sedentary coral reef.",
+        "In this habitat, our subject's stride count would make a hibernating hedgehog seem hyperactive.",
+        "Observe the human, whose footsteps are so scarce, they're studied as an evolutionary anomaly.",
+        "Fascinating! This specimen's movement is less frequent than a comet's visit to our skies.",
+        "Here, the creature demonstrates a step count that would leave a tortoise positively gobsmacked.",
+        "In nature's grand parade, this human's ambulation resembles a boulder's steadfast refusal to budge.",
+        "Note the subject's gait, so minimal it could be mistaken for a plant's photosynthetic sway.",
+        "This remarkable being moves with the urgency of a glacier in a particularly lazy epoch.",
+        "Witness the human, whose steps are so few, they're catalogued as a rare geological event.",
+        "In this ecosystem, our specimen's locomotion is outpaced by the growth of lichen on stone."
     ]
     
     static let britishNarratorCalorieRoasts = [
-        "Behold! A caloric expenditure so modest, it wouldn't fuel a hummingbird's wing flutter.",
-        "In the realm of energy consumption, this effort ranks somewhere below photosynthesis.",
-        "Scientists are baffled by this creature's ability to burn fewer calories than a hibernating bear.",
-        "This remarkable display of energy conservation would impress even the most efficient engines.",
-        "Observe this masterclass in minimal metabolic activity - truly a wonder of biology."
+        "Behold, a caloric burn so trivial, it couldn't power a firefly's faintest flicker.",
+        "In this ecosystem, our subject's energy output shames the lethargy of a dormant seed.",
+        "Observe the creature, whose calorie expenditure would leave a napping sloth utterly aghast.",
+        "Fascinating! This human's metabolic effort is outdone by a pebble's serene stillness.",
+        "Here, the specimen's calorie burn is so scant, it rivals a jellyfish's aimless drift.",
+        "In nature's ledger, this being's energy use is dwarfed by a lichen's modest existence.",
+        "Note the human, whose caloric output could scarcely warm a dewdrop at dawn.",
+        "This creature's energy expenditure is so feeble, a hibernating toad would scoff in disdain.",
+        "Witness the subject, burning fewer calories than a barnacle clinging to a sunken ship.",
+        "In this habitat, our specimen's metabolism operates with the vigor of a wilted leaf."
     ]
     
     static let britishNarratorDurationRoasts = [
-        "In the temporal realm, this exercise session existed for such a brief moment that chronometers questioned their purpose.",
-        "Scientists studying time dilation have found longer intervals in quantum mechanics.",
-        "This workout duration represents what physicists call 'the minimum measurable unit of effort'.",
-        "In the grand timeline of human achievement, this session occupies less space than a comma.",
-        "Remarkably, this creature has managed to compress an entire workout into the time it takes to sneeze."
+        "Behold, a workout so fleeting, it vanishes faster than a mayfly's lifespan in spring.",
+        "In this habitat, our subject's exercise duration is shorter than a moth's romantic tryst.",
+        "Observe the creature, whose session ends before a butterfly can flap its delicate wings.",
+        "Fascinating! This human's workout is briefer than a dewdrop's existence under morning sun.",
+        "Here, the specimen's effort lasts less time than a squirrel's pause between acorns.",
+        "In nature's chronicle, this workout's duration is outlasted by a raindrop's fall.",
+        "Note the human, whose exercise flickers out quicker than a firefly's evening glow.",
+        "This being's session is so brief, it's eclipsed by a snail's leisurely afternoon stroll.",
+        "Witness the subject, whose workout evaporates faster than mist on a summer meadow.",
+        "In this ecosystem, our specimen's effort is shorter than a dormouse's fleeting yawn."
     ]
     
     // MARK: - Your Ex (Female) Roasts
     
     static let yourExFemaleNoWorkoutRoasts = [
-        "No workout today? Just like old times - all talk, no action.",
-        "Skipping the gym again? Your consistency is as reliable as your 'I'll change' promises.",
-        "No exercise? Still choosing the couch over self-improvement. Classic you.",
-        "Rest day? More like every day is a rest day from personal growth.",
-        "No workout? I see you're still married to mediocrity.",
-        "Avoiding the gym like you avoided difficult conversations. Some habits die hard.",
-        "Zero effort today? Reminds me why we didn't work out... literally and figuratively.",
-        "No exercise again? Your dedication to fitness matches your dedication to relationships.",
-        "Skipping workouts like you skipped my calls. At least you're consistent.",
-        "Another lazy day? No wonder I upgraded.",
-        "No gym today? Still putting more effort into excuses than excellence.",
-        "Couch potato mode activated? Just like when we'd make plans and you'd cancel last minute."
+        "No workout again? Still flaking on fitness like you flaked on our dinner dates.",
+        "Skipping the gym? Your laziness is as predictable as your \"I'll call you\" lies.",
+        "Zero exercise? You're still the same slacker I dumped for someone with ambition.",
+        "Couch over gym? Typical you, choosing naps over progress like always.",
+        "No sweat today? Just like our relationship, you give up before it gets hard.",
+        "Avoiding workouts? Your commitment's as weak as your \"I'll change\" speeches.",
+        "Another rest day? You're as dedicated to fitness as you were to date night.",
+        "No gym? Still proving you can't stick to anything, not even a push-up.",
+        "Lazy again? Your effort's as nonexistent as your follow-through when we dated.",
+        "Skipping exercise? No shock—you always bailed when things required actual work."
     ]
     
     static let yourExFemaleStepRoasts = [
-        "Step count so low, just like your standards after me.",
-        "You've taken more steps backwards in life than forward today.",
-        "Wow. Still stuck in the same place, physically and emotionally.",
-        "Your step counter is as inactive as your dating profile should be.",
-        "Even your Fitbit has given up on you. I know the feeling.",
-        "Moving less than when you moved out. Progress!",
-        "Those steps wouldn't get you anywhere, just like our relationship.",
-        "Even less mobile than your emotional availability."
+        "Barely moving? Your step count's as dead as your promises to \"try harder.\"",
+        "Low steps again? Just like you, never going anywhere worth mentioning.",
+        "That step count? As pathetic as your excuses for missing our dates.",
+        "Hardly walking? You're as stagnant now as you were in our relationship.",
+        "Stalling again? Your Fitbit's as disappointed in you as I was.",
+        "Minimal steps? You're still running from effort, just like old times.",
+        "Barely mobile? Your laziness moves faster than your feet ever will.",
+        "Step count's a joke? Like your \"I'll be better\" speeches I believed."
     ]
     
     static let yourExFemaleCalorieRoasts = [
-        "Those calories? That's less energy than I spent pretending to care about your stories.",
-        "You burned fewer calories than you burned our bridge.",
-        "Even your metabolism is giving you the bare minimum.",
-        "You put more effort into stalking my Instagram than burning calories.",
-        "Congratulations, you've burned off half the wine you'll drink while crying over me tonight.",
-        "Almost as many calories as I burned deleting your photos.",
-        "Wow, actually showing effort. New person must be special."
+        "Burned so few calories? Even my eye-rolls at your excuses worked harder.",
+        "That calorie count? Lower than your effort to save our relationship.",
+        "Minimal burn? Like your promises, your metabolism's all talk, no action.",
+        "Fewer calories than I burned dodging your late-night \"you up?\" texts.",
+        "Your workout's so weak, it couldn't melt the ice in my heart.",
+        "Pathetic calorie burn? You put more energy into ghosting me back then.",
+        "That's it? My tears over your betrayal burned more than that.",
+        "Low calorie count? You're as lifeless now as our last date night.",
+        "Barely broke a sweat? Just like you barely tried to make us work.",
+        "Weak burn? You spent more energy lying to me than exercising today."
     ]
     
     static let yourExFemaleDurationRoasts = [
-        "That duration? Just like the amount of effort you put into us.",
-        "Lasted longer than your attention span in our conversations.",
-        "Still can't commit to anything, I see.",
-        "Reminds me of your emotional availability.",
-        "Your rebound relationships last longer than this.",
-        "Getting warmer, unlike your cold heart.",
-        "Look at you actually committing to something. There's a first time for everything."
+        "That workout lasted shorter than your \"I'll call you back\" promises.",
+        "So quick? Your commitment's as fleeting as your feelings for me.",
+        "Done already? You bailed faster than you did on our anniversary.",
+        "That's your workout? Briefer than your apologies after screwing up.",
+        "Short session? Like your effort to keep us from falling apart.",
+        "Over so soon? Your stamina's as weak as your relationship skills.",
+        "Barely started? You quit faster than you quit on our future.",
+        "That duration? Shorter than the time you spent actually listening to me.",
+        "Finished already? Your drive's as short-lived as our last date.",
+        "Quick workout? You put more time into dodging my texts than that."
     ]
     
     // MARK: - Your Ex (Male) Roasts
     
     static let yourExMaleNoWorkoutRoasts = [
-        "No workout today? Bro, I told you fitness was important. Guess you didn't listen then either.",
-        "Skipping the gym again? This is exactly why things didn't work out between us.",
-        "No exercise? Still making the same weak excuses you made when we were together.",
-        "Zero effort today? At least you're consistent with disappointing people.",
-        "No workout? Your commitment issues are showing again, just like before.",
-        "Rest day number what, 47? Your dedication to mediocrity is actually impressive.",
-        "No gym session? Still prioritizing Netflix over self-improvement, I see.",
-        "Avoiding exercise like you avoided difficult conversations. Some habits never change.",
-        "No workout again? This is why I had to upgrade to someone who actually tries.",
-        "Skipping fitness like you skipped our anniversary. Classic move.",
-        "No exercise today? Your follow-through is still as weak as your workout game.",
-        "Another lazy day? No wonder I had to find someone who actually cares about their health."
+        "No workout? Still slacking like you did when you bailed on our plans.",
+        "Skipping the gym? Your laziness is why I walked away from this mess.",
+        "Zero exercise? You're as stagnant now as you were in our relationship.",
+        "Couch day again? Your effort's as dead as your promises to change.",
+        "No sweat today? Just like you never broke a sweat for us.",
+        "No gym? Still failing at self-improvement, just like you failed me.",
+        "Lazy again? Your workout game's as weak as your \"I'll do better\" lies.",
+        "No exercise? Proving you're still the same letdown I dumped.",
+        "Skipping workouts? Glad I left—you're still allergic to actual effort."
     ]
     
     static let yourExMaleStepRoasts = [
-        "That step count? Even less than the effort you put into our relationship.",
-        "You've moved less than you did when I asked you to help with chores.",
-        "Still stationary, just like your career when we were dating.",
-        "Your daily movement is as minimal as your emotional growth since we broke up.",
-        "Even your Fitbit has given up, just like I did.",
-        "Those steps wouldn't get you to the gym, let alone to a better version of yourself.",
-        "Moving less than when you'd 'help' me move apartments. Remember that?",
-        "Your step count matches your motivation level - basically nonexistent."
+        "Step count that low? Even your apologies had more movement than that.",
+        "Barely walking? Just like you dragged your feet through our relationship.",
+        "Those steps? Weaker than your excuses for forgetting our date nights.",
+        "Stagnant again? Your Fitbit's as fed up as I was with you.",
+        "Steps so few? Even my dog bolted faster when you showed up.",
+        "Low steps? You're still going nowhere, just like our last argument.",
+        "Barely mobile? No shock—you always dodged effort like it was me."
     ]
     
     static let yourExMaleCalorieRoasts = [
-        "Those calories? That's less energy than you spent arguing about whose turn it was to cook.",
-        "You burned fewer calories than I burned trying to change you.",
-        "Even your metabolism is putting in minimal effort, just like you always did.",
-        "You're burning calories like you burned our relationship - slowly and ineffectively.",
-        "That calorie count is as low as your standards for personal growth.",
-        "Congratulations, you've burned off exactly one beer. Progress, I guess?",
-        "Almost as pathetic as the energy you put into remembering important dates."
+        "That calorie burn? Weaker than your effort to save our relationship.",
+        "Barely burned anything? Like your promises, your metabolism's all talk.",
+        "Low calorie count? You put more energy into dodging my calls.",
+        "Pathetic burn? Less fire than our fights over your laziness.",
+        "Weak calorie game? Just like you half-assed every date night.",
+        "Minimal burn? You're as lifeless as your \"I'll change\" speeches.",
+        "No sweat? You're still slacking, just like when I dumped you."
     ]
     
     static let yourExMaleDurationRoasts = [
-        "That workout duration? Reminds me of your attention span during serious conversations.",
-        "Lasted longer than your commitment to 'changing' for the better.",
-        "Still can't stick with anything, can you? Some things never change.",
-        "That's about as long as you'd last helping with household responsibilities.",
-        "Your workout endurance matches your relationship endurance - pretty weak.",
-        "Getting better, unlike your communication skills back then.",
-        "Look at you actually finishing something. Character development at its finest."
+        "Workout over already? Quicker than you bailed on our date nights.",
+        "That short? Your effort's as fleeting as your \"I love you\"s.",
+        "Done so soon? You quit faster than you did on us.",
+        "Brief session? Like your promises, gone before I could blink.",
+        "Short workout? Matches your stamina for fixing our relationship.",
+        "Over already? Your drive's as weak as your anniversary excuses.",
+        "Barely broke a sweat? Like you barely tried to make us work.",
+        "Quick finish? You're as unreliable now as you were then.",
+        "That duration? Shorter than your apologies after screwing up."
     ]
     
     // MARK: - The Savage Roasts
     
     static let theSavageNoWorkoutRoasts = [
-        "Your fitness level is so low, even your shadow is embarrassed to follow you around.",
-        "No workout? Your potential just filed a restraining order against you.",
-        "Congratulations! You've achieved legendary status in the Hall of Disappointment.",
-        "Your motivation died so hard, they're holding a memorial service.",
-        "I've seen more action in a senior center's wheelchair race.",
-        "Your workout schedule is more mythical than unicorns riding dragons.",
-        "Even procrastination thinks you're lazy, and that's saying something.",
-        "Your commitment to fitness makes a goldfish's memory seem impressive.",
-        "The only thing you're burning today is time and my patience.",
-        "Your energy levels make sloths look like Olympic athletes."
+        "No workout? Your laziness is so epic, it's got its own Netflix documentary.",
+        "Zero exercise? Even dust bunnies are out-hustling your sorry ass.",
+        "Skipping the gym? Your ambition's so dead, it's haunting a graveyard.",
+        "No sweat today? Your effort's so weak, it couldn't lift a feather.",
+        "Couch-locked again? Your fitness goals are basically a fairy tale now.",
+        "Sitting all day? Even a coma patient's got more hustle than you.",
+        "Zero reps? Your laziness is so legendary, Bigfoot's jealous of the myth.",
+        "No gym? Your potential's so buried, archaeologists are digging for it.",
+        "Still slacking? Your workout vibe's so weak, it's banned from gyms."
     ]
     
     static let theSavageStepRoasts = [
-        "Your step count is so pathetic, pedometers are questioning their life choices.",
-        "I've seen more movement in a game of chess.",
-        "Your steps are so few, mathematicians are using them to teach the concept of zero.",
-        "Even turtles are speed-walking past you at this point.",
-        "Your daily movement wouldn't register on a seismograph.",
-        "Snails are filing harassment complaints for being compared to your pace."
+        "Your step count's so low, it's got negative digits in the matrix.",
+        "Barely moving? Even a sloth's Zoom call has more steps than you.",
+        "That step total? It's so sad, Fitbits are holding a funeral for it.",
+        "Steps so few? A parked car's got more mileage than your legs.",
+        "Your pace? Even glaciers are dragging you for being too slow.",
+        "Hardly walking? Your step tracker's begging for early retirement.",
+        "That's your movement? A statue's got more swagger than your lazy ass.",
+        "Step count's a joke? Even a rug's seen more action than you.",
+        "Barely mobile? Your steps are so rare, they're on an endangered list."
     ]
     
     static let theSavageCalorieRoasts = [
-        "Those calories? You've burned more energy being disappointed in yourself.",
-        "That calorie count couldn't power a night light for a second.",
-        "You've expended more energy reading this roast than in your entire workout.",
-        "Your calorie burn is so low, calculators are refusing to display it.",
-        "Even your phone's battery worked harder than you did today.",
-        "That effort wouldn't melt an ice cube in the Sahara."
+        "That calorie burn? A candle's got more heat than your sorry effort.",
+        "Low calories? Your metabolism's so weak, it's filing for bankruptcy.",
+        "Barely burned anything? Even a dead battery's got more juice than you.",
+        "That calorie count? It couldn't spark a lighter in a windstorm.",
+        "Your effort? So pathetic, a sleeping hamster's burning more calories.",
+        "Low calorie game? Even a fridge light's got more power than that.",
+        "That's your burn? A wet matchstick's got more fire than you.",
+        "Minimal calories? Your effort's so small, it's invisible to microscopes.",
+        "No heat? Your calorie count's so low, it's chilling in absolute zero."
     ]
     
     static let theSavageDurationRoasts = [
-        "That workout was shorter than your attention span, and that's impressive.",
-        "I've seen longer bathroom breaks at gas stations.",
-        "Your workout timer gave up and started counting backwards.",
-        "That duration wouldn't qualify as a proper sneeze.",
-        "Even microwave meals require more time and commitment.",
-        "Your workout was so brief, time itself got confused."
+        "Workout done? That was quicker than a fruit fly's life cycle.",
+        "That short? Your session's briefer than a TikTok trend's lifespan.",
+        "Over already? Even a hiccup lasts longer than your pathetic effort.",
+        "Short workout? Your stamina's so weak, it's banned from stopwatches.",
+        "Done so soon? A lightning strike's got more staying power than you.",
+        "That duration? Even a goldfish's memory outlasts your gym time.",
+        "Quick finish? Your workout's shorter than a commercial break's credits.",
+        "Barely started? A yawn's got more commitment than your sad session.",
+        "That's it? Your effort's so brief, it's ghosted by time itself.",
+        "Over in seconds? Even a nap's got more endurance than you."
     ]
     
     // MARK: - Specific Number-Based Roasts

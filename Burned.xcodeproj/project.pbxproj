@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D73144042E8C88810021B42B /* AppticsAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = D73144032E8C88810021B42B /* AppticsAnalytics */; };
 		D7748B542E602855003218A2 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = D7748B532E602855003218A2 /* RevenueCat */; };
 		D7748B562E602855003218A2 /* RevenueCatUI in Frameworks */ = {isa = PBXBuildFile; productRef = D7748B552E602855003218A2 /* RevenueCatUI */; };
 		D78D7BEA2E61BCCD000E1449 /* AIProxy in Frameworks */ = {isa = PBXBuildFile; productRef = D78D7BE92E61BCCD000E1449 /* AIProxy */; };
@@ -49,6 +50,7 @@
 				D79FD98E2E49C804000D2333 /* OneSignalInAppMessages in Frameworks */,
 				D78D7BEA2E61BCCD000E1449 /* AIProxy in Frameworks */,
 				D79FD98C2E49C804000D2333 /* OneSignalFramework in Frameworks */,
+				D73144042E8C88810021B42B /* AppticsAnalytics in Frameworks */,
 				D7748B542E602855003218A2 /* RevenueCat in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -106,6 +108,7 @@
 				D7748B532E602855003218A2 /* RevenueCat */,
 				D7748B552E602855003218A2 /* RevenueCatUI */,
 				D78D7BE92E61BCCD000E1449 /* AIProxy */,
+				D73144032E8C88810021B42B /* AppticsAnalytics */,
 			);
 			productName = Burned;
 			productReference = D79FD9572E49BDD1000D2333 /* Burned.app */;
@@ -139,6 +142,7 @@
 				D79FD98A2E49C804000D2333 /* XCRemoteSwiftPackageReference "OneSignal-iOS-SDK" */,
 				D7748B522E602855003218A2 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */,
 				D78D7BE82E61BCCD000E1449 /* XCRemoteSwiftPackageReference "AIProxySwift" */,
+				D73144022E8C88810021B42B /* XCRemoteSwiftPackageReference "Apptics-SP" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D79FD9582E49BDD1000D2333 /* Products */;
@@ -315,7 +319,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.2;
+				MARKETING_VERSION = 1.1.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.niyat.Burned;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -349,7 +353,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.2;
+				MARKETING_VERSION = 1.1.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.niyat.Burned;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -384,6 +388,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		D73144022E8C88810021B42B /* XCRemoteSwiftPackageReference "Apptics-SP" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/zoho/Apptics-SP";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.3.1;
+			};
+		};
 		D7748B522E602855003218A2 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/RevenueCat/purchases-ios-spm.git";
@@ -411,6 +423,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		D73144032E8C88810021B42B /* AppticsAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D73144022E8C88810021B42B /* XCRemoteSwiftPackageReference "Apptics-SP" */;
+			productName = AppticsAnalytics;
+		};
 		D7748B532E602855003218A2 /* RevenueCat */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = D7748B522E602855003218A2 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */;

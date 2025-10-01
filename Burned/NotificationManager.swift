@@ -97,6 +97,44 @@ class NotificationManager: ObservableObject {
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ["daily-no-workout-roast", "brutal-daily-roast"])
     }
     
+    func scheduleCharacterWorkoutRoast(roast: String, characterName: String) {
+        let content = UNMutableNotificationContent()
+        
+        // Character-specific notification titles and emojis
+        switch characterName {
+        case "Drill Sergeant":
+            content.title = "🪖 DRILL SERGEANT REPORT"
+        case "British Narrator":
+            content.title = "🎙️ Fitness Observations"
+        case "Your Ex (Female)":
+            content.title = "💔 Your Ex Called"
+        case "Your Ex (Male)":
+            content.title = "💪 Your Ex Texted"
+        case "The Savage":
+            content.title = "🔥 BRUTAL BURN"
+        default:
+            content.title = "🔥 Burned"
+        }
+        
+        content.body = roast
+        content.sound = .default
+        content.badge = 1
+        
+        // Add category for better notification handling
+        content.categoryIdentifier = "WORKOUT_ROAST"
+        
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
+        let request = UNNotificationRequest(identifier: "character-workout-roast-\(UUID())", content: content, trigger: trigger)
+        
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error {
+                print("Error scheduling character workout notification: \(error)")
+            } else {
+                print("✅ Character workout notification sent: \(characterName)")
+            }
+        }
+    }
+    
     func sendTestNotification() {
         let testRoasts = [
             "Test roast: Your motivation is currently under construction... indefinitely.",
