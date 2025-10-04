@@ -66,16 +66,16 @@ struct BurnedApp: App {
             task.setTaskCompleted(success: false)
         }
         
+        // Check for new workouts immediately without delay
         healthKitManager.checkForNewWorkoutAndNotify()
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-            task.setTaskCompleted(success: true)
-        }
+        // Complete task immediately for faster response
+        task.setTaskCompleted(success: true)
     }
     
     private func scheduleNextBackgroundCheck() {
         let request = BGAppRefreshTaskRequest(identifier: "com.niyat.Burned.workout-check")
-        request.earliestBeginDate = Date(timeIntervalSinceNow: 4 * 60 * 60) // 4 hours
+        request.earliestBeginDate = Date(timeIntervalSinceNow: 2 * 60 * 60) // 2 hours (more frequent)
         
         try? BGTaskScheduler.shared.submit(request)
     }

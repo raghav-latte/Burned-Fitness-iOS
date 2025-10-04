@@ -23,13 +23,116 @@ class NotificationManager: ObservableObject {
         content.body = roast
         content.sound = .default
         content.badge = 1
+        content.userInfo = ["type": "workout_completion", "timestamp": Date().timeIntervalSince1970]
         
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
+        // Immediate trigger for Strava-like delivery
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 0.1, repeats: false)
         let request = UNNotificationRequest(identifier: "workout-roast-\(UUID())", content: content, trigger: trigger)
         
         UNUserNotificationCenter.current().add(request) { error in
             if let error = error {
                 print("Error scheduling notification: \(error)")
+            } else {
+                print("✅ Strava-style workout notification scheduled immediately")
+            }
+        }
+    }
+    
+    func scheduleImmediateWorkoutRoast(roast: String, characterName: String? = nil) {
+        // Small, targeted notification with roasty title
+        let content = UNMutableNotificationContent()
+        
+        // Character-specific roasty title
+        if let character = characterName {
+            // Character-specific titles that match their personality
+            switch character.lowercased() {
+            case "drill sergeant":
+                content.title = "MAGGOT! 🪖"
+            case "british narrator":
+                content.title = "Remarkably... 🎙️"
+            case "your ex (female)":
+                content.title = "Remember when? 💔"
+            case "your ex (male)":
+                content.title = "Pathetic effort 💪"
+            default:
+                content.title = "\(character) 🔥"
+            }
+        } else {
+            // More roasty generic titles
+            let roastyTitles = [
+                "Burned! 🔥",
+                "Sizzled! ⚡",
+                "Toasted! 🍞",
+                "Ouch! 😏",
+                "Finally... 🙄"
+            ]
+            content.title = roastyTitles.randomElement() ?? "Burned! 🔥"
+        }
+        
+        // Make body shorter and punchier
+        content.body = roast
+        content.sound = .default  // Less aggressive than critical
+        content.badge = 1
+        content.userInfo = ["type": "workout_completion", "character": characterName ?? "default", "timestamp": Date().timeIntervalSince1970]
+        
+        // Send immediately without trigger
+        let request = UNNotificationRequest(identifier: "immediate-workout-\(UUID())", content: content, trigger: nil)
+        
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error {
+                print("Error sending immediate notification: \(error)")
+            } else {
+                print("✨ Roasty immediate notification sent!")
+            }
+        }
+    }
+    
+    func scheduleSmallWorkoutRoast(roast: String, characterName: String? = nil) {
+        // Even smaller, more concise notification with roasty title
+        let content = UNMutableNotificationContent()
+        
+        // Character-specific roasty title
+        if let character = characterName {
+            // Character-specific titles that match their personality
+            switch character.lowercased() {
+            case "drill sergeant":
+                content.title = "DROP AND GIVE ME 20! 🪖"
+            case "british narrator":
+                content.title = "And so it begins... 🎙️"
+            case "your ex (female)":
+                content.title = "Oh, you finally showed up 💔"
+            case "your ex (male)":
+                content.title = "Still weak, I see 💪"
+            default:
+                content.title = "\(character) 🔥"
+            }
+        } else {
+            // Generic roasty titles
+            let roastyTitles = [
+                "Burned! 🔥",
+                "Ouch! 😏",
+                "Toasty! 🍞",
+                "Sizzled! ⚡",
+                "Well, well... 🤔",
+                "Finally! 🙄",
+                "About time! ⏰",
+                "Seriously? 😬"
+            ]
+            content.title = roastyTitles.randomElement() ?? "Burned! 🔥"
+        }
+        
+        content.body = roast.count > 50 ? String(roast.prefix(47)) + "..." : roast
+        content.sound = .default
+        content.badge = 1
+        content.userInfo = ["type": "workout_completion", "character": characterName ?? "default"]
+        
+        let request = UNNotificationRequest(identifier: "quick-workout-\(UUID())", content: content, trigger: nil)
+        
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error {
+                print("Error scheduling small notification: \(error)")
+            } else {
+                print("💫 Roasty notification sent!")
             }
         }
     }

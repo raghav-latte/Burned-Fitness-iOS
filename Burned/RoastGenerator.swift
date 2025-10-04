@@ -285,6 +285,50 @@ class RoastGenerator {
         return RoastLibrary.getSpecificDurationRoast(minutes: minutes, character: character)
     }
     
+    static func generateShortWorkoutRoast(
+        stepCount: Int,
+        heartRate: Double,
+        sleepHours: Double,
+        workoutData: WorkoutData?,
+        character: Character? = nil
+    ) -> String {
+        let minutes = Int(workoutData?.duration ?? 0) / 60
+        let calories = Int(workoutData?.calories ?? 0)
+        let workoutType = workoutData?.workoutType ?? "workout"
+        
+        // Short, punchy roasts based on character
+        if let character = character {
+            switch character.name.lowercased() {
+            case "drill sergeant":
+                return minutes > 45 ? "You call that a workout? MAGGOT!" : "Pathetic! Try harder!"
+            case "british narrator":
+                return minutes > 30 ? "Remarkably, you didn't quit" : "The creature attempts to exercise..."
+            case "your ex (female)":
+                return minutes > 40 ? "Oh, so you CAN commit to something" : "Still the same quitter I remember"
+            case "your ex (male)":
+                return minutes > 35 ? "Bet you think you're strong now" : "I expected better, honestly"
+            default:
+                return shortWorkoutRoasts.randomElement() ?? "Nice work!"
+            }
+        }
+        
+        // Generic short roasts
+        return shortWorkoutRoasts.randomElement() ?? "Nice work!"
+    }
+    
+    private static let shortWorkoutRoasts = [
+        "Finally showed up! 🔥",
+        "Not bad for a start!",
+        "Burned it! 🚀",
+        "Sweat is just fat crying!",
+        "You didn't quit! ✨",
+        "That's how it's done!",
+        "Boom! Workout done!",
+        "Level up! 🎮",
+        "On fire today! 🔥",
+        "No excuses! 💪"
+    ]
+    
     static func generateComprehensiveDailyRoast(
         stepCount: Int,
         heartRate: Double,

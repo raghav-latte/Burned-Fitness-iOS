@@ -9,7 +9,10 @@
       "WebSearch",
       "Bash(python3:*)",
       "Bash(xcodebuild:*)",
-      "Bash(swift:*)"
+      "Bash(swift:*)",
+      "Bash(find:*)",
+      "Read(//Users/raghavsethi/Downloads/BuildingAWorkoutAppForIPhoneAndIPad/**)",
+      "Bash(git checkout:*)"
     ],
     "deny": []
   }

@@ -215,7 +215,60 @@ class HealthKitManager: ObservableObject {
     func checkForNewWorkoutAndNotify() {
         fetchLatestWorkoutForToday()
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+        // Remove delay for immediate response like Strava
+        DispatchQueue.main.async {
+            // Get current character for personalized notification
+            let characterViewModel = self.getCharacterViewModel()
+            let selectedCharacter = characterViewModel?.selectedCharacter
+            
+            if let workout = self.latestWorkout {
+                var roast: String
+                if let character = selectedCharacter {
+                    // Character-specific SHORT roast
+                    roast = RoastGenerator.generateShortWorkoutRoast(
+                        stepCount: self.stepCount,
+                        heartRate: self.heartRate,
+                        sleepHours: self.sleepHours,
+                        workoutData: workout,
+                        character: character
+                    )
+                    NotificationManager.shared.scheduleSmallWorkoutRoast(roast: roast, characterName: character.name)
+                    print("🎭 Character SHORT workout notification sent: \(character.name)")
+                } else {
+                    // Generic SHORT roast
+                    roast = RoastGenerator.generateShortWorkoutRoast(
+                        stepCount: self.stepCount,
+                        heartRate: self.heartRate,
+                        sleepHours: self.sleepHours,
+                        workoutData: workout
+                    )
+                    NotificationManager.shared.scheduleSmallWorkoutRoast(roast: roast)
+                    print("🏃‍♂️ Immediate SHORT workout notification sent!")
+                }
+            } else {
+                let roast = RoastGenerator.generateNoWorkoutRoast(
+                    stepCount: self.stepCount,
+                    heartRate: self.heartRate,
+                    sleepHours: self.sleepHours,
+                    character: selectedCharacter
+                )
+                
+                if let character = selectedCharacter {
+                    NotificationManager.shared.scheduleSmallWorkoutRoast(roast: roast, characterName: character.name)
+                } else {
+                    NotificationManager.shared.scheduleSmallWorkoutRoast(roast: roast)
+                }
+            }
+        }
+    }
+    
+    // MARK: - Strava-like Immediate Workout Notifications
+    
+    /// Manually trigger workout completion notification (like Strava)
+    func triggerWorkoutCompletionNotification() {
+        fetchLatestWorkoutForToday()
+        
+        DispatchQueue.main.async {
             if let workout = self.latestWorkout {
                 let roast = RoastGenerator.generateRoast(
                     stepCount: self.stepCount,
@@ -224,22 +277,20 @@ class HealthKitManager: ObservableObject {
                     workoutData: workout
                 )
                 NotificationManager.shared.scheduleWorkoutRoast(roast: roast)
-            } else {
-                let roast = RoastGenerator.generateNoWorkoutRoast(
-                    stepCount: self.stepCount,
-                    heartRate: self.heartRate,
-                    sleepHours: self.sleepHours,
-                    character: nil // Will use default roast when character is nil
-                )
-                NotificationManager.shared.scheduleWorkoutRoast(roast: roast)
+                print("🏃‍♂️ Strava-like workout completion notification triggered!")
+                
+                // Update last known workout date to prevent duplicates
+                self.lastKnownWorkoutDate = workout.startDate
             }
         }
     }
     
-    // MARK: - Background Workout Monitoring
+    // MARK: - Active Workout Session Monitoring
     
     private var lastKnownWorkoutDate: Date?
     private var workoutObserverQuery: HKObserverQuery?
+    private var activeWorkoutSessions: Set<UUID> = []
+    private var workoutSessionQuery: HKObserverQuery?
     
     func setupBackgroundWorkoutMonitoring() {
         // Store the current latest workout date to track new ones
@@ -266,6 +317,9 @@ class HealthKitManager: ObservableObject {
         
         // Enable background delivery for workout data
         enableBackgroundWorkoutDelivery()
+        
+        // Setup active workout session monitoring for Strava-like detection
+        setupActiveWorkoutSessionMonitoring()
     }
     
     private func enableBackgroundWorkoutDelivery() {
@@ -308,6 +362,119 @@ class HealthKitManager: ObservableObject {
         }
     }
     
+    // MARK: - Active Workout Session Monitoring
+    
+    private func setupActiveWorkoutSessionMonitoring() {
+        // Monitor for active workout changes
+        workoutSessionQuery = HKObserverQuery(sampleType: workoutType, predicate: nil) { [weak self] _, completionHandler, error in
+            if let error = error {
+                print("Workout session query error: \(error)")
+                completionHandler()
+                return
+            }
+            
+            print("🏃‍♂️ Checking active workout sessions...")
+            self?.monitorActiveWorkoutSessions()
+            completionHandler()
+        }
+        
+        healthStore.execute(workoutSessionQuery!)
+    }
+    
+    private func monitorActiveWorkoutSessions() {
+        let now = Date()
+        let predicate = HKQuery.predicateForSamples(withStart: Date.distantPast, end: now, options: .strictStartDate)
+        
+        let query = HKSampleQuery(sampleType: workoutType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)]) { [weak self] _, samples, _ in
+            guard let samples = samples as? [HKWorkout] else { return }
+            
+            let currentSessions = Set(samples.map { $0.uuid })
+            let knownSessions = self?.activeWorkoutSessions ?? Set()
+            
+            // Detect completed workouts (sessions that are no longer active)
+            let completedSessions = knownSessions.subtracting(currentSessions)
+            
+            if !completedSessions.isEmpty {
+                print("🔥 Detected \(completedSessions.count) completed workout session(s)!")
+                
+                // Get the most recent completed workout
+                let recentWorkouts = samples.filter { completedSessions.contains($0.uuid) }
+                if let mostRecentWorkout = recentWorkouts.sorted(by: { $0.endDate > $1.endDate }).first {
+                    self?.handleWorkoutCompletion(workout: mostRecentWorkout)
+                }
+            }
+            
+            // Update active sessions
+            self?.activeWorkoutSessions = currentSessions
+            
+            // If we have active workouts, check for completion more frequently
+            if !currentSessions.isEmpty {
+                print("🏃‍♂️ \(currentSessions.count) active workout session(s) detected")
+            }
+        }
+        
+        healthStore.execute(query)
+    }
+    
+    private func handleWorkoutCompletion(workout: HKWorkout) {
+        print("🎯 Workout completed: \(workout.workoutActivityType.name) - Duration: \(Int(workout.duration/60))min")
+        
+        // This line is not needed, remove the unnecessary HKWorkout creation
+        
+        // Generate and send roast immediately
+        let duration = workout.duration
+        let distance = workout.totalDistance?.doubleValue(for: HKUnit.mile()) ?? 0
+        let calories = workout.totalEnergyBurned?.doubleValue(for: HKUnit.kilocalorie()) ?? 0
+        let workoutTypeString = workout.workoutActivityType.name
+        
+        let workoutStruct = WorkoutData(
+            startDate: workout.startDate,
+            duration: duration,
+            distance: distance,
+            heartRate: 0, // Will be fetched asynchronously if needed
+            calories: calories,
+            workoutType: workoutTypeString
+        )
+        
+        // Send immediate notification - Strava-like with character awareness!
+        DispatchQueue.main.async {
+            // Get current character for personalized notification
+            let characterViewModel = self.getCharacterViewModel()
+            let selectedCharacter = characterViewModel?.selectedCharacter
+            
+            var roast: String
+            if let character = selectedCharacter {
+                // Character-specific SHORT roast
+                roast = RoastGenerator.generateShortWorkoutRoast(
+                    stepCount: self.stepCount,
+                    heartRate: self.heartRate,
+                    sleepHours: self.sleepHours,
+                    workoutData: workoutStruct,
+                    character: character
+                )
+                
+                // Send character-specific notification
+                NotificationManager.shared.scheduleSmallWorkoutRoast(roast: roast, characterName: character.name)
+                print("🎭 Character-specific SHORT notification sent for: \(character.name)")
+            } else {
+                // Default SHORT roast
+                roast = RoastGenerator.generateShortWorkoutRoast(
+                    stepCount: self.stepCount,
+                    heartRate: self.heartRate,
+                    sleepHours: self.sleepHours,
+                    workoutData: workoutStruct
+                )
+                
+                // Send generic notification
+                NotificationManager.shared.scheduleSmallWorkoutRoast(roast: roast)
+                print("🔥 Generic SHORT workout notification sent")
+            }
+            
+            // Update last known workout date
+            self.lastKnownWorkoutDate = workout.startDate
+        }
+    }
+    
     private func checkForNewWorkoutInBackground(completion: @escaping (Bool) -> Void) {
         fetchLatestWorkout { [weak self] workout in
             guard let self = self else {
@@ -340,22 +507,23 @@ class HealthKitManager: ObservableObject {
                                 character: selectedCharacter
                             )
                             
-                            // Send character-specific workout notification
-                            NotificationManager.shared.scheduleCharacterWorkoutRoast(
+                            // Send character-specific small notification immediately
+                            NotificationManager.shared.scheduleSmallWorkoutRoast(
                                 roast: roast,
                                 characterName: selectedCharacter.name
                             )
                         } else {
-                            // Fallback to generic notification
+                            // Fallback to generic small notification
                             let roast = RoastGenerator.generateRoast(
                                 stepCount: self.stepCount,
                                 heartRate: self.heartRate,
                                 sleepHours: self.sleepHours,
                                 workoutData: workout
                             )
-                            NotificationManager.shared.scheduleWorkoutRoast(roast: roast)
+                            NotificationManager.shared.scheduleSmallWorkoutRoast(roast: roast)
                         }
                         
+                        print("🔥 Strava-like workout notification sent immediately!")
                         completion(true)
                     }
                 } else {
