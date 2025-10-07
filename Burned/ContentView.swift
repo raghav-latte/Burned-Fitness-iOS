@@ -64,6 +64,16 @@ struct ContentView: View {
                     Text("Explore")
                 }
             
+                if #available(iOS 26.0, *) {
+                    WorkoutsTab()
+                        .tabItem {
+                            Image(systemName: "figure.run")
+                            Text("Workouts")
+                        }
+                } else {
+                    // Fallback on earlier versions
+                }
+            
             SettingsTab()
                 .tabItem {
                     Image(systemName: "gearshape.fill")
