@@ -57,13 +57,8 @@ struct ContentView: View {
                     Image(systemName: "house.fill")
                     Text("Home")
                 }
-            
-            ExploreTab()
-                .tabItem {
-                    Image(systemName: "safari.fill")
-                    Text("Explore")
-                }
-            
+                
+                
                 if #available(iOS 26.0, *) {
                     WorkoutsTab()
                         .tabItem {
@@ -73,6 +68,15 @@ struct ContentView: View {
                 } else {
                     // Fallback on earlier versions
                 }
+                
+                
+            ExploreTab()
+                .tabItem {
+                    Image(systemName: "safari.fill")
+                    Text("Explore")
+                }
+            
+               
             
             SettingsTab()
                 .tabItem {
